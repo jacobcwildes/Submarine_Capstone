@@ -1,0 +1,11 @@
+controller-gui will subscribe to the data and camera - sync them and then make a pretty display controller side
+
+rov-data-pub will publish data that the ROV side pi is acquiring from sensors (controller-gui will grab this data and make it human readable)
+
+cam is a ros2 foxy provided node from imagetools (cam2image) - no writing necessary. controller-gui will grab this and display it con side
+
+rov-command-sub will subscribe to commands published by the controller
+
+Important note: colcon may need the prereq downloaded like so: sudo apt install python3-colcon-common-extensions
+
+There will be two separate ROS2 launch files to start the ROV nodes on the ROV Pi, and to start the controller file on the other
