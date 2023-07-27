@@ -9,3 +9,6 @@ rov-command-sub will subscribe to commands published by the controller
 Important note: colcon may need the prereq downloaded like so: sudo apt install python3-colcon-common-extensions
 
 There will be two separate ROS2 launch files to start the ROV nodes on the ROV Pi, and to start the controller file on the other
+
+Would be beneficial to install rosdep
+Also install usb-cam (sudo apt install ros-foxy-usb-cam)
