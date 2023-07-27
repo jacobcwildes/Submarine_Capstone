@@ -12,3 +12,5 @@ There will be two separate ROS2 launch files to start the ROV nodes on the ROV P
 
 Would be beneficial to install rosdep
 Also install usb-cam (sudo apt install ros-foxy-usb-cam)
+
+Should also install pil image tk (sudo apt-get install python3-pil python3.imagetk)
