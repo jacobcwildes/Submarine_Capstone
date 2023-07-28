@@ -35,7 +35,10 @@ class GUI(Node):
         #an OpenCV image format
         self.Bridge = CvBridge()
         
-        self.tk_gui = TK_GUI()
+        #Tkinter (GUI)
+        self.root = tk.Tk()
+        self.root.title("Submarine View")
+        self.panelA = None
         
     #This will eventually be time synchronized with incoming sub metrics
     def cam_callback(self, cam_sub): #Data will be passed here too
@@ -51,29 +54,21 @@ class GUI(Node):
         #Convert from PIL to ImageTk format (what actually gets displayed)
         tk_img = PIL.ImageTk.PhotoImage(PIL_img)
         
-        
-class TK_GUI(GUI):
-    def __init__(self):
-        #Tkinter (GUI)
-        self.root = tk.Tk()
-        self.root.title("Submarine View")
-        self.panelA = None
-        self.root.update()
-    #Work to display will be shown here
-    
-    def TK(self, img):
+        #Work to display will be shown here
         #Init panels at start
         if self.panelA is None:
-            self.panelA.Label(image=img)
-            self.panelA.image = img
+            self.panelA = tk.Label(image=tk_img)
+            self.panelA.image = tk_img
             self.panelA.pack(expand=True)
         
         #If already intitialized, update
         else:
-            self.panelA.configure(image=img)
-            self.panelA.image = img
+            self.panelA.configure(image=tk_img)
+            self.panelA.image = tk_img
             
+        self.root.update()
         
+  
 def main(args=None):
     rclpy.init(args=args)
     gui_obj = GUI()
