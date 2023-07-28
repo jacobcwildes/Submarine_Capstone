@@ -11,8 +11,7 @@ from cv_bridge import CvBridge
 import numpy as np
 
 #Import GUI
-from tkinter import *
-from tkinter import ttk
+import tkinter as tk
 import PIL.Image
 import PIL.ImageTk
 
@@ -22,8 +21,13 @@ class GUI(Node):
         super().__init__('controller_gui')
         
         #Make an object that holds subscription info for the cam
-        self.cam_sub = self.create_subscription(Image, "camera/image", self.cam_callback, 10)
+        self.cam_sub = Subscriber(self, Image, "camera/image")
+        cache = message_filters.Cache(self.cam_sub, 10)
+        cache.registerCallback(self.cam_callback)
         
+        self.subscription = self.create_subscription(Image, 'camera/image', 
+                                                    self.cam_callback, 10)
+        self.subscription
         #Data subscription will go here
         
         
@@ -44,10 +48,10 @@ class GUI(Node):
         RGB_img = cv.cvtColor(convert_image, cv.COLOR_BGR2RGB)
         
         #Convert images to PIL format
-        PIL_img = Image.fromarray(RGB_img)
+        PIL_img = PIL.Image.fromarray(RGB_img)
         
         #Convert from PIL to ImageTk format (what actually gets displayed)
-        tk_img = ImageTk.PhotoImage(PIL_img)
+        tk_img = PIL.ImageTk.PhotoImage(PIL_img)
         
     #Work to display will be shown here
     def tk(self, img):
