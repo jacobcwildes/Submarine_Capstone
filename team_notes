@@ -14,3 +14,5 @@ Would be beneficial to install rosdep
 Also install usb-cam (sudo apt install ros-foxy-usb-cam)
 
 Should also install pil image tk (sudo apt-get install python3-pil python3.imagetk)
+
+Dyllon wants the commands to come as a struct (maybe a string to the controller pi, then a custom ros2 message that broadcasts down to the sub?)

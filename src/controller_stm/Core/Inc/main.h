@@ -83,20 +83,20 @@ void Error_Handler(void);
 #define SMPS_SW_GPIO_Port GPIOA
 #define LD4_Pin GPIO_PIN_13
 #define LD4_GPIO_Port GPIOB
-#define Screenshot_Pin GPIO_PIN_6
-#define Screenshot_GPIO_Port GPIOC
-#define Sub_Up_Pin GPIO_PIN_7
-#define Sub_Up_GPIO_Port GPIOC
-#define Sub_Down_Pin GPIO_PIN_8
-#define Sub_Down_GPIO_Port GPIOC
-#define Power_LED_Pin GPIO_PIN_9
-#define Power_LED_GPIO_Port GPIOC
+#define Sub_Up_Pin GPIO_PIN_12
+#define Sub_Up_GPIO_Port GPIOA
 #define TMS_Pin GPIO_PIN_13
 #define TMS_GPIO_Port GPIOA
 #define TCK_Pin GPIO_PIN_14
 #define TCK_GPIO_Port GPIOA
 #define SWO_Pin GPIO_PIN_3
 #define SWO_GPIO_Port GPIOB
+#define Sub_Down_Pin GPIO_PIN_5
+#define Sub_Down_GPIO_Port GPIOB
+#define Power_LED_Pin GPIO_PIN_6
+#define Power_LED_GPIO_Port GPIOB
+#define Screenshot_Pin GPIO_PIN_7
+#define Screenshot_GPIO_Port GPIOB
 
 /* USER CODE BEGIN Private defines */
 
