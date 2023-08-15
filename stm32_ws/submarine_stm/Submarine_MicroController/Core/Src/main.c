@@ -106,7 +106,7 @@ int main(void)
   MX_USART3_UART_Init();
   MX_USB_OTG_FS_PCD_Init();
   /* USER CODE BEGIN 2 */
-
+	uint8_t data[] = "HELLO WORLD \r\n";
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -114,7 +114,8 @@ int main(void)
   while (1)
   {
     /* USER CODE END WHILE */
-
+		HAL_USART_Transmit (&huart2, data, sizeof(data), 10);
+		HAL_Delay(1000);
     /* USER CODE BEGIN 3 */
   }
   /* USER CODE END 3 */
