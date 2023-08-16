@@ -60,8 +60,8 @@ all: main-build
 main-build: controller_stm.elf secondary-outputs
 
 # Tool invocations
-controller_stm.elf controller_stm.map: $(OBJS) $(USER_OBJS) C:\Users\woody\STM32CubeIDE\workspace_1.13.1\controller_stm\STM32L452RETXP_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
-	arm-none-eabi-gcc -o "controller_stm.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m4 -T"C:\Users\woody\STM32CubeIDE\workspace_1.13.1\controller_stm\STM32L452RETXP_FLASH.ld" --specs=nosys.specs -Wl,-Map="controller_stm.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+controller_stm.elf controller_stm.map: $(OBJS) $(USER_OBJS) /home/jacob/Submarine_Capstone/src/controller_stm/STM32L452RETXP_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
+	arm-none-eabi-gcc -o "controller_stm.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m4 -T"/home/jacob/Submarine_Capstone/src/controller_stm/STM32L452RETXP_FLASH.ld" --specs=nosys.specs -Wl,-Map="controller_stm.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
 	@echo 'Finished building target: $@'
 	@echo ' '
 
