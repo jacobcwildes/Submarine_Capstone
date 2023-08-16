@@ -106,14 +106,19 @@ int main(void)
   MX_USART3_UART_Init();
   MX_USB_OTG_FS_PCD_Init();
   /* USER CODE BEGIN 2 */
-	uint8_t data[] = "HELLO WORLD \r\n";
+	uint8_t tx_buffer[27] = "Welcome to BinaryUpdates!\n\r";
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   {
+  	HAL_UART_Transmit (&huart2, tx_buffer, 27, 10);
+		HAL_Delay(1000);
+		HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_14);
     /* USER CODE END WHILE */
+
+		
 
     /* USER CODE BEGIN 3 */
   }
