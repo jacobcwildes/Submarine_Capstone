@@ -114,8 +114,12 @@ int main(void)
   while (1)
   {
     /* USER CODE END WHILE */
+<<<<<<< Updated upstream
 		HAL_UART_Transmit (&huart2, data, sizeof(data), 10);
 		HAL_Delay(1000);
+=======
+
+>>>>>>> Stashed changes
     /* USER CODE BEGIN 3 */
   }
   /* USER CODE END 3 */
@@ -294,8 +298,8 @@ static void MX_LPUART1_UART_Init(void)
 
   /* USER CODE END LPUART1_Init 1 */
   hlpuart1.Instance = LPUART1;
-  hlpuart1.Init.BaudRate = 209700;
-  hlpuart1.Init.WordLength = UART_WORDLENGTH_7B;
+  hlpuart1.Init.BaudRate = 115200;
+  hlpuart1.Init.WordLength = UART_WORDLENGTH_8B;
   hlpuart1.Init.StopBits = UART_STOPBITS_1;
   hlpuart1.Init.Parity = UART_PARITY_NONE;
   hlpuart1.Init.Mode = UART_MODE_TX_RX;
