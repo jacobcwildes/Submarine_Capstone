@@ -118,8 +118,6 @@ int main(void)
 		HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_14);
     /* USER CODE END WHILE */
 
-		
-
     /* USER CODE BEGIN 3 */
   }
   /* USER CODE END 3 */
