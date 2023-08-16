@@ -115,10 +115,6 @@ int main(void)
   {
     /* USER CODE END WHILE */
 
-		HAL_UART_Transmit (&huart2, data, sizeof(data), 10);
-		HAL_Delay(1000);
-		HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_14);
-
     /* USER CODE BEGIN 3 */
   }
   /* USER CODE END 3 */
