@@ -1,6 +1,6 @@
 from setuptools import setup
 
-package_name = 'rov_data_pub'
+package_name = 'submarine_coms'
 
 setup(
     name=package_name,
@@ -13,14 +13,14 @@ setup(
     ],
     install_requires=['setuptools'],
     zip_safe=True,
-    maintainer='controller',
-    maintainer_email='wildes126@gmail.com',
-    description='TODO: Package description',
-    license='TODO: License declaration',
+    maintainer='Dyllon Dunton',
+    maintainer_email='dyllon.dunton@maine.edu',
+    description='commands from controller exec and data report',
+    license='MIT',
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            'rov_dat_pub = rov_data_pub.rov_dat_pub:main'
+            'sub_coms = submarine_coms.sub_coms:main'
         ],
     },
 )

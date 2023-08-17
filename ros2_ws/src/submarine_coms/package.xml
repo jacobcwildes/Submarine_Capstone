@@ -1,11 +1,11 @@
 <?xml version="1.0"?>
 <?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="3">
-  <name>rov_data_pub</name>
-  <version>0.0.0</version>
-  <description>TODO: Package description</description>
-  <maintainer email="wildes126@gmail.com">controller</maintainer>
-  <license>TODO: License declaration</license>
+  <name>submarine_coms</name>
+  <version>1.0.0</version>
+  <description>commands from controller exec and data report</description>
+  <maintainer email="dyllon.dunton@maine.edu">Dyllon Dunton</maintainer>
+  <license>MIT</license>
 
   <test_depend>ament_copyright</test_depend>
   <test_depend>ament_flake8</test_depend>
