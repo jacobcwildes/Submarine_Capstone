@@ -110,7 +110,7 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-  	HAL_UART_Transmit (&huart2, tx_buffer, 27, 10);
+  	HAL_UART_Transmit (&hlpuart1, tx_buffer, 27, 10);
 		HAL_Delay(1000);
 		HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_14);
     /* USER CODE END WHILE */
