@@ -1,0 +1,15 @@
+../Core/Src/main.c:85:6:ADC_Select_CH1	2
+../Core/Src/main.c:98:6:ADC_Select_CH2	2
+../Core/Src/main.c:111:6:ADC_Select_CH3	2
+../Core/Src/main.c:124:6:ADC_Select_CH4	2
+../Core/Src/main.c:137:6:configure_channel	2
+../Core/Src/main.c:150:9:adc_fetch_sample	4
+../Core/Src/main.c:205:5:main	4
+../Core/Src/main.c:346:6:SystemClock_Config	4
+../Core/Src/main.c:396:13:MX_ADC1_Init	6
+../Core/Src/main.c:482:13:MX_USART2_UART_Init	2
+../Core/Src/main.c:515:13:MX_DMA_Init	1
+../Core/Src/main.c:533:13:MX_GPIO_Init	1
+../Core/Src/main.c:594:6:HAL_ADC_ConvHalfCpltCallback	1
+../Core/Src/main.c:600:6:HAL_ADC_COnvCpltCallback	1
+../Core/Src/main.c:611:6:Error_Handler	1

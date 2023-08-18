@@ -25,6 +25,7 @@
 #include "stdbool.h"
 #include "string.h"
 #include <stdio.h>
+#include <stdlib.h>
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -44,6 +45,7 @@
 
 /* Private variables ---------------------------------------------------------*/
 ADC_HandleTypeDef hadc1;
+DMA_HandleTypeDef hdma_adc1;
 
 UART_HandleTypeDef huart2;
 
@@ -54,72 +56,50 @@ UART_HandleTypeDef huart2;
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
+static void MX_DMA_Init(void);
 static void MX_ADC1_Init(void);
 static void MX_USART2_UART_Init(void);
 /* USER CODE BEGIN PFP */
-void configure_channel(uint16_t channel, uint16_t rank);
-uint8_t adc_fetch_sample(void);
-uint8_t stringify(struct *data);
+
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-static void configure_channel(uint16_t channel, uint16_t rank)
+
+//Initialize structure variables to nothing
+uint8_t leftToggleUD = 0;
+uint8_t leftToggleLR = 0;
+uint8_t rightToggleUD = 0;
+uint8_t rightToggleLR = 0;
+uint8_t subDown = 0;
+uint8_t subUp = 0;
+uint8_t screenshot = 0;
+
+/*
+unsigned char stringify(uint8_t leftToggleUD, uint8_t leftToggleLR,
+		uint8_t rightToggleUD, uint8_t rightToggleLR,
+		uint8_t subUp, uint8_t subDown, uint8_t screenshot)
 {
-	//Configure the ADC channel and rank for single sample conversion
-	ADC_ChannelConfTypeDef sConfig = {0};
-	sConfig.Channel = channel;
-	sConfig.Rank = rank;
-	sConfig.SamplingTime = ADC_SAMPLETIME_2CYCLE_5;
-	if(HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
-	{
-		printf("Failed to configure channel \n\r");
-	}
-}
-
-uint8_t adc_fetch_sample(void)
-{
-	//Start the ADC, poll for conversion, and then return the result
-	uint8_t result;
-
-	if(HAL_ADC_Start(&hadc1) !=HAL_OK)
-	{
-		printf("Failed to start ADC for single sample \n\r");
-	}
-
-	if(HAL_ADC_PollForConversion(&hadc1, 100u) != HAL_OK)
-	{
-		printf("ADC conversion incomplete \n\r");
-	}
-
-	result = HAL_ADC_GetValue(&hadc1);
-
-	if(HAL_ADC_Stop(&hadc1) != HAL_OK)
-	{
-		printf("Failed to stop ADC \n\r");
-	}
-
-	return result;
-}
-char stringify(struct *data)
-{
-	char stringData[] = sizeof(data);
-	strcpy(stringData, (string *)data.leftToggleUD);
+	unsigned char stringData[100];
+	sprintf(stringData, "%d", leftToggleUD);
 	strcat(stringData, " ");
-	strcpy(stringData, (string *)data.leftToggleLR);
+	sprintf(stringData, "%d",  leftToggleLR);
 	strcat(stringData, " ");
-	strcpy(stringData, (string *)data.rightToggleUD);
+	sprintf(stringData, "%d", rightToggleUD);
 	strcat(stringData, " ");
-	strcpy(stringData, (string *)data.rightToggleLR);
+	sprintf(stringData, "%d", rightToggleLR);
 	strcat(stringData, " ");
-	strcpy(stringData, (string *)data.subDown);
+	sprintf(stringData, "%d", subDown);
 	strcat(stringData, " ");
-	strcpy(stringData, (string *)data.subUp);
+	sprintf(stringData, "%d", subUp);
 	strcat(stringData, " ");
-	strcpy(stringData, (string *)data.screenshot);
+	sprintf(stringData, "%d", screenshot);
 
 	return stringData;
-}
+}*/
+
+//Store toggle data
+uint32_t toggleData[4];
 /* USER CODE END 0 */
 
 /**
@@ -130,31 +110,6 @@ int main(void)
 {
   /* USER CODE BEGIN 1 */
 	//Initialize variables
-	struct data
-	{
-		uint8_t leftToggleUD;
-		uint8_t leftToggleLR;
-		uint8_t rightToggleUD;
-		uint8_t rightToggleLR;
-		uint8_t subDown;
-		uint8_t subUp;
-		uint8_t screenshot;
-	};
-
-	struct data transmissionData;
-
-	//Initialize structure variables to nothing
-	transmissionData.leftToggleUD = 0;
-	transmissionData.leftToggleLR = 0;
-	transmissionData.rightToggleUD = 0;
-	transmissionData.rightToggleLR = 0;
-	transmissionData.subDown = 0;
-	transmissionData.subUp = 0;
-	transmissionData.screenshot = 0;
-
-	//
-	uint8_t buffer[sizeof(transmissionData)];
-
 
   /* USER CODE END 1 */
 
@@ -176,6 +131,7 @@ int main(void)
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
+  MX_DMA_Init();
   MX_ADC1_Init();
   MX_USART2_UART_Init();
   /* USER CODE BEGIN 2 */
@@ -187,11 +143,13 @@ int main(void)
   //HAL_ADC_ConfigChannel(&hadc1, ADC_CHANNEL_4);
 
   //Turn on Power LED
+  HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_6);
 
-  //Increments during while loop to set channel
-  uint8_t channel = 1;
-  //ADC channel with high priority
-  uint8_t rank = 1;
+  uint8_t localbuff[7];
+  uint8_t *buffer = malloc(size * sizeof(uint8_t));
+
+  // Calibrate The ADC On Power-Up For Better Accuracy
+  //HAL_ADCEx_Calibration_Start(&hadc1);
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -199,37 +157,78 @@ int main(void)
 	while (1)
 	{
 		//Poll data from GPIO pins and ADC channels 1-4
-		if(HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_12) == GPIO_PIN_SET) transmissionData.subUp = 1;
-		if(HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_5) == GPIO_PIN_SET) transmissionData.subDown = 1;
-		if(HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_7) == GPIO_PIN_SET) transmissionData.screenshot = 1;
+		if(HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_12) == GPIO_PIN_SET) subUp = 1;
+		if(HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_5) == GPIO_PIN_SET) subDown = 1;
+		if(HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_7) == GPIO_PIN_SET) screenshot = 1;
+		//Start ADC in DMA mode
+		HAL_ADC_Start_DMA(&hadc1, &toggleData, 4);
+
+		/*ADC_Select_CH1();
+		HAL_ADC_Start(&hadc1);
+		leftToggleUD = HAL_ADC_PollForConversion(&hadc1, 1000);
+		HAL_ADC_Stop(&hadc1);
+		ADC_Select_CH2();
+		HAL_ADC_Start(&hadc1);
+		leftToggleLR = HAL_ADC_PollForConversion(&hadc1, 1000);
+		HAL_ADC_Stop(&hadc1);
+		ADC_Select_CH3();
+		HAL_ADC_Start(&hadc1);
+		rightToggleUD = HAL_ADC_PollForConversion(&hadc1, 1000);
+		HAL_ADC_Stop(&hadc1);
+		ADC_Select_CH4();
+		HAL_ADC_Start(&hadc1);
+		rightToggleLR = HAL_ADC_PollForConversion(&hadc1, 1000);
+		HAL_ADC_Stop(&hadc1);
+		*/
 		//HAL_ADC_PollForConversion(&hadc1, HAL_MAX_DELAY);
-		configure_channel(channel, rank);
-		transmissionData.leftToggleUD = adc_fetch_sample();
-		configure_channel(channel+1, rank);
-		transmissionData.leftToggleLR = adc_fetch_sample();
-		configure_channel(channel+2, rank);
-		transmissionData.rightToggleUD = adc_fetch_sample();
-		configure_channel(channel+3, rank);
-		transmissionData.rightToggleLR = adc_fetch_sample();
+		//configure_channel(1, rank);
+		//leftToggleUD = adc_fetch_sample();
+		//configure_channel(2, rank);
+		//leftToggleLR = adc_fetch_sample();
+		//configure_channel(3, rank);
+		//rightToggleUD = adc_fetch_sample();
+		//configure_channel(4, rank);
+		//rightToggleLR = adc_fetch_sample();
 
 		//Copy data from struct to buffer
 		//memcpy(buffer, &transmissionData, sizeof(transmissionData));
+		leftToggleUD = (uint8_t *)toggleData[0];
+		leftToggleLR = (uint8_t *)toggleData[1];
+		rightToggleUD = (uint8_t *)toggleData[2];
+		rightToggleLR = (uint8_t *)toggleData[3];
 
-		buffer = stringify(transmissionData);
+		localbuff[0] = leftToggleUD;
+		localbuff[1] = leftToggleLR;
+		localbuff[2] = rightToggleUD;
+		localbuff[3] = rightToggleLR;
+		localbuff[4] = subUp;
+		localbuff[5] = subDown;
+		localbuff[6] = screenshot;
+
+		buffer[0] = leftToggleUD;
+		buffer[1] = leftToggleLR;
+		buffer[2] = rightToggleUD;
+		buffer[3] = rightToggleLR;
+		buffer[4] = subUp;
+		buffer[5] = subDown;
+		buffer[6] = screenshot;
+
+		//strcpy(buffer, stringify(leftToggleUD, leftToggleLR, rightToggleUD, rightToggleLR, subUp, subDown, screenshot));
+
 		//Transmit Data
-		if(HAL_UART_Transmit(&huart2, buffer, sizeof(buffer), 10) != HAL_OK)
+		if(HAL_UART_Transmit(&huart2, buffer, sprintf(buffer, "%d", buffer), 10) != HAL_OK)
 		{
-			  HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_6);
+
 
 		}
 		//Reset everything to 0 once data is transmitted
-		transmissionData.subUp = 0;
-		transmissionData.subDown = 0;
-		transmissionData.screenshot = 0;
-		transmissionData.leftToggleLR = 0;
-		transmissionData.leftToggleUD = 0;
-		transmissionData.rightToggleLR = 0;
-		transmissionData.rightToggleUD = 0;
+		subUp = 0;
+		subDown = 0;
+		screenshot = 0;
+		leftToggleLR = 0;
+		leftToggleUD = 0;
+		rightToggleLR = 0;
+		rightToggleUD = 0;
 
     /* USER CODE END WHILE */
 
@@ -310,17 +309,17 @@ static void MX_ADC1_Init(void)
   */
   hadc1.Instance = ADC1;
   hadc1.Init.ClockPrescaler = ADC_CLOCK_ASYNC_DIV1;
-  hadc1.Init.Resolution = ADC_RESOLUTION_12B;
+  hadc1.Init.Resolution = ADC_RESOLUTION_8B;
   hadc1.Init.DataAlign = ADC_DATAALIGN_RIGHT;
   hadc1.Init.ScanConvMode = ADC_SCAN_ENABLE;
   hadc1.Init.EOCSelection = ADC_EOC_SINGLE_CONV;
   hadc1.Init.LowPowerAutoWait = DISABLE;
-  hadc1.Init.ContinuousConvMode = ENABLE;
+  hadc1.Init.ContinuousConvMode = DISABLE;
   hadc1.Init.NbrOfConversion = 4;
   hadc1.Init.DiscontinuousConvMode = DISABLE;
   hadc1.Init.ExternalTrigConv = ADC_SOFTWARE_START;
   hadc1.Init.ExternalTrigConvEdge = ADC_EXTERNALTRIGCONVEDGE_NONE;
-  hadc1.Init.DMAContinuousRequests = DISABLE;
+  hadc1.Init.DMAContinuousRequests = ENABLE;
   hadc1.Init.Overrun = ADC_OVR_DATA_PRESERVED;
   hadc1.Init.OversamplingMode = DISABLE;
   if (HAL_ADC_Init(&hadc1) != HAL_OK)
@@ -345,7 +344,7 @@ static void MX_ADC1_Init(void)
   */
   sConfig.Channel = ADC_CHANNEL_2;
   sConfig.Rank = ADC_REGULAR_RANK_2;
-  sConfig.Offset = 2;
+  sConfig.Offset = 0;
   if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
   {
     Error_Handler();
@@ -355,7 +354,6 @@ static void MX_ADC1_Init(void)
   */
   sConfig.Channel = ADC_CHANNEL_3;
   sConfig.Rank = ADC_REGULAR_RANK_3;
-  sConfig.Offset = 3;
   if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
   {
     Error_Handler();
@@ -365,7 +363,6 @@ static void MX_ADC1_Init(void)
   */
   sConfig.Channel = ADC_CHANNEL_4;
   sConfig.Rank = ADC_REGULAR_RANK_4;
-  sConfig.Offset = 4;
   if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
   {
     Error_Handler();
@@ -408,6 +405,22 @@ static void MX_USART2_UART_Init(void)
   /* USER CODE BEGIN USART2_Init 2 */
 
   /* USER CODE END USART2_Init 2 */
+
+}
+
+/**
+  * Enable DMA controller clock
+  */
+static void MX_DMA_Init(void)
+{
+
+  /* DMA controller clock enable */
+  __HAL_RCC_DMA1_CLK_ENABLE();
+
+  /* DMA interrupt init */
+  /* DMA1_Channel1_IRQn interrupt configuration */
+  HAL_NVIC_SetPriority(DMA1_Channel1_IRQn, 0, 0);
+  HAL_NVIC_EnableIRQ(DMA1_Channel1_IRQn);
 
 }
 
@@ -477,7 +490,17 @@ static void MX_GPIO_Init(void)
 }
 
 /* USER CODE BEGIN 4 */
+void HAL_ADC_ConvHalfCpltCallback(ADC_HandleTypeDef* hadc)
+{
+	leftToggleUD = toggleData[0];
+	leftToggleLR = toggleData[1];
+}
 
+void HAL_ADC_COnvCpltCallback(ADC_HandleTypeDef* hadc)
+{
+	rightToggleUD = toggleData[2];
+	rightToggleLR = toggleData[3];
+}
 /* USER CODE END 4 */
 
 /**
