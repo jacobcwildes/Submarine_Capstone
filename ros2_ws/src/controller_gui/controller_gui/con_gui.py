@@ -15,6 +15,8 @@ import tkinter as tk
 import PIL.Image
 import PIL.ImageTk
 
+import serial
+
 class GUI(Node):
 
     def __init__(self):
@@ -38,10 +40,32 @@ class GUI(Node):
         #Tkinter (GUI)
         self.root = tk.Tk()
         self.root.title("Submarine View")
+        
+        #Make window fullscreen
+        self.root.attributes('-fullscreen', True)
+        
         self.panelA = None
+        
+        #Serial read setup
+        self.serialport = serial.Serial("/dev/ttyACM0", 115200, timeout=0.5)
+        self.serialLine = None
+        
+        #Controller Input variables
+        self.leftToggleUD = None
+        self.leftToggleLR = None
+        self.rightToggleUD = None
+        self.rightToggleLR = None
+        self.subUp = None
+        self.subDown = None
+        self.screenshot = None
         
     #This will eventually be time synchronized with incoming sub metrics
     def cam_callback(self, cam_sub): #Data will be passed here too
+        
+        #Read serial data and save to variables
+        self.serialLine = self.serialport.readline()
+        
+        
         #Convert from ROS2 message to OpenCV image format
         convert_image = self.Bridge.imgmsg_to_cv2(cam_sub)
         
@@ -59,12 +83,14 @@ class GUI(Node):
         if self.panelA is None:
             self.panelA = tk.Label(image=tk_img)
             self.panelA.image = tk_img
-            self.panelA.pack(expand=True)
+            #Tell Tkinter to fill both x and y axes. Additionally, if the 
+            #window should change size, the frame will too
         
         #If already intitialized, update
         else:
             self.panelA.configure(image=tk_img)
             self.panelA.image = tk_img
+            self.panelA.pack(fill=tk.BOTH, expand = True)
             
         self.root.update()
         

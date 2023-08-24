@@ -1,0 +1,2 @@
+int32 ballast_left
+int32 ballast_right

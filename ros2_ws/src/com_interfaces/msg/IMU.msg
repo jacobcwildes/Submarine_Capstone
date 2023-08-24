@@ -1,0 +1,3 @@
+int32 degrees_north
+float64 speed_scalar
+int32 approx_depth
