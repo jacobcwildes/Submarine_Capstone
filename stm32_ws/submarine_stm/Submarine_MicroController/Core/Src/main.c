@@ -18,6 +18,7 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
+#include "string.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -66,7 +67,14 @@ static void MX_USB_OTG_FS_PCD_Init(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-
+uint8_t rx_received = 0;
+uint8_t tx_buffer[27] = "\n\r";
+uint8_t tx_on[27] = "LED ON\n\r";
+uint8_t tx_off[27] = "LED OFF\n\r";
+uint8_t tx_no[27] = "NO\n\r";
+uint8_t rx_data[27];
+char rx_buffer[100];
+uint8_t rx_index = 0;
 /* USER CODE END 0 */
 
 /**
@@ -103,16 +111,38 @@ int main(void)
   MX_USART3_UART_Init();
   MX_USB_OTG_FS_PCD_Init();
   /* USER CODE BEGIN 2 */
-	uint8_t tx_buffer[27] = "Welcome to BinaryUpdates!\n\r";
+	
+	
+
+	
+	HAL_UART_Receive_IT(&hlpuart1, rx_data, 6);
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-  	HAL_UART_Transmit (&hlpuart1, tx_buffer, 27, 10);
-		HAL_Delay(1000);
-		HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_14);
+  	if (rx_received)
+  	{
+  		rx_received = 0;
+  		if (!strcmp(rx_buffer, "ON"))
+			{
+				HAL_UART_Transmit(&hlpuart1, tx_on, 27, 10);
+				HAL_GPIO_WritePin(GPIOB, GPIO_PIN_14, 1);
+			}
+			else if (!strcmp(rx_buffer, "OFF"))
+			{
+				HAL_UART_Transmit(&hlpuart1, tx_off, 27, 10);
+				HAL_GPIO_WritePin(GPIOB, GPIO_PIN_14, 0);
+			}
+			else
+			{
+				HAL_UART_Transmit(&hlpuart1, tx_no, 27, 10);
+			}
+  	}
+  	
+  	
+  	
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -514,7 +544,32 @@ static void MX_GPIO_Init(void)
 }
 
 /* USER CODE BEGIN 4 */
+void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
+{
 
+	UNUSED(huart);
+
+	HAL_UART_Transmit(&hlpuart1, rx_data, 6, 10);
+	//HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_14);
+	/*
+	if (rx_index == 0)
+	{
+		for (int i = 0; i < 100; i++)
+		{
+			rx_buffer[i] = 0;
+		}
+	}
+	if (rx_data[0] != 13) //carriage return
+	{
+		rx_buffer[rx_index++] = rx_data[0];
+	}
+	else
+	{
+		rx_index = 0;
+		rx_received = 1;
+	}
+	*/
+}
 /* USER CODE END 4 */
 
 /**

@@ -1,4 +1,5 @@
 import serial
+import time
 
 SerialObj = serial.Serial('/dev/ttyACM0')
 SerialObj.baudrate = 115200  # set Baud rate to 115200
@@ -8,5 +9,8 @@ SerialObj.stopbits = 1   # Number of Stop bits = 1
 
 
 while (True):
-	recieved = SerialObj.readline()
-	print(recieved)
+	#print("Enter Command: ")
+	#command = input()
+	com = "1"
+	SerialObj.write(com.encode())
+	time.sleep(2)
