@@ -22,7 +22,6 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include "stdbool.h"
 #include "string.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -75,29 +74,6 @@ uint8_t subDown = 0;
 uint8_t subUp = 0;
 uint8_t screenshot = 0;
 
-/*
-unsigned char stringify(uint8_t leftToggleUD, uint8_t leftToggleLR,
-		uint8_t rightToggleUD, uint8_t rightToggleLR,
-		uint8_t subUp, uint8_t subDown, uint8_t screenshot)
-{
-	unsigned char stringData[100];
-	sprintf(stringData, "%d", leftToggleUD);
-	strcat(stringData, " ");
-	sprintf(stringData, "%d",  leftToggleLR);
-	strcat(stringData, " ");
-	sprintf(stringData, "%d", rightToggleUD);
-	strcat(stringData, " ");
-	sprintf(stringData, "%d", rightToggleLR);
-	strcat(stringData, " ");
-	sprintf(stringData, "%d", subDown);
-	strcat(stringData, " ");
-	sprintf(stringData, "%d", subUp);
-	strcat(stringData, " ");
-	sprintf(stringData, "%d", screenshot);
-
-	return stringData;
-}*/
-
 //Store toggle data
 uint32_t toggleData[4];
 /* USER CODE END 0 */
@@ -145,8 +121,17 @@ int main(void)
   //Turn on Power LED
   HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_6);
 
+  //Local debug - warning but it's intentional so a debugger can easily read current values
   uint8_t localbuff[7];
-  uint8_t *buffer = malloc(size * sizeof(uint8_t));
+
+  //Buffer to be transmitted
+  //25 indices for 4 three digit numbers, 6 commas, a carriage return and newline
+  //and 3 single digits. Added two extra indices as a buffer so that sprintf doesn't error
+  char buffer[25];
+  for(int i = 0; i < 35; i++)
+  {
+	  buffer[i] = 0;
+  }
 
   // Calibrate The ADC On Power-Up For Better Accuracy
   //HAL_ADCEx_Calibration_Start(&hadc1);
@@ -161,42 +146,13 @@ int main(void)
 		if(HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_5) == GPIO_PIN_SET) subDown = 1;
 		if(HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_7) == GPIO_PIN_SET) screenshot = 1;
 		//Start ADC in DMA mode
-		HAL_ADC_Start_DMA(&hadc1, &toggleData, 4);
+		HAL_ADC_Start_DMA(&hadc1, toggleData, 4);
+		leftToggleUD = toggleData[0];
+		leftToggleLR = toggleData[1];
+		rightToggleUD = toggleData[2];
+		rightToggleLR = toggleData[3];
 
-		/*ADC_Select_CH1();
-		HAL_ADC_Start(&hadc1);
-		leftToggleUD = HAL_ADC_PollForConversion(&hadc1, 1000);
-		HAL_ADC_Stop(&hadc1);
-		ADC_Select_CH2();
-		HAL_ADC_Start(&hadc1);
-		leftToggleLR = HAL_ADC_PollForConversion(&hadc1, 1000);
-		HAL_ADC_Stop(&hadc1);
-		ADC_Select_CH3();
-		HAL_ADC_Start(&hadc1);
-		rightToggleUD = HAL_ADC_PollForConversion(&hadc1, 1000);
-		HAL_ADC_Stop(&hadc1);
-		ADC_Select_CH4();
-		HAL_ADC_Start(&hadc1);
-		rightToggleLR = HAL_ADC_PollForConversion(&hadc1, 1000);
-		HAL_ADC_Stop(&hadc1);
-		*/
-		//HAL_ADC_PollForConversion(&hadc1, HAL_MAX_DELAY);
-		//configure_channel(1, rank);
-		//leftToggleUD = adc_fetch_sample();
-		//configure_channel(2, rank);
-		//leftToggleLR = adc_fetch_sample();
-		//configure_channel(3, rank);
-		//rightToggleUD = adc_fetch_sample();
-		//configure_channel(4, rank);
-		//rightToggleLR = adc_fetch_sample();
-
-		//Copy data from struct to buffer
-		//memcpy(buffer, &transmissionData, sizeof(transmissionData));
-		leftToggleUD = (uint8_t *)toggleData[0];
-		leftToggleLR = (uint8_t *)toggleData[1];
-		rightToggleUD = (uint8_t *)toggleData[2];
-		rightToggleLR = (uint8_t *)toggleData[3];
-
+		//Local debug
 		localbuff[0] = leftToggleUD;
 		localbuff[1] = leftToggleLR;
 		localbuff[2] = rightToggleUD;
@@ -205,30 +161,25 @@ int main(void)
 		localbuff[5] = subDown;
 		localbuff[6] = screenshot;
 
-		buffer[0] = leftToggleUD;
-		buffer[1] = leftToggleLR;
-		buffer[2] = rightToggleUD;
-		buffer[3] = rightToggleLR;
-		buffer[4] = subUp;
-		buffer[5] = subDown;
-		buffer[6] = screenshot;
-
-		//strcpy(buffer, stringify(leftToggleUD, leftToggleLR, rightToggleUD, rightToggleLR, subUp, subDown, screenshot));
+		sprintf(buffer, "%u,%u,%u,%u,%u,%u,%u\n\r", leftToggleUD, leftToggleLR,
+						rightToggleUD, rightToggleLR, subUp, subDown, screenshot);
 
 		//Transmit Data
-		if(HAL_UART_Transmit(&huart2, buffer, sprintf(buffer, "%d", buffer), 10) != HAL_OK)
+		if(HAL_UART_Transmit(&huart2, (uint8_t *)buffer, sizeof(buffer), HAL_MAX_DELAY) == HAL_OK)
 		{
+			//Delay because we don't need to transmit that fast - this is a controller operated by humans
+			HAL_Delay(250);
+			//Reset everything to 0 once data is transmitted
+			subUp = 0;
+			subDown = 0;
+			screenshot = 0;
+			leftToggleLR = 0;
+			leftToggleUD = 0;
+			rightToggleLR = 0;
+			rightToggleUD = 0;
 
 
 		}
-		//Reset everything to 0 once data is transmitted
-		subUp = 0;
-		subDown = 0;
-		screenshot = 0;
-		leftToggleLR = 0;
-		leftToggleUD = 0;
-		rightToggleLR = 0;
-		rightToggleUD = 0;
 
     /* USER CODE END WHILE */
 
