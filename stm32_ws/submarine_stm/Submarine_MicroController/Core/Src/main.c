@@ -67,12 +67,12 @@ static void MX_USB_OTG_FS_PCD_Init(void);
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
 uint8_t rx_received = 0;
-uint8_t tx_buffer[27] = "\n\r";
+uint8_t tx_buffer[] = "180,10.4,5,270,270,270,16.9\n";
 uint8_t tx_on[27] = "LED ON\n\r";
 uint8_t tx_off[27] = "LED OFF\n\r";
 uint8_t tx_no[27] = "NO\n\r";
-uint8_t rx_data[27];
-char rx_buffer[100];
+uint8_t rx_data[35];
+uint8_t rx_buffer[100];
 uint8_t rx_index = 0;
 /* USER CODE END 0 */
 
@@ -114,36 +114,23 @@ int main(void)
 	
 
 	
-	HAL_UART_Receive_IT(&hlpuart1, rx_data, 6);
+	HAL_UART_Receive_IT(&hlpuart1, rx_data, 35);
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-  	if (rx_received)
+  	if (rx_received) //New Transmission from RPI
   	{
   		rx_received = 0;
-  		if (!strcmp(rx_buffer, "ON"))
-			{
-				HAL_UART_Transmit(&hlpuart1, tx_on, 27, 10);
-				HAL_GPIO_WritePin(GPIOB, GPIO_PIN_14, 1);
-			}
-			else if (!strcmp(rx_buffer, "OFF"))
-			{
-				HAL_UART_Transmit(&hlpuart1, tx_off, 27, 10);
-				HAL_GPIO_WritePin(GPIOB, GPIO_PIN_14, 0);
-			}
-			else
-			{
-				HAL_UART_Transmit(&hlpuart1, tx_no, 27, 10);
-			}
+			HAL_UART_Transmit(&hlpuart1, tx_buffer, sizeof(tx_buffer), 10);
   	}
   	
   	
   	
     /* USER CODE END WHILE */
-
+		HAL_Delay(500);
     /* USER CODE BEGIN 3 */
   }
   /* USER CODE END 3 */
@@ -548,8 +535,12 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 
 	UNUSED(huart);
 
-	HAL_UART_Transmit(&hlpuart1, rx_data, 6, 10);
+	//HAL_UART_Transmit(&hlpuart1, rx_data, 1, 10);
 	HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_14);
+	rx_received = 1;
+	
+	
+	
 	/*
 	if (rx_index == 0)
 	{
@@ -558,16 +549,19 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 			rx_buffer[i] = 0;
 		}
 	}
-	if (rx_data[0] != 13) //carriage return
+	if (rx_data[0] != 13) //NOT carriage return
 	{
 		rx_buffer[rx_index++] = rx_data[0];
 	}
-	else
+	else //Carriage return means end of transmission
 	{
 		rx_index = 0;
 		rx_received = 1;
 	}
+	//Now rx_recieved flag read in main and use rx_buffer
 	*/
+	
+	HAL_UART_Receive_IT(&hlpuart1, rx_data, 35);
 }
 /* USER CODE END 4 */
 

@@ -1,3 +1,5 @@
+#Test for sending uart from stm to rpi
+
 import serial
 
 SerialObj = serial.Serial('/dev/ttyACM0')
