@@ -21,7 +21,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include "string.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -549,7 +549,7 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 	UNUSED(huart);
 
 	HAL_UART_Transmit(&hlpuart1, rx_data, 6, 10);
-	//HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_14);
+	HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_14);
 	/*
 	if (rx_index == 0)
 	{
