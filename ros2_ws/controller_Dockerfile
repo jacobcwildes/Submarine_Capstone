@@ -12,7 +12,7 @@ LABEL maintainer="wildes126@gmail.com"
 LABEL version="1"
 LABEL description="Base image to rapidly deploy our ROS2 nodes"
 
-ENV DEBIAN_ENV=noninteractive
+ENV DEBIAN_FRONTEND=noninteractive
 
 #This is like the terminal - need to tell it where to work
 WORKDIR /ROS
@@ -30,7 +30,7 @@ RUN apt update && apt install -y \
                     ros-foxy-usb-cam \
                     python3-colcon-common-extensions \
                     python3-pil \
-                    python3.imagetk \
+                    python3-pil.imagetk \
                     ros-foxy=rmw-cyclonedds-cpp\
                     g++ \
                     make \
@@ -92,9 +92,9 @@ LABEL description="Run the controller in a virtual environment that is easily de
 WORKDIR /ROS
 
 ##Copy local files into the docker image as if this were my local machine
-RUN mkdir -p /ROS/Submarine_Capstone/src
+RUN mkdir -p /ROS/Submarine_Capstone
+
 ADD src/ /ROS/Submarine_Capstone/src
-RUN mkdir /ROS/Submarine_Capstone/launch
 ADD launch/ /ROS/Submarine_Capstone/launch
 
 ##Install Poetry - specify paths so that I know exactly where Poetry installs its venv 
