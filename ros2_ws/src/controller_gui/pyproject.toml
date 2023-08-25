@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "controller-gui"
+name = "controller_gui"
 version = "0.1.0"
 description = "Graphic interface for 2023 submarine capstone"
 authors = ["jacobcwildes <wildes126@gmail.com>"]
@@ -7,6 +7,13 @@ authors = ["jacobcwildes <wildes126@gmail.com>"]
 [tool.poetry.dependencies]
 python = "^3.8"
 serial = "^0.0.97"
+
+[tool.poetry.scripts]
+con_gui = "controller_gui.con_gui:main"
+
+[tool.colcon-poetry-ros.data-files]
+"share/ament_index/resource_index/packages" = ["resource/controller_gui"]
+"share/controller_gui" = ["package.xml"]
 
 
 [build-system]

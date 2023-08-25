@@ -7,11 +7,108 @@
 ##environment of its own
 ##BASE IMAGE
 #########################################################################################
-FROM ubuntu:20.04 as controller_base
+FROM ubuntu:20.04 as capstone-base
+LABEL maintainer="wildes126@gmail.com"
+LABEL version="1"
+LABEL description="Base image to rapidly deploy our ROS2 nodes"
 
 ENV DEBIAN_ENV=noninteractive
 
 #This is like the terminal - need to tell it where to work
 WORKDIR /ROS
 
-#Install ROS2 Foxy desktop environment
+#Install Apt necessities
+#Note: Everything done here is at root level - no need for sudo
+RUN apt update && apt install -y \
+                    python3-pip \
+                    python3-argcomplete \
+                    ca-certificates \
+                    gpg-agent \
+                    wget \
+                    curl \
+                    software-properties-common \
+                    ros-foxy-usb-cam \
+                    python3-colcon-common-extensions \
+                    python3-pil \
+                    python3.imagetk \
+                    ros-foxy=rmw-cyclonedds-cpp\
+                    g++ \
+                    make \
+                    unzip \
+                    firefox
+
+##CycloneDDS is an open-source framework for building distributed realtime systems - more specifically 
+##it helps with data communication and sync between multiple components.  
+ENV RMW_IMPLEMENTATION=rmw_cyclonedds_cpp
+
+#Install ROS2 Foxy desktop environment (instructions pulled from rocs.ros.org)
+RUN locale
+RUN apt update && apt install locales
+RUN locale-gen en_US.UTF-8 LANG=en_US.UTF-8
+RUN update-locale LC_ALL=en_US.UTF-8 LANG=en_US.UTF-8
+ENV LANG=en_US.UTF-8
+
+RUN add-apt-repository universe
+RUN curl -sSL https://raw.githubusercontent.com/ros/rosdistro/master/ros.key -o /usr/share/keyrings/ros-archive-keyring.gpg
+RUN echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/ros-archive-keyring.gpg] http://packages.ros.org/ros2/ubuntu $(. /etc/os-release && echo $UBUNTU_CODENAME) main" | sudo tee /etc/apt/sources.list.d/ros2.list > /dev/null
+
+RUN apt update && apt upgrade
+
+RUN install ros-foxy-desktop python3-argcomplete
+
+##Install Xpra for display purposes
+RUN wget -O "/usr/share/keyrings/xpra.asc" https://xpra.org/xpra.asc
+RUN cd /etc/apt/sources.list.d ; wget https://raw/githubusercontent.com/Xpra-org/xpra/master/packaging/repos/focal/xpra.sources
+RUN apt update && apt install xpra -y
+#########################################################################################
+##CONTROLLER DEV
+FROM capstone-base as controller-dev
+LABEL maintainer="wildes126@gmail.com"
+LABEL version="1"
+LABEL description="Dev layer of controller Docker image"
+
+WORKDIR /ROS
+
+##Docker allows us to buiild in layers - now that I have the base, that will work for 
+##not only the controller but the sub. Instead of rebuilding from the ground up, 
+##the base can be left alone and the dev layer can be rebuilt as needed
+
+##Need OpenCV to convert ros images to displayable images - install from source
+##Instruction pulkled from docs.opencv.org
+RUN wget -O opencv.zip https://github.com/opencv/opencv/archive/4.x.zip
+RUN unzip opencv.zip
+RUN mv opencv-4.x opencv
+RUN mkdir -p build && cd build
+RUN cmake ./opencv
+RUN make -j4
+RUN make install
+##########################################################################################
+##CONTROLLER DEPLOY
+FROM controller-dev as controller-deploy
+LABEL maintainer="wildes126@gmail.com"
+LABEL version="1"
+LABEL description="Run the controller in a virtual environment that is easily deployable"
+
+WORKDIR /ROS
+
+##Copy local files into the docker image as if this were my local machine
+RUN mkdir -p /ROS/Submarine_Capstone/src
+ADD src/ /ROS/Submarine_Capstone/src
+RUN mkdir /ROS/Submarine_Capstone/launch
+ADD launch/ /ROS/Submarine_Capstone/launch
+
+##Install Poetry - specify paths so that I know exactly where Poetry installs its venv 
+##(Docker is difficult to track down paths
+
+ENV POETRY_NO_INTERACTION=1 \
+                    POETRY_VIRTUALENVS_IN_PROJECT=1 \
+                    POETRY_VIRTUALENVS_CREATE=1 \
+                    POETRY_HOME="/opt/poetry" \
+                    VENV_PATH="/opt/pysetup/.venv"
+RUN curl -sSL https://install.python-poetry.org | python3 -
+ENV PATH = "$POETRY_HOME/bin:$VENV_PATH/bin:$PATH"
+RUN pip3 install colcon-poetry-ros
+
+WORKDIR /ROS/Submarine_Capstone
+RUN python3 -m colcon_poetry_ros.dependencies.install --base-paths src/
+#########################################################################################
