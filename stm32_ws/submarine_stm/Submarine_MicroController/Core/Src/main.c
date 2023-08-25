@@ -33,6 +33,10 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
+//GLOBAL I2C Addresses
+#define ACCEL_GYRO_ADR 0x6a
+#define MAG_ADR 0x1c
+
 //gyro
 #define OUTX_L_G (0x22 | 0x01)
 #define OUTX_H_G (0x23 | 0x01)
@@ -114,11 +118,7 @@ uint16_t pitch = 270;
 uint16_t yaw = 270;
 float voltageBattery = 16.9;
 
-//GLOBAL I2C Addresses
-uint16_t accelAddress = 0x6a;
-uint16_t magnetAddress = 0x1c;
-
-//GLOBAL I2C pData
+//GLOBAL I2C pData registers
 uint8_t x_ang_L;
 uint8_t x_ang_H;
 uint8_t y_ang_L;
@@ -212,12 +212,12 @@ int main(void)
   		camLeftRight = binaryToDecimal(27, 8);
   		
   		
-  		
-  		if (imuRead() == HAL_OK)
+  		//Begin reading IMU data
+  		if (imuRead() == HAL_OK) //If reading without error
   		{
   			HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_14); //toggle LED for dev	
-  			x_ang = twosComptoDec(x_ang_L, x_ang_H);
-				y_ang = twosComptoDec(y_ang_L, y_ang_H);
+  			x_ang = twosComptoDec(x_ang_L, x_ang_H);//get xyz values for all 9DOF
+				y_ang = twosComptoDec(y_ang_L, y_ang_H);//will need to do further calc for position, rotation, compass
 				z_ang = twosComptoDec(z_ang_L, z_ang_H);
 
 				x_lin = twosComptoDec(x_lin_L, x_lin_H);
@@ -228,16 +228,14 @@ int main(void)
 				y_mag = twosComptoDec(y_mag_L, y_mag_H);
 				z_mag = twosComptoDec(z_mag_L, z_mag_H);
   		}
-  		
-  		
-  		
-  		
-  		
-  		
+
   		//Data concat
-			sprintf(tx_buffer, "%u,%u,%u,%u,%u,%u,%u\n\r", degreesNorth, (uint16_t)(10*speedScalar), depthApprox, roll, pitch, yaw, (uint16_t)(10*voltageBattery));
+  		
+  		// For actual communication back to RPI (STILL USING TEST DATA)(This sprintf call works)
+			//sprintf(tx_buffer, "%u,%u,%u,%u,%u,%u,%u\n\r", degreesNorth, (uint16_t)(10*speedScalar), depthApprox, roll, pitch, yaw, (uint16_t)(10*voltageBattery));
 			
-			//sprintf(tx_buffer, "%u,%u,%u,%u,%u,%u,%u,%u,%u\n\r", x_ang, y_ang, z_ang, x_lin, y_lin, z_lin, x_mag, y_mag, z_mag );
+			// For reading the i2c values on the RPI
+			sprintf(tx_buffer, "%u,%u,%u,%u,%u,%u,%u,%u,%u\n\r", x_ang, y_ang, z_ang, x_lin, y_lin, z_lin, x_mag, y_mag, z_mag );
 			
   		
 			HAL_UART_Transmit(&hlpuart1, (uint8_t *)tx_buffer, sizeof(tx_buffer), 10);
@@ -246,7 +244,7 @@ int main(void)
   	
   	
     /* USER CODE END WHILE */
-		HAL_Delay(100);
+		HAL_Delay(50);
     /* USER CODE BEGIN 3 */
   }
   /* USER CODE END 3 */
@@ -683,51 +681,29 @@ HAL_StatusTypeDef imuRead(void)
 		*/
 	
 	HAL_StatusTypeDef retVal = HAL_OK;
-	/*
-	//Gyro
-	if (HAL_I2C_Mem_Read(&hi2c1, accelAddress, OUTX_L_G, 1, &x_ang_L, sizeof(x_ang_L), 10) != HAL_OK) retVal = HAL_ERROR;
-	if (HAL_I2C_Mem_Read(&hi2c1, accelAddress, OUTX_H_G, 1, &x_ang_H, sizeof(x_ang_H), 10) != HAL_OK) retVal = HAL_ERROR;
-	if (HAL_I2C_Mem_Read(&hi2c1, accelAddress, OUTY_L_G, 1, &y_ang_L, sizeof(y_ang_L), 10) != HAL_OK) retVal = HAL_ERROR;
-	if (HAL_I2C_Mem_Read(&hi2c1, accelAddress, OUTY_H_G, 1, &y_ang_H, sizeof(y_ang_H), 10) != HAL_OK) retVal = HAL_ERROR;
-	if (HAL_I2C_Mem_Read(&hi2c1, accelAddress, OUTZ_L_G, 1, &z_ang_L, sizeof(z_ang_L), 10) != HAL_OK) retVal = HAL_ERROR;
-	if (HAL_I2C_Mem_Read(&hi2c1, accelAddress, OUTZ_H_G, 1, &z_ang_H, sizeof(z_ang_H), 10) != HAL_OK) retVal = HAL_ERROR;
-	//Accel
-	if (HAL_I2C_Mem_Read(&hi2c1, accelAddress, OUTX_L_XL, 1, &x_lin_L, sizeof(x_lin_L), 10) != HAL_OK) retVal = HAL_ERROR;
-	if (HAL_I2C_Mem_Read(&hi2c1, accelAddress, OUTX_H_XL, 1, &x_lin_H, sizeof(x_lin_H), 10) != HAL_OK) retVal = HAL_ERROR;
-	if (HAL_I2C_Mem_Read(&hi2c1, accelAddress, OUTY_L_XL, 1, &y_lin_L, sizeof(y_lin_L), 10) != HAL_OK) retVal = HAL_ERROR;
-	if (HAL_I2C_Mem_Read(&hi2c1, accelAddress, OUTY_H_XL, 1, &y_lin_H, sizeof(y_lin_H), 10) != HAL_OK) retVal = HAL_ERROR;
-	if (HAL_I2C_Mem_Read(&hi2c1, accelAddress, OUTZ_L_XL, 1, &z_lin_L, sizeof(z_lin_L), 10) != HAL_OK) retVal = HAL_ERROR;
-	if (HAL_I2C_Mem_Read(&hi2c1, accelAddress, OUTZ_H_XL, 1, &z_lin_H, sizeof(z_lin_H), 10) != HAL_OK) retVal = HAL_ERROR;
-	//Magnet
-	if (HAL_I2C_Mem_Read(&hi2c1, magnetAddress, OUT_X_L, 1, &x_mag_L, sizeof(x_mag_L), 10) != HAL_OK) retVal = HAL_ERROR;
-	if (HAL_I2C_Mem_Read(&hi2c1, magnetAddress, OUT_X_H, 1, &x_mag_H, sizeof(x_mag_H), 10) != HAL_OK) retVal = HAL_ERROR;
-	if (HAL_I2C_Mem_Read(&hi2c1, magnetAddress, OUT_Y_L, 1, &y_mag_L, sizeof(y_mag_L), 10) != HAL_OK) retVal = HAL_ERROR;
-	if (HAL_I2C_Mem_Read(&hi2c1, magnetAddress, OUT_Y_H, 1, &y_mag_H, sizeof(y_mag_H), 10) != HAL_OK) retVal = HAL_ERROR;
-	if (HAL_I2C_Mem_Read(&hi2c1, magnetAddress, OUT_Z_L, 1, &z_mag_L, sizeof(z_mag_L), 10) != HAL_OK) retVal = HAL_ERROR;
-	if (HAL_I2C_Mem_Read(&hi2c1, magnetAddress, OUT_Z_H, 1, &z_mag_H, sizeof(z_mag_H), 10) != HAL_OK) retVal = HAL_ERROR;
-	*/
 	
 	//Gyro
-	if (HAL_I2C_Mem_Read(&hi2c1, accelAddress, 0x22 | 0x01, 1, &x_ang_L, sizeof(x_ang_L), 10) != HAL_OK) retVal = HAL_ERROR;
-	if (HAL_I2C_Mem_Read(&hi2c1, accelAddress, 0x23 | 0x01, 1, &x_ang_H, sizeof(x_ang_H), 10) != HAL_OK) retVal = HAL_ERROR;
-	if (HAL_I2C_Mem_Read(&hi2c1, accelAddress, 0x24 | 0x01, 1, &y_ang_L, sizeof(y_ang_L), 10) != HAL_OK) retVal = HAL_ERROR;
-	if (HAL_I2C_Mem_Read(&hi2c1, accelAddress, 0x25 | 0x01, 1, &y_ang_H, sizeof(y_ang_H), 10) != HAL_OK) retVal = HAL_ERROR;
-	if (HAL_I2C_Mem_Read(&hi2c1, accelAddress, 0x26 | 0x01, 1, &z_ang_L, sizeof(z_ang_L), 10) != HAL_OK) retVal = HAL_ERROR;
-	if (HAL_I2C_Mem_Read(&hi2c1, accelAddress, 0x27 | 0x01, 1, &z_ang_H, sizeof(z_ang_H), 10) != HAL_OK) retVal = HAL_ERROR;
+	if (HAL_I2C_Mem_Read(&hi2c1, ACCEL_GYRO_ADR, OUTX_L_G, 1, &x_ang_L, sizeof(x_ang_L), 10) != HAL_OK) retVal = HAL_ERROR;
+	if (HAL_I2C_Mem_Read(&hi2c1, ACCEL_GYRO_ADR, OUTX_H_G, 1, &x_ang_H, sizeof(x_ang_H), 10) != HAL_OK) retVal = HAL_ERROR;
+	if (HAL_I2C_Mem_Read(&hi2c1, ACCEL_GYRO_ADR, OUTY_L_G, 1, &y_ang_L, sizeof(y_ang_L), 10) != HAL_OK) retVal = HAL_ERROR;
+	if (HAL_I2C_Mem_Read(&hi2c1, ACCEL_GYRO_ADR, OUTY_H_G, 1, &y_ang_H, sizeof(y_ang_H), 10) != HAL_OK) retVal = HAL_ERROR;
+	if (HAL_I2C_Mem_Read(&hi2c1, ACCEL_GYRO_ADR, OUTZ_L_G, 1, &z_ang_L, sizeof(z_ang_L), 10) != HAL_OK) retVal = HAL_ERROR;
+	if (HAL_I2C_Mem_Read(&hi2c1, ACCEL_GYRO_ADR, OUTZ_H_G, 1, &z_ang_H, sizeof(z_ang_H), 10) != HAL_OK) retVal = HAL_ERROR;
 	//Accel
-	if (HAL_I2C_Mem_Read(&hi2c1, accelAddress, 0x28 | 0x01, 1, &x_lin_L, sizeof(x_lin_L), 10) != HAL_OK) retVal = HAL_ERROR;
-	if (HAL_I2C_Mem_Read(&hi2c1, accelAddress, 0x29 | 0x01, 1, &x_lin_H, sizeof(x_lin_H), 10) != HAL_OK) retVal = HAL_ERROR;
-	if (HAL_I2C_Mem_Read(&hi2c1, accelAddress, 0x2A | 0x01, 1, &y_lin_L, sizeof(y_lin_L), 10) != HAL_OK) retVal = HAL_ERROR;
-	if (HAL_I2C_Mem_Read(&hi2c1, accelAddress, 0x2B | 0x01, 1, &y_lin_H, sizeof(y_lin_H), 10) != HAL_OK) retVal = HAL_ERROR;
-	if (HAL_I2C_Mem_Read(&hi2c1, accelAddress, 0x2C | 0x01, 1, &z_lin_L, sizeof(z_lin_L), 10) != HAL_OK) retVal = HAL_ERROR;
-	if (HAL_I2C_Mem_Read(&hi2c1, accelAddress, 0x2D | 0x01, 1, &z_lin_H, sizeof(z_lin_H), 10) != HAL_OK) retVal = HAL_ERROR;
+	if (HAL_I2C_Mem_Read(&hi2c1, ACCEL_GYRO_ADR, OUTX_L_XL, 1, &x_lin_L, sizeof(x_lin_L), 10) != HAL_OK) retVal = HAL_ERROR;
+	if (HAL_I2C_Mem_Read(&hi2c1, ACCEL_GYRO_ADR, OUTX_H_XL, 1, &x_lin_H, sizeof(x_lin_H), 10) != HAL_OK) retVal = HAL_ERROR;
+	if (HAL_I2C_Mem_Read(&hi2c1, ACCEL_GYRO_ADR, OUTY_L_XL, 1, &y_lin_L, sizeof(y_lin_L), 10) != HAL_OK) retVal = HAL_ERROR;
+	if (HAL_I2C_Mem_Read(&hi2c1, ACCEL_GYRO_ADR, OUTY_H_XL, 1, &y_lin_H, sizeof(y_lin_H), 10) != HAL_OK) retVal = HAL_ERROR;
+	if (HAL_I2C_Mem_Read(&hi2c1, ACCEL_GYRO_ADR, OUTZ_L_XL, 1, &z_lin_L, sizeof(z_lin_L), 10) != HAL_OK) retVal = HAL_ERROR;
+	if (HAL_I2C_Mem_Read(&hi2c1, ACCEL_GYRO_ADR, OUTZ_H_XL, 1, &z_lin_H, sizeof(z_lin_H), 10) != HAL_OK) retVal = HAL_ERROR;
 	//Magnet
-	if (HAL_I2C_Mem_Read(&hi2c1, magnetAddress, 0x28 | 0x01, 1, &x_mag_L, sizeof(x_mag_L), 10) != HAL_OK) retVal = HAL_ERROR;
-	if (HAL_I2C_Mem_Read(&hi2c1, magnetAddress, 0x29 | 0x01, 1, &x_mag_H, sizeof(x_mag_H), 10) != HAL_OK) retVal = HAL_ERROR;
-	if (HAL_I2C_Mem_Read(&hi2c1, magnetAddress, 0x2A | 0x01, 1, &y_mag_L, sizeof(y_mag_L), 10) != HAL_OK) retVal = HAL_ERROR;
-	if (HAL_I2C_Mem_Read(&hi2c1, magnetAddress, 0x2B | 0x01, 1, &y_mag_H, sizeof(y_mag_H), 10) != HAL_OK) retVal = HAL_ERROR;
-	if (HAL_I2C_Mem_Read(&hi2c1, magnetAddress, 0x2C | 0x01, 1, &z_mag_L, sizeof(z_mag_L), 10) != HAL_OK) retVal = HAL_ERROR;
-	if (HAL_I2C_Mem_Read(&hi2c1, magnetAddress, 0x2D | 0x01, 1, &z_mag_H, sizeof(z_mag_H), 10) != HAL_OK) retVal = HAL_ERROR;
+	if (HAL_I2C_Mem_Read(&hi2c1, MAG_ADR, OUT_X_L, 1, &x_mag_L, sizeof(x_mag_L), 10) != HAL_OK) retVal = HAL_ERROR;
+	if (HAL_I2C_Mem_Read(&hi2c1, MAG_ADR, OUT_X_H, 1, &x_mag_H, sizeof(x_mag_H), 10) != HAL_OK) retVal = HAL_ERROR;
+	if (HAL_I2C_Mem_Read(&hi2c1, MAG_ADR, OUT_Y_L, 1, &y_mag_L, sizeof(y_mag_L), 10) != HAL_OK) retVal = HAL_ERROR;
+	if (HAL_I2C_Mem_Read(&hi2c1, MAG_ADR, OUT_Y_H, 1, &y_mag_H, sizeof(y_mag_H), 10) != HAL_OK) retVal = HAL_ERROR;
+	if (HAL_I2C_Mem_Read(&hi2c1, MAG_ADR, OUT_Z_L, 1, &z_mag_L, sizeof(z_mag_L), 10) != HAL_OK) retVal = HAL_ERROR;
+	if (HAL_I2C_Mem_Read(&hi2c1, MAG_ADR, OUT_Z_H, 1, &z_mag_H, sizeof(z_mag_H), 10) != HAL_OK) retVal = HAL_ERROR;
+	
 	
 	return retVal;
 }
