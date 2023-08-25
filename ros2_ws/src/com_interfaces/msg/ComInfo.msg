@@ -1,5 +1,7 @@
-Point[2] left_toggle
-Point[2] right_toggle
-bool sub_up
-bool sub_down
-bool screenshot
+int32 left_toggle_ud
+int32 left_toggle_lr
+int32 right_toggle_ud
+int32 right_toggle_lr
+int32 sub_up
+int32 sub_down
+int32 screenshot

@@ -5,6 +5,9 @@ from sensor_msgs.msg import Image
 import message_filters
 from message_filters import Subscriber
 
+#Import custom message type
+from com_interfaces.msg import DataInfo
+
 #Import OpenCV libraries
 import cv2 as cv
 from cv_bridge import CvBridge
@@ -30,6 +33,8 @@ class GUI(Node):
         self.subscription = self.create_subscription(Image, 'camera/image', 
                                                     self.cam_callback, 10)
         self.subscription
+        
+        
         #Data subscription will go here
         
         
@@ -46,25 +51,8 @@ class GUI(Node):
         
         self.panelA = None
         
-        #Serial read setup
-        self.serialport = serial.Serial("/dev/ttyACM0", 115200, timeout=0.5)
-        self.serialLine = None
-        
-        #Controller Input variables
-        self.leftToggleUD = None
-        self.leftToggleLR = None
-        self.rightToggleUD = None
-        self.rightToggleLR = None
-        self.subUp = None
-        self.subDown = None
-        self.screenshot = None
-        
     #This will eventually be time synchronized with incoming sub metrics
     def cam_callback(self, cam_sub): #Data will be passed here too
-        
-        #Read serial data and save to variables
-        self.serialLine = self.serialport.readline()
-        
         
         #Convert from ROS2 message to OpenCV image format
         convert_image = self.Bridge.imgmsg_to_cv2(cam_sub)
@@ -93,6 +81,8 @@ class GUI(Node):
             self.panelA.pack(fill=tk.BOTH, expand = True)
             
         self.root.update()
+        
+    
         
   
 def main(args=None):
