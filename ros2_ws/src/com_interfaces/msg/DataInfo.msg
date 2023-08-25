@@ -1,5 +1,6 @@
-IMU[3] trajectory
-Angle[3] rpy
-Prop[2] props
-Ballast[2] ballasts
-float64 battery_voltage
+int32 degrees_north
+float32 speed_scalar
+int32 depth_approx
+int32 roll
+int32 pitch
+int32 yaw

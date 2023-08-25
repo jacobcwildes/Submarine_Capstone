@@ -1,0 +1,17 @@
+##Synopsis:
+##The purpose of this container is to make the controller side 
+##of the submarine very portable.
+##In essence, the user only needs to install the docker engine, pull 
+##our repo, run "docker compose up"
+##and docker will either pull or construct the image to then run in a virtual
+##environment of its own
+##BASE IMAGE
+#########################################################################################
+FROM ubuntu:20.04 as controller_base
+
+ENV DEBIAN_ENV=noninteractive
+
+#This is like the terminal - need to tell it where to work
+WORKDIR /ROS
+
+#Install ROS2 Foxy desktop environment

@@ -21,10 +21,6 @@ find_package(geometry_msgs REQUIRED)
 find_package(rosidl_default_generators REQUIRED)
 rosidl_generate_interfaces(${PROJECT_NAME}
   "msg/ComInfo.msg"
-  "msg/IMU.msg"
-  "msg/Angle.msg"
-  "msg/Ballast.msg"
-  "msg/Prop.msg"
   "msg/DataInfo.msg"
  )
 ament_export_dependencies(rosidl_default_runtime)
