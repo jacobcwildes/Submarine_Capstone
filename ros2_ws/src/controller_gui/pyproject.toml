@@ -1,0 +1,14 @@
+[tool.poetry]
+name = "controller-gui"
+version = "0.1.0"
+description = "Graphic interface for 2023 submarine capstone"
+authors = ["jacobcwildes <wildes126@gmail.com>"]
+
+[tool.poetry.dependencies]
+python = "^3.8"
+serial = "^0.0.97"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
