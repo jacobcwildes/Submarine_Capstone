@@ -22,6 +22,8 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "string.h"
+#include "math.h"
+#include "stdio.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -31,6 +33,27 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
+//gyro
+#define OUTX_L_G (0x22 | 0x01)
+#define OUTX_H_G (0x23 | 0x01)
+#define OUTY_L_G (0x24 | 0x01)
+#define OUTY_H_G (0x25 | 0x01)
+#define OUTZ_L_G (0x26 | 0x01)
+#define OUTZ_H_G (0x27 | 0x01)
+//accel
+#define OUTX_L_XL (0x28 | 0x01)
+#define OUTX_H_XL (0x29 | 0x01)
+#define OUTY_L_XL (0x2A | 0x01)
+#define OUTY_H_XL (0x2B | 0x01)
+#define OUTZ_L_XL (0x2C | 0x01)
+#define OUTZ_H_XL (0x2D | 0x01)
+//magentometer
+#define OUT_X_L (0x28 | 0x01)
+#define OUT_X_H (0x29 | 0x01)
+#define OUT_Y_L (0x2A | 0x01)
+#define OUT_Y_H (0x2B | 0x01)
+#define OUT_Z_L (0x2C | 0x01)
+#define OUT_Z_H (0x2D | 0x01)
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -61,19 +84,75 @@ static void MX_LPUART1_UART_Init(void);
 static void MX_USART3_UART_Init(void);
 static void MX_USB_OTG_FS_PCD_Init(void);
 /* USER CODE BEGIN PFP */
-
+uint8_t binaryToDecimal(int start_index, int bitCount);
+HAL_StatusTypeDef imuRead(void);
+uint16_t twosComptoDec(uint8_t low_reg, uint8_t high_reg);
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
 uint8_t rx_received = 0;
-uint8_t tx_buffer[] = "180,10.4,5,270,270,270,16.9\n";
-uint8_t tx_on[27] = "LED ON\n\r";
-uint8_t tx_off[27] = "LED OFF\n\r";
-uint8_t tx_no[27] = "NO\n\r";
+char tx_buffer[100];
 uint8_t rx_data[35];
-uint8_t rx_buffer[100];
-uint8_t rx_index = 0;
+
+//GLOBAL Coms Info
+uint8_t depthUp = 0;
+uint8_t depthDown = 0;
+uint8_t captureImage = 0;
+uint8_t forwardThrust = 0;
+uint8_t turnThrust = 0;
+uint8_t camUpDown = 0;
+uint8_t camLeftRight = 0;
+
+
+//GLOBAL Data info
+uint16_t degreesNorth = 180;
+float speedScalar = 10.4;
+uint16_t depthApprox = 5;
+uint16_t roll = 270;
+uint16_t pitch = 270;
+uint16_t yaw = 270;
+float voltageBattery = 16.9;
+
+//GLOBAL I2C Addresses
+uint16_t accelAddress = 0x6a;
+uint16_t magnetAddress = 0x1c;
+
+//GLOBAL I2C pData
+uint8_t x_ang_L;
+uint8_t x_ang_H;
+uint8_t y_ang_L;
+uint8_t y_ang_H;
+uint8_t z_ang_L;
+uint8_t z_ang_H;
+
+uint8_t x_lin_L;
+uint8_t x_lin_H;
+uint8_t y_lin_L;
+uint8_t y_lin_H;
+uint8_t z_lin_L;
+uint8_t z_lin_H;
+
+uint8_t x_mag_L;
+uint8_t x_mag_H;
+uint8_t y_mag_L;
+uint8_t y_mag_H;
+uint8_t z_mag_L;
+uint8_t z_mag_H;
+
+//GLOBAL IMU DOF 
+uint16_t x_ang;
+uint16_t y_ang;
+uint16_t z_ang;
+
+uint16_t x_lin;
+uint16_t y_lin;
+uint16_t z_lin;
+
+uint16_t x_mag;
+uint16_t y_mag;
+uint16_t z_mag;
+
 /* USER CODE END 0 */
 
 /**
@@ -111,10 +190,8 @@ int main(void)
   MX_USB_OTG_FS_PCD_Init();
   /* USER CODE BEGIN 2 */
 	
+	HAL_UART_Receive_IT(&hlpuart1, rx_data, 35); //Init recieve global interupt for 35 bit buffer
 	
-
-	
-	HAL_UART_Receive_IT(&hlpuart1, rx_data, 35);
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -123,14 +200,53 @@ int main(void)
   {
   	if (rx_received) //New Transmission from RPI
   	{
-  		rx_received = 0;
-			HAL_UART_Transmit(&hlpuart1, tx_buffer, sizeof(tx_buffer), 10);
+  		rx_received = 0; //reset for next transmission
+  		
+  		//Coms parsing
+  		depthUp = rx_data[0];
+  		depthDown = rx_data[1];
+  		captureImage = rx_data[2];
+  		forwardThrust = binaryToDecimal(3, 8);
+  		turnThrust = binaryToDecimal(11, 8);
+  		camUpDown = binaryToDecimal(19, 8);
+  		camLeftRight = binaryToDecimal(27, 8);
+  		
+  		
+  		
+  		if (imuRead() == HAL_OK)
+  		{
+  			HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_14); //toggle LED for dev	
+  			x_ang = twosComptoDec(x_ang_L, x_ang_H);
+				y_ang = twosComptoDec(y_ang_L, y_ang_H);
+				z_ang = twosComptoDec(z_ang_L, z_ang_H);
+
+				x_lin = twosComptoDec(x_lin_L, x_lin_H);
+				y_lin = twosComptoDec(y_lin_L, y_lin_H);
+				z_lin = twosComptoDec(z_lin_L, z_lin_H);
+
+				x_mag = twosComptoDec(x_mag_L, x_mag_H);
+				y_mag = twosComptoDec(y_mag_L, y_mag_H);
+				z_mag = twosComptoDec(z_mag_L, z_mag_H);
+  		}
+  		
+  		
+  		
+  		
+  		
+  		
+  		//Data concat
+			sprintf(tx_buffer, "%u,%u,%u,%u,%u,%u,%u\n\r", degreesNorth, (uint16_t)(10*speedScalar), depthApprox, roll, pitch, yaw, (uint16_t)(10*voltageBattery));
+			
+			//sprintf(tx_buffer, "%u,%u,%u,%u,%u,%u,%u,%u,%u\n\r", x_ang, y_ang, z_ang, x_lin, y_lin, z_lin, x_mag, y_mag, z_mag );
+			
+  		
+			HAL_UART_Transmit(&hlpuart1, (uint8_t *)tx_buffer, sizeof(tx_buffer), 10);
   	}
   	
   	
   	
     /* USER CODE END WHILE */
-		HAL_Delay(500);
+		HAL_Delay(100);
     /* USER CODE BEGIN 3 */
   }
   /* USER CODE END 3 */
@@ -532,37 +648,97 @@ static void MX_GPIO_Init(void)
 /* USER CODE BEGIN 4 */
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 {
+	UNUSED(huart); //waring suppresion
+	
+	//HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_14); //toggle LED for dev
+	rx_received = 1;//set flag for use in while loop
+	
+	HAL_UART_Receive_IT(&hlpuart1, rx_data, 35); //reset UART interupt for next transmission
+}
 
-	UNUSED(huart);
 
-	//HAL_UART_Transmit(&hlpuart1, rx_data, 1, 10);
-	HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_14);
-	rx_received = 1;
+uint8_t binaryToDecimal(int start_index, int bitCount)
+{
+	//MSB is on the left so we start high and go low on the exp
+	uint8_t result = 0;
+	for (int i = 0; i < bitCount; i++)
+	{
+		result += rx_data[start_index+(bitCount-1-i)]*pow(2, i);
+	}
+	return result;
+}
+
+
+HAL_StatusTypeDef imuRead(void)
+{
+		/*
+			HAL_StatusTypeDef HAL_I2C_Mem_Read	(	I2C_HandleTypeDef * 	hi2c,
+																						uint16_t 	DevAddress,
+																						uint16_t 	MemAddress,
+																						uint16_t 	MemAddSize,
+																						uint8_t * 	pData,
+																						uint16_t 	Size,
+																						uint32_t 	Timeout 
+)		
+		*/
 	
-	
-	
+	HAL_StatusTypeDef retVal = HAL_OK;
 	/*
-	if (rx_index == 0)
-	{
-		for (int i = 0; i < 100; i++)
-		{
-			rx_buffer[i] = 0;
-		}
-	}
-	if (rx_data[0] != 13) //NOT carriage return
-	{
-		rx_buffer[rx_index++] = rx_data[0];
-	}
-	else //Carriage return means end of transmission
-	{
-		rx_index = 0;
-		rx_received = 1;
-	}
-	//Now rx_recieved flag read in main and use rx_buffer
+	//Gyro
+	if (HAL_I2C_Mem_Read(&hi2c1, accelAddress, OUTX_L_G, 1, &x_ang_L, sizeof(x_ang_L), 10) != HAL_OK) retVal = HAL_ERROR;
+	if (HAL_I2C_Mem_Read(&hi2c1, accelAddress, OUTX_H_G, 1, &x_ang_H, sizeof(x_ang_H), 10) != HAL_OK) retVal = HAL_ERROR;
+	if (HAL_I2C_Mem_Read(&hi2c1, accelAddress, OUTY_L_G, 1, &y_ang_L, sizeof(y_ang_L), 10) != HAL_OK) retVal = HAL_ERROR;
+	if (HAL_I2C_Mem_Read(&hi2c1, accelAddress, OUTY_H_G, 1, &y_ang_H, sizeof(y_ang_H), 10) != HAL_OK) retVal = HAL_ERROR;
+	if (HAL_I2C_Mem_Read(&hi2c1, accelAddress, OUTZ_L_G, 1, &z_ang_L, sizeof(z_ang_L), 10) != HAL_OK) retVal = HAL_ERROR;
+	if (HAL_I2C_Mem_Read(&hi2c1, accelAddress, OUTZ_H_G, 1, &z_ang_H, sizeof(z_ang_H), 10) != HAL_OK) retVal = HAL_ERROR;
+	//Accel
+	if (HAL_I2C_Mem_Read(&hi2c1, accelAddress, OUTX_L_XL, 1, &x_lin_L, sizeof(x_lin_L), 10) != HAL_OK) retVal = HAL_ERROR;
+	if (HAL_I2C_Mem_Read(&hi2c1, accelAddress, OUTX_H_XL, 1, &x_lin_H, sizeof(x_lin_H), 10) != HAL_OK) retVal = HAL_ERROR;
+	if (HAL_I2C_Mem_Read(&hi2c1, accelAddress, OUTY_L_XL, 1, &y_lin_L, sizeof(y_lin_L), 10) != HAL_OK) retVal = HAL_ERROR;
+	if (HAL_I2C_Mem_Read(&hi2c1, accelAddress, OUTY_H_XL, 1, &y_lin_H, sizeof(y_lin_H), 10) != HAL_OK) retVal = HAL_ERROR;
+	if (HAL_I2C_Mem_Read(&hi2c1, accelAddress, OUTZ_L_XL, 1, &z_lin_L, sizeof(z_lin_L), 10) != HAL_OK) retVal = HAL_ERROR;
+	if (HAL_I2C_Mem_Read(&hi2c1, accelAddress, OUTZ_H_XL, 1, &z_lin_H, sizeof(z_lin_H), 10) != HAL_OK) retVal = HAL_ERROR;
+	//Magnet
+	if (HAL_I2C_Mem_Read(&hi2c1, magnetAddress, OUT_X_L, 1, &x_mag_L, sizeof(x_mag_L), 10) != HAL_OK) retVal = HAL_ERROR;
+	if (HAL_I2C_Mem_Read(&hi2c1, magnetAddress, OUT_X_H, 1, &x_mag_H, sizeof(x_mag_H), 10) != HAL_OK) retVal = HAL_ERROR;
+	if (HAL_I2C_Mem_Read(&hi2c1, magnetAddress, OUT_Y_L, 1, &y_mag_L, sizeof(y_mag_L), 10) != HAL_OK) retVal = HAL_ERROR;
+	if (HAL_I2C_Mem_Read(&hi2c1, magnetAddress, OUT_Y_H, 1, &y_mag_H, sizeof(y_mag_H), 10) != HAL_OK) retVal = HAL_ERROR;
+	if (HAL_I2C_Mem_Read(&hi2c1, magnetAddress, OUT_Z_L, 1, &z_mag_L, sizeof(z_mag_L), 10) != HAL_OK) retVal = HAL_ERROR;
+	if (HAL_I2C_Mem_Read(&hi2c1, magnetAddress, OUT_Z_H, 1, &z_mag_H, sizeof(z_mag_H), 10) != HAL_OK) retVal = HAL_ERROR;
 	*/
 	
-	HAL_UART_Receive_IT(&hlpuart1, rx_data, 35);
+	//Gyro
+	if (HAL_I2C_Mem_Read(&hi2c1, accelAddress, 0x22 | 0x01, 1, &x_ang_L, sizeof(x_ang_L), 10) != HAL_OK) retVal = HAL_ERROR;
+	if (HAL_I2C_Mem_Read(&hi2c1, accelAddress, 0x23 | 0x01, 1, &x_ang_H, sizeof(x_ang_H), 10) != HAL_OK) retVal = HAL_ERROR;
+	if (HAL_I2C_Mem_Read(&hi2c1, accelAddress, 0x24 | 0x01, 1, &y_ang_L, sizeof(y_ang_L), 10) != HAL_OK) retVal = HAL_ERROR;
+	if (HAL_I2C_Mem_Read(&hi2c1, accelAddress, 0x25 | 0x01, 1, &y_ang_H, sizeof(y_ang_H), 10) != HAL_OK) retVal = HAL_ERROR;
+	if (HAL_I2C_Mem_Read(&hi2c1, accelAddress, 0x26 | 0x01, 1, &z_ang_L, sizeof(z_ang_L), 10) != HAL_OK) retVal = HAL_ERROR;
+	if (HAL_I2C_Mem_Read(&hi2c1, accelAddress, 0x27 | 0x01, 1, &z_ang_H, sizeof(z_ang_H), 10) != HAL_OK) retVal = HAL_ERROR;
+	//Accel
+	if (HAL_I2C_Mem_Read(&hi2c1, accelAddress, 0x28 | 0x01, 1, &x_lin_L, sizeof(x_lin_L), 10) != HAL_OK) retVal = HAL_ERROR;
+	if (HAL_I2C_Mem_Read(&hi2c1, accelAddress, 0x29 | 0x01, 1, &x_lin_H, sizeof(x_lin_H), 10) != HAL_OK) retVal = HAL_ERROR;
+	if (HAL_I2C_Mem_Read(&hi2c1, accelAddress, 0x2A | 0x01, 1, &y_lin_L, sizeof(y_lin_L), 10) != HAL_OK) retVal = HAL_ERROR;
+	if (HAL_I2C_Mem_Read(&hi2c1, accelAddress, 0x2B | 0x01, 1, &y_lin_H, sizeof(y_lin_H), 10) != HAL_OK) retVal = HAL_ERROR;
+	if (HAL_I2C_Mem_Read(&hi2c1, accelAddress, 0x2C | 0x01, 1, &z_lin_L, sizeof(z_lin_L), 10) != HAL_OK) retVal = HAL_ERROR;
+	if (HAL_I2C_Mem_Read(&hi2c1, accelAddress, 0x2D | 0x01, 1, &z_lin_H, sizeof(z_lin_H), 10) != HAL_OK) retVal = HAL_ERROR;
+	//Magnet
+	if (HAL_I2C_Mem_Read(&hi2c1, magnetAddress, 0x28 | 0x01, 1, &x_mag_L, sizeof(x_mag_L), 10) != HAL_OK) retVal = HAL_ERROR;
+	if (HAL_I2C_Mem_Read(&hi2c1, magnetAddress, 0x29 | 0x01, 1, &x_mag_H, sizeof(x_mag_H), 10) != HAL_OK) retVal = HAL_ERROR;
+	if (HAL_I2C_Mem_Read(&hi2c1, magnetAddress, 0x2A | 0x01, 1, &y_mag_L, sizeof(y_mag_L), 10) != HAL_OK) retVal = HAL_ERROR;
+	if (HAL_I2C_Mem_Read(&hi2c1, magnetAddress, 0x2B | 0x01, 1, &y_mag_H, sizeof(y_mag_H), 10) != HAL_OK) retVal = HAL_ERROR;
+	if (HAL_I2C_Mem_Read(&hi2c1, magnetAddress, 0x2C | 0x01, 1, &z_mag_L, sizeof(z_mag_L), 10) != HAL_OK) retVal = HAL_ERROR;
+	if (HAL_I2C_Mem_Read(&hi2c1, magnetAddress, 0x2D | 0x01, 1, &z_mag_H, sizeof(z_mag_H), 10) != HAL_OK) retVal = HAL_ERROR;
+	
+	return retVal;
 }
+
+uint16_t twosComptoDec(uint8_t low_reg, uint8_t high_reg)
+{
+	uint16_t combined = ((uint16_t)high_reg << 8) | low_reg;
+	if ((combined & 0x8000) == 0) return combined; //negative if top bit is 1
+	else return -(~combined + 1);
+}
+
 /* USER CODE END 4 */
 
 /**
