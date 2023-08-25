@@ -6,7 +6,7 @@
   <description>commands from controller exec and data report</description>
   <maintainer email="dyllon.dunton@maine.edu">Dyllon Dunton</maintainer>
   <license>MIT</license>
-
+  <exec_depend>ros2launch</exec_depend>
   <test_depend>ament_copyright</test_depend>
   <test_depend>ament_flake8</test_depend>
   <test_depend>ament_pep257</test_depend>

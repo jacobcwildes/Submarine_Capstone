@@ -1,5 +1,5 @@
 ##Synopsis:
-##The purpose of this container is to make the controller side 
+##The purpose of this container is to make the sub side 
 ##of the submarine very portable.
 ##In essence, the user only needs to install the docker engine, pull 
 ##our repo, run "docker compose up"
@@ -60,34 +60,13 @@ ENV RMW_IMPLEMENTATION=rmw_cyclonedds_cpp
 RUN wget -O "/usr/share/keyrings/xpra.asc" https://xpra.org/xpra.asc
 RUN cd /etc/apt/sources.list.d ; wget https://raw/githubusercontent.com/Xpra-org/xpra/master/packaging/repos/focal/xpra.sources
 RUN apt update && apt install xpra -y
-#########################################################################################
-##CONTROLLER DEV
-FROM capstone-base as controller-dev
-LABEL maintainer="wildes126@gmail.com"
-LABEL version="1"
-LABEL description="Dev layer of controller Docker image"
 
-WORKDIR /ROS
-
-##Docker allows us to buiild in layers - now that I have the base, that will work for 
-##not only the controller but the sub. Instead of rebuilding from the ground up, 
-##the base can be left alone and the dev layer can be rebuilt as needed
-
-##Need OpenCV to convert ros images to displayable images - install from source
-##Instruction pulkled from docs.opencv.org
-RUN wget -O opencv.zip https://github.com/opencv/opencv/archive/4.x.zip
-RUN unzip opencv.zip
-RUN mv opencv-4.x opencv
-RUN mkdir -p build && cd build
-RUN cmake ./opencv
-RUN make -j4
-RUN make install
 ##########################################################################################
-##CONTROLLER DEPLOY
-FROM controller-dev as controller-deploy
+##SUBMARINE DEPLOY
+FROM capstone-dev as submarine-deploy
 LABEL maintainer="wildes126@gmail.com"
 LABEL version="1"
-LABEL description="Run the controller in a virtual environment that is easily deployable"
+LABEL description="Run the submarine in a virtual environment that is easily deployable"
 
 WORKDIR /ROS
 

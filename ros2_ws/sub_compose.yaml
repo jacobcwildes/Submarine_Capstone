@@ -1,0 +1,16 @@
+version: '3.8'
+
+services:
+    GUI:
+        container_name: Submarine
+        image: submarine-deploy
+        privileged: true
+        network_mode: host
+        tty: true
+        volumes:
+            - '/tmp/.x11-unix:/tmp/.X11-unix'
+            - './sub_entrypoint.sh'
+        devices:
+            - '/dev/ttyACM0'
+        environment: 
+            - Display=$DISPLAY   
