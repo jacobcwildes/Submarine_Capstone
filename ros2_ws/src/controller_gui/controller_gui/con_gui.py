@@ -18,8 +18,6 @@ import tkinter as tk
 import PIL.Image
 import PIL.ImageTk
 
-import serial
-
 class GUI(Node):
 
     def __init__(self):

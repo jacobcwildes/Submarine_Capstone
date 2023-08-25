@@ -6,7 +6,8 @@
   <description>TODO: Package description</description>
   <maintainer email="wildes126@gmail.com">Jacob</maintainer>
   <license>TODO: License declaration</license>
-
+    
+  <exec_depend>ros2launch</exec_depend>
   <exec_depend>rclpy</exec_depend>
   <exec_depend>std_msgs</exec_depend>
   <depend>rclcpp</depend>
