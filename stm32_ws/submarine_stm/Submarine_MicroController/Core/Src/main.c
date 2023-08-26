@@ -91,6 +91,9 @@ static void MX_USB_OTG_FS_PCD_Init(void);
 uint8_t binaryToDecimal(int start_index, int bitCount);
 HAL_StatusTypeDef imuRead(void);
 uint16_t twosComptoDec(uint8_t low_reg, uint8_t high_reg);
+
+
+void MTR_DRV_INIT(uint8_t currentValue, uint8_t decay, uint8_t reset, uint8_t sleep);
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -189,7 +192,7 @@ int main(void)
   MX_USART3_UART_Init();
   MX_USB_OTG_FS_PCD_Init();
   /* USER CODE BEGIN 2 */
-	
+	MTR_DRV_INIT(0x00, 0x00, 0x01, 0x01);
 	HAL_UART_Receive_IT(&hlpuart1, rx_data, 35); //Init recieve global interupt for 35 bit buffer
 	
   /* USER CODE END 2 */
@@ -714,6 +717,46 @@ uint16_t twosComptoDec(uint8_t low_reg, uint8_t high_reg)
 	if ((combined & 0x8000) == 0) return combined; //negative if top bit is 1
 	else return -(~combined + 1);
 }
+
+void MTR_DRV_INIT(uint8_t currentValue, uint8_t decay, uint8_t reset, uint8_t sleep)
+{
+  //Current Set
+  /*
+    xI1 xI0 current
+    0b00 -> 0x0 -> 100%
+    0b01 -> 0x1 -> 71%
+    0b10 -> 0x2 -> 38%
+    0b11 -> 0x3 -> 0%
+    
+    AI1 -> PF13
+    AI0 -> PF14
+    BI1 -> PF15
+    BI0 -> PG0
+    
+  */
+  //xI1
+  HAL_GPIO_WritePin(GPIOF, GPIO_PIN_13, (currentValue>>1) & ~0x01);
+  HAL_GPIO_WritePin(GPIOF, GPIO_PIN_15, (currentValue>>1) & ~0x01));
+  //xI0
+  HAL_GPIO_WritePin(GPIOF, GPIO_PIN_14, (currentValue) & ~0x01));
+  HAL_GPIO_WritePin(GPIOG, GPIO_PIN_0, (currentValue) & ~0x01));
+  
+  //Decay
+  HAL_GPIO_WritePin(GPIOE, GPIO_PIN_8, decay);
+  
+  //Reset
+  HAL_GPIO_WritePin(GPIOG, GPIO_PIN_1, reset);
+  
+  //Sleep
+  HAL_GPIO_WritePin(GPIOE, GPIO_PIN_7, sleep);
+  
+  
+}
+
+
+
+
+
 
 /* USER CODE END 4 */
 
