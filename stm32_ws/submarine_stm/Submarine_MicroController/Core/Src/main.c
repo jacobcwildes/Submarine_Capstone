@@ -173,6 +173,14 @@ uint16_t z_mag;
 //GLOBAL PWM
 uint16_t ARR = 11999;
 
+//GLOBAL Thrust
+float leftThrust;
+float rightThrust;
+float forThrust;
+float backThrust;
+float leftPropThrust;
+float rightPropThrust;
+
 
 
 /* USER CODE END 0 */
@@ -220,6 +228,8 @@ int main(void)
 	HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_3);
 	HAL_TIM_PWM_Start(&htim4, TIM_CHANNEL_2);
 	HAL_TIM_PWM_Start(&htim4, TIM_CHANNEL_3);
+	HAL_TIM_PWM_Start(&htim5, TIM_CHANNEL_2);
+	HAL_TIM_PWM_Start(&htim5, TIM_CHANNEL_3);
 	
   /* USER CODE END 2 */
 
@@ -227,16 +237,19 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-  	
-  		parseComs();
-  		imuPullData();
-  		
-  		
-  		
-  		
-  		
-  		transmitData();
-  	
+  	if (rx_received) //New Transmission from RPI
+    {
+		  rx_received = 0;
+		  parseComs();
+		  //imuPullData();
+		  updateProps();
+		  transmitData();
+
+
+		  
+		}
+		  
+
   	
   	
     /* USER CODE END WHILE */
@@ -844,9 +857,12 @@ uint8_t binaryToDecimal(int start_index, int bitCount)
 {
 	//MSB is on the left so we start high and go low on the exp
 	uint8_t result = 0;
-	for (int i = 0; i < bitCount; i++)
+	for (int i = bitCount - 1; i >= 0; i--)
 	{
-		result += rx_data[start_index+(bitCount-1-i)]*pow(2, i);
+		if (rx_data[start_index + i] == 49)
+		{
+			result += pow(2, 7 - i);
+		}
 	}
 	return result;
 }
@@ -958,31 +974,75 @@ void MTR_DRV_INIT(uint8_t currentValue, uint8_t decay, uint8_t reset, uint8_t sl
 
 void updateProps(void)
 {
+  HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_14); //toggle LED for dev
+  
   //Convert coms thrust vals in percentages for f,b,l,r
-  float leftThrust = (-turnThrust + 128)/256; // 0% <-> 50%
-  float rightThrust = (turnThrust - 128)/256; // 0% <-> 50%
-  float forThrust = (forwardThrust - 128)/256; // 0% <-> 50%
-  float backThrust = (-forwardThrust + 128)/256; // 0% <-> 50%
+  leftThrust = ((float)(-turnThrust + 128))/256.0; // 0% <-> 50%
+  rightThrust = ((float)(turnThrust - 128))/256.0; // 0% <-> 50%
+  forThrust = ((float)(forwardThrust - 128))/256.0; // 0% <-> 50%
+  backThrust = ((float)(-forwardThrust + 128))/256.0; // 0% <-> 50%
   
   //mix individual thrust values into 
-  float leftPropThrust = leftThrust - rightThrust + forThrust - backThrust; // -100% <-> 100%
-  float rightPropThrust = rightThrust - leftThrust + forThrust - backThrust; // -100% <-> 100%
-  
+  leftPropThrust = leftThrust - rightThrust + forThrust - backThrust; // -100% <-> 100%
+  rightPropThrust = rightThrust - leftThrust + forThrust - backThrust; // -100% <-> 100%
+  /*
   //LEFT PROP SET DC (TIM3_CH2 = forward) (TIM3_CH3 = backward)
-  if (leftPropThrust >= 0) TIM3->CCR2 = leftPropThrust*ARR;
-  else TIM3->CCR3 = -leftPropThrust*ARR;
+  if (leftPropThrust >= 0) 
+  {
+    TIM3->CCR2 = leftPropThrust*ARR;
+    TIM3->CCR3 = 0;
+  }
+  else 
+  {
+    TIM3->CCR3 = -leftPropThrust*ARR;
+    TIM3->CCR2 = 0;
+  }
   
   //RIGHT PROP SET DC (TIM4_CH2 = forward) (TIM4_CH3 = backward)
-  if (rightPropThrust >= 0) TIM4->CCR2 = rightPropThrust*ARR;
-  else TIM4->CCR3 = -rightPropThrust*ARR;
+  if (rightPropThrust >= 0) 
+  {
+    TIM4->CCR2 = rightPropThrust*ARR;
+    TIM4->CCR3 = 0;
+  }
+  else
+  {
+    TIM4->CCR3 = -rightPropThrust*ARR;
+    TIM4->CCR2 = 0;
+  }
+  */
 }
 
 void parseComs(void)
 {
   //Coms parsing
-	depthUp = rx_data[0];
-	depthDown = rx_data[1];
-	captureImage = rx_data[2];
+  
+  if (rx_data[0] == 48)
+  {
+  	depthUp = 0;
+  }
+  else if (rx_data[0] == 49)
+  {
+  	depthUp = 1;
+  }
+  
+  if (rx_data[1] == 48)
+  {
+  	depthDown = 0;
+  }
+  else if (rx_data[1] == 49)
+  {
+  	depthDown = 1;
+  }
+  
+  if (rx_data[2] == 48)
+  {
+  	captureImage = 0;
+  }
+  else if (rx_data[2] == 49)
+  {
+  	captureImage = 1;
+  }
+	
 	forwardThrust = binaryToDecimal(3, 8);
 	turnThrust = binaryToDecimal(11, 8);
 	camUpDown = binaryToDecimal(19, 8);
@@ -991,20 +1051,19 @@ void parseComs(void)
 
 void transmitData(void)
 {
-  if (rx_received) //New Transmission from RPI
-  {
-  	rx_received = 0; //reset for next transmission
-		//Data concat
-		
-		// For actual communication back to RPI (STILL USING TEST DATA)(This sprintf call works)
-		sprintf(tx_buffer, "%u,%u,%u,%u,%u,%u,%u\n\r", degreesNorth, (uint16_t)(10*speedScalar), depthApprox, roll, pitch, yaw, (uint16_t)(10*voltageBattery));
-		
-		// For reading the i2c values on the RPI
-		//sprintf(tx_buffer, "%u,%u,%u,%u,%u,%u,%u,%u,%u\n\r", x_ang, y_ang, z_ang, x_lin, y_lin, z_lin, x_mag, y_mag, z_mag );
-		
-		
-		HAL_UART_Transmit(&hlpuart1, (uint8_t *)tx_buffer, sizeof(tx_buffer), 10);
-	}		
+	//Data concat
+	
+	// For actual communication back to RPI (STILL USING TEST DATA)(This sprintf call works)
+	//sprintf(tx_buffer, "%u,%u,%u,%u,%u,%u,%u\n\r", degreesNorth, (uint16_t)(10*speedScalar), depthApprox, roll, pitch, yaw, (uint16_t)(10*voltageBattery));
+	
+	// For reading the i2c values on the RPI
+	//sprintf(tx_buffer, "%u,%u,%u,%u,%u,%u,%u,%u,%u\n\r", x_ang, y_ang, z_ang, x_lin, y_lin, z_lin, x_mag, y_mag, z_mag );
+
+  //sprintf(tx_buffer, "%u,%u,%u,%u,%u,%u\n\r", (uint8_t)leftThrust*100, (uint8_t)rightThrust*100, (uint8_t)forThrust*100, (uint8_t)backThrust*100, (uint8_t)leftPropThrust*100, (uint8_t)rightPropThrust*100);
+
+	sprintf(tx_buffer, "%u,%u,%u,%u,%u,%u,%u\n\r", depthUp, depthDown, captureImage, forwardThrust, turnThrust, camUpDown, camLeftRight);
+
+  HAL_UART_Transmit(&hlpuart1, (uint8_t *)tx_buffer, sizeof(tx_buffer), 10);	
 }
 
 
