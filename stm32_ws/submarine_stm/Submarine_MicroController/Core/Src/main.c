@@ -93,10 +93,16 @@ static void MX_TIM3_Init(void);
 /* USER CODE BEGIN PFP */
 uint8_t binaryToDecimal(int start_index, int bitCount);
 HAL_StatusTypeDef imuRead(void);
+void imuPullData(void);
 uint16_t twosComptoDec(uint8_t low_reg, uint8_t high_reg);
 
 
 void MTR_DRV_INIT(uint8_t currentValue, uint8_t decay, uint8_t reset, uint8_t sleep);
+
+void parseComs(void);
+void transmitData(void);
+
+void updateProps(void);
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -159,6 +165,12 @@ uint16_t x_mag;
 uint16_t y_mag;
 uint16_t z_mag;
 
+
+//GLOBAL PWM
+uint16_t ARR = 11999;
+
+
+
 /* USER CODE END 0 */
 
 /**
@@ -198,6 +210,10 @@ int main(void)
   /* USER CODE BEGIN 2 */
 	MTR_DRV_INIT(0x00, 0x00, 0x01, 0x01);
 	HAL_UART_Receive_IT(&hlpuart1, rx_data, 35); //Init recieve global interupt for 35 bit buffer
+	HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_2);
+	HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_3);
+	HAL_TIM_PWM_Start(&htim4, TIM_CHANNEL_2);
+	HAL_TIM_PWM_Start(&htim4, TIM_CHANNEL_3);
 	
   /* USER CODE END 2 */
 
@@ -205,48 +221,15 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-  	if (rx_received) //New Transmission from RPI
-  	{
-  		rx_received = 0; //reset for next transmission
-  		
-  		//Coms parsing
-  		depthUp = rx_data[0];
-  		depthDown = rx_data[1];
-  		captureImage = rx_data[2];
-  		forwardThrust = binaryToDecimal(3, 8);
-  		turnThrust = binaryToDecimal(11, 8);
-  		camUpDown = binaryToDecimal(19, 8);
-  		camLeftRight = binaryToDecimal(27, 8);
+  	
+  		parseComs();
+  		imuPullData();
   		
   		
-  		//Begin reading IMU data
-  		if (imuRead() == HAL_OK) //If reading without error
-  		{
-  			HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_14); //toggle LED for dev	
-  			x_ang = twosComptoDec(x_ang_L, x_ang_H);//get xyz values for all 9DOF
-				y_ang = twosComptoDec(y_ang_L, y_ang_H);//will need to do further calc for position, rotation, compass
-				z_ang = twosComptoDec(z_ang_L, z_ang_H);
-
-				x_lin = twosComptoDec(x_lin_L, x_lin_H);
-				y_lin = twosComptoDec(y_lin_L, y_lin_H);
-				z_lin = twosComptoDec(z_lin_L, z_lin_H);
-
-				x_mag = twosComptoDec(x_mag_L, x_mag_H);
-				y_mag = twosComptoDec(y_mag_L, y_mag_H);
-				z_mag = twosComptoDec(z_mag_L, z_mag_H);
-  		}
-
-  		//Data concat
   		
-  		// For actual communication back to RPI (STILL USING TEST DATA)(This sprintf call works)
-			//sprintf(tx_buffer, "%u,%u,%u,%u,%u,%u,%u\n\r", degreesNorth, (uint16_t)(10*speedScalar), depthApprox, roll, pitch, yaw, (uint16_t)(10*voltageBattery));
-			
-			// For reading the i2c values on the RPI
-			sprintf(tx_buffer, "%u,%u,%u,%u,%u,%u,%u,%u,%u\n\r", x_ang, y_ang, z_ang, x_lin, y_lin, z_lin, x_mag, y_mag, z_mag );
-			
   		
-			HAL_UART_Transmit(&hlpuart1, (uint8_t *)tx_buffer, sizeof(tx_buffer), 10);
-  	}
+  		
+  		transmitData();
   	
   	
   	
@@ -778,6 +761,26 @@ HAL_StatusTypeDef imuRead(void)
 	return retVal;
 }
 
+void imuPullData(void)
+{
+  //Begin reading IMU data
+	if (imuRead() == HAL_OK) //If reading without error
+	{
+		HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_14); //toggle LED for dev	
+		x_ang = twosComptoDec(x_ang_L, x_ang_H);//get xyz values for all 9DOF
+		y_ang = twosComptoDec(y_ang_L, y_ang_H);//will need to do further calc for position, rotation, compass
+		z_ang = twosComptoDec(z_ang_L, z_ang_H);
+
+		x_lin = twosComptoDec(x_lin_L, x_lin_H);
+		y_lin = twosComptoDec(y_lin_L, y_lin_H);
+		z_lin = twosComptoDec(z_lin_L, z_lin_H);
+
+		x_mag = twosComptoDec(x_mag_L, x_mag_H);
+		y_mag = twosComptoDec(y_mag_L, y_mag_H);
+		z_mag = twosComptoDec(z_mag_L, z_mag_H);
+	}
+}
+
 uint16_t twosComptoDec(uint8_t low_reg, uint8_t high_reg)
 {
 	uint16_t combined = ((uint16_t)high_reg << 8) | low_reg;
@@ -803,10 +806,10 @@ void MTR_DRV_INIT(uint8_t currentValue, uint8_t decay, uint8_t reset, uint8_t sl
   */
   //xI1
   HAL_GPIO_WritePin(GPIOF, GPIO_PIN_13, (currentValue>>1) & ~0x01);
-  HAL_GPIO_WritePin(GPIOF, GPIO_PIN_15, (currentValue>>1) & ~0x01));
+  HAL_GPIO_WritePin(GPIOF, GPIO_PIN_15, (currentValue>>1) & ~0x01);
   //xI0
-  HAL_GPIO_WritePin(GPIOF, GPIO_PIN_14, (currentValue) & ~0x01));
-  HAL_GPIO_WritePin(GPIOG, GPIO_PIN_0, (currentValue) & ~0x01));
+  HAL_GPIO_WritePin(GPIOF, GPIO_PIN_14, (currentValue) & ~0x01);
+  HAL_GPIO_WritePin(GPIOG, GPIO_PIN_0, (currentValue) & ~0x01);
   
   //Decay
   HAL_GPIO_WritePin(GPIOE, GPIO_PIN_8, decay);
@@ -821,8 +824,56 @@ void MTR_DRV_INIT(uint8_t currentValue, uint8_t decay, uint8_t reset, uint8_t sl
 }
 
 
+void updateProps(void)
+{
+  //Convert coms thrust vals in percentages for f,b,l,r
+  float leftThrust = (-turnThrust + 128)/256; // 0% <-> 50%
+  float rightThrust = (turnThrust - 128)/256; // 0% <-> 50%
+  float forThrust = (forwardThrust - 128)/256; // 0% <-> 50%
+  float backThrust = (-forwardThrust + 128)/256; // 0% <-> 50%
+  
+  //mix individual thrust values into 
+  float leftPropThrust = leftThrust - rightThrust + forThrust - backThrust; // -100% <-> 100%
+  float rightPropThrust = rightThrust - leftThrust + forThrust - backThrust; // -100% <-> 100%
+  
+  //LEFT PROP SET DC (TIM3_CH2 = forward) (TIM3_CH3 = backward)
+  if (leftPropThrust >= 0) TIM3->CCR2 = leftPropThrust*ARR;
+  else TIM3->CCR3 = -leftPropThrust*ARR;
+  
+  //RIGHT PROP SET DC (TIM4_CH2 = forward) (TIM4_CH3 = backward)
+  if (rightPropThrust >= 0) TIM4->CCR2 = rightPropThrust*ARR;
+  else TIM4->CCR3 = -rightPropThrust*ARR;
+}
 
+void parseComs(void)
+{
+  //Coms parsing
+	depthUp = rx_data[0];
+	depthDown = rx_data[1];
+	captureImage = rx_data[2];
+	forwardThrust = binaryToDecimal(3, 8);
+	turnThrust = binaryToDecimal(11, 8);
+	camUpDown = binaryToDecimal(19, 8);
+	camLeftRight = binaryToDecimal(27, 8);
+}
 
+void transmitData(void)
+{
+  if (rx_received) //New Transmission from RPI
+  {
+  	rx_received = 0; //reset for next transmission
+		//Data concat
+		
+		// For actual communication back to RPI (STILL USING TEST DATA)(This sprintf call works)
+		sprintf(tx_buffer, "%u,%u,%u,%u,%u,%u,%u\n\r", degreesNorth, (uint16_t)(10*speedScalar), depthApprox, roll, pitch, yaw, (uint16_t)(10*voltageBattery));
+		
+		// For reading the i2c values on the RPI
+		//sprintf(tx_buffer, "%u,%u,%u,%u,%u,%u,%u,%u,%u\n\r", x_ang, y_ang, z_ang, x_lin, y_lin, z_lin, x_mag, y_mag, z_mag );
+		
+		
+		HAL_UART_Transmit(&hlpuart1, (uint8_t *)tx_buffer, sizeof(tx_buffer), 10);
+	}		
+}
 
 
 /* USER CODE END 4 */
