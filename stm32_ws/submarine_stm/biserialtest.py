@@ -23,7 +23,7 @@ turnBinary = bin(turnThrust).split('b')[1]
 camUpDownBinary = bin(camUpDown).split('b')[1]
 camLeftRightBinary = bin(camLeftRight).split('b')[1]
 
-bitfield = str(depthUp) + str(depthDown) + str(captureImage) + str(forwardBinary) + str(turnBinary) + str(camUpDownBinary) + str(camLeftRightBinary)
+bitfield = str(depthUp) + str(depthDown) + str(captureImage) + str(forwardBinary).zfill(8) + str(turnBinary).zfill(8) + str(camUpDownBinary).zfill(8) + str(camLeftRightBinary).zfill(8)
 
 print("---------------------------------------")
 print("")

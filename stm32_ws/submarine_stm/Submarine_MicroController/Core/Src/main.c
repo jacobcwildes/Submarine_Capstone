@@ -58,6 +58,12 @@
 #define OUT_Y_H (0x2B | 0x01)
 #define OUT_Z_L (0x2C | 0x01)
 #define OUT_Z_H (0x2D | 0x01)
+
+//stepper positions
+
+#define full_close_steps 100
+
+
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -108,6 +114,13 @@ void transmitData(void);
 
 void updateProps(void);
 void updateServos(void);
+
+void leftBalastOpenStep(void);
+void leftBalastCloseStep(void);
+void rightBalastOpenStep(void);
+void rightBalastCloseStep(void);
+void updateSteppers(void);
+
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -182,8 +195,20 @@ float forThrust;
 float backThrust;
 float leftPropThrust;
 float rightPropThrust;
+
+//GLOBAL Camera
 float camVerticalDuty;
 float camHorizontalDuty;
+
+//GLOBAL Steppers
+uint8_t currentStepLeft = 0;
+uint8_t currentStepRight = 0;
+uint8_t baseStepperPos = 0;
+uint8_t leftStepperPos = 0;
+uint8_t rightStepperPos = 0;
+
+
+
 
 
 
@@ -875,17 +900,15 @@ uint8_t binaryToDecimal(int start_index, int bitCount)
 
 HAL_StatusTypeDef imuRead(void)
 {
-		/*
-			HAL_StatusTypeDef HAL_I2C_Mem_Read	(	I2C_HandleTypeDef * 	hi2c,
-																						uint16_t 	DevAddress,
-																						uint16_t 	MemAddress,
-																						uint16_t 	MemAddSize,
-																						uint8_t * 	pData,
-																						uint16_t 	Size,
-																						uint32_t 	Timeout 
-)		
-		*/
-	
+	/*
+		HAL_StatusTypeDef HAL_I2C_Mem_Read	(	I2C_HandleTypeDef * 	hi2c,
+																					uint16_t 	DevAddress,
+																					uint16_t 	MemAddress,
+																					uint16_t 	MemAddSize,
+																					uint8_t * 	pData,
+																					uint16_t 	Size,
+																					uint32_t 	Timeout )		
+	*/
 	HAL_StatusTypeDef retVal = HAL_OK;
 	
 	//Gyro
@@ -973,6 +996,18 @@ void MTR_DRV_INIT(uint8_t currentValue, uint8_t decay, uint8_t reset, uint8_t sl
   //Sleep
   HAL_GPIO_WritePin(GPIOE, GPIO_PIN_7, sleep);
   
+  //Left Prop DC
+  TIM3->CCR2 = 0;
+  TIM3->CCR3 = 0;
+  
+  //Right Prop DC
+  TIM4->CCR2 = 0;
+  TIM4->CCR3 = 0;
+  
+  //Servos DC
+  TIM5->CCR2 = 0.5 * ARR_Servo;
+  TIM5->CCR3 = 0.5 * ARR_Servo;
+  
   
 }
 
@@ -1052,6 +1087,50 @@ void updateServos(void)
   TIM5->CCR2 = camVerticalDuty*ARR_Servo;
   TIM5->CCR3 = camHorizontalDuty*ARR_Servo;
 }
+
+void leftBalastOpenStep(void)
+{
+	currentStepLeft++;
+	if (currentStepLeft == 4) currentStepLeft = 0; //wrap around
+	
+}
+
+void leftBalastCloseStep(void)
+{
+	currentStepLeft--;
+	if (currentStepLeft == 255) currentStepLeft = 3; //wrap around
+}
+
+void rightBalastOpenStep(void)
+{
+	currentStepRight++;
+	if (currentStepRight == 4) currentStepRight = 0; //wrap around
+}
+
+void rightBalastCloseStep(void)
+{
+	currentStepRight--;
+	if (currentStepRight == 255) currentStepRight = 3; //wrap around
+}
+
+void updateSteppers(void)
+{
+	if (depthUp && baseStepperPos >= 10)
+	{
+		//Move toward full open
+		leftBalastOpenStep();
+		leftStepperPos--;
+		rightStepperOpenStep();
+		rightStepperPos--;
+		baseStepperPos--;
+	}
+	if (depthUp && rightStepperPos <= full_close_step - 10)
+	{
+		rightStepperOpenStep();
+		rightStepperPos--;
+	}
+}
+
 
 void parseComs(void)
 {
