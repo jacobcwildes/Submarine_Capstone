@@ -239,12 +239,12 @@ int main(void)
   {
   	if (rx_received) //New Transmission from RPI
     {
-		  rx_received = 0;
+		  
 		  parseComs();
 		  //imuPullData();
 		  updateProps();
 		  transmitData();
-
+			rx_received = 0;
 
 		  
 		}
@@ -974,18 +974,36 @@ void MTR_DRV_INIT(uint8_t currentValue, uint8_t decay, uint8_t reset, uint8_t sl
 
 void updateProps(void)
 {
-  HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_14); //toggle LED for dev
+  //HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_14); //toggle LED for dev
   
   //Convert coms thrust vals in percentages for f,b,l,r
-  leftThrust = ((float)(-turnThrust + 128))/256.0; // 0% <-> 50%
-  rightThrust = ((float)(turnThrust - 128))/256.0; // 0% <-> 50%
-  forThrust = ((float)(forwardThrust - 128))/256.0; // 0% <-> 50%
-  backThrust = ((float)(-forwardThrust + 128))/256.0; // 0% <-> 50%
+  if (turnThrust < 128)
+  {
+  	leftThrust = ((float)(-turnThrust + 128))/256.0; // 0% <-> 50% 
+  	rightThrust = 0;
+  }
+  else
+  {
+  	leftThrust = 0;
+  	rightThrust = ((float)(turnThrust - 128))/256.0; // 0% <-> 50% 
+  }
+  
+  if (forwardThrust < 128)
+  {
+  	forThrust = 0;
+		backThrust = ((float)(-forwardThrust + 128))/256.0; // 0% <-> 50%
+  }
+  else
+  {
+  	forThrust = ((float)(forwardThrust - 128))/256.0; // 0% <-> 50%
+		backThrust = 0;
+  }
+  
   
   //mix individual thrust values into 
-  leftPropThrust = leftThrust - rightThrust + forThrust - backThrust; // -100% <-> 100%
-  rightPropThrust = rightThrust - leftThrust + forThrust - backThrust; // -100% <-> 100%
-  /*
+  rightPropThrust = leftThrust - rightThrust + forThrust - backThrust; // -100% <-> 100%
+  leftPropThrust = rightThrust - leftThrust + forThrust - backThrust; // -100% <-> 100%
+  
   //LEFT PROP SET DC (TIM3_CH2 = forward) (TIM3_CH3 = backward)
   if (leftPropThrust >= 0) 
   {
@@ -1009,13 +1027,13 @@ void updateProps(void)
     TIM4->CCR3 = -rightPropThrust*ARR;
     TIM4->CCR2 = 0;
   }
-  */
+  
 }
 
 void parseComs(void)
 {
   //Coms parsing
-  
+  HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_14); //toggle LED for dev
   if (rx_data[0] == 48)
   {
   	depthUp = 0;
@@ -1059,9 +1077,12 @@ void transmitData(void)
 	// For reading the i2c values on the RPI
 	//sprintf(tx_buffer, "%u,%u,%u,%u,%u,%u,%u,%u,%u\n\r", x_ang, y_ang, z_ang, x_lin, y_lin, z_lin, x_mag, y_mag, z_mag );
 
-  //sprintf(tx_buffer, "%u,%u,%u,%u,%u,%u\n\r", (uint8_t)leftThrust*100, (uint8_t)rightThrust*100, (uint8_t)forThrust*100, (uint8_t)backThrust*100, (uint8_t)leftPropThrust*100, (uint8_t)rightPropThrust*100);
+  sprintf(tx_buffer, "%u,%u,%u,%u,%d,%d\n\r", (uint8_t)(leftThrust*100.0), (uint8_t)(rightThrust*100.0), (uint8_t)(forThrust*100.0), (uint8_t)(backThrust*100.0), (int)(leftPropThrust*100.0), (int)(rightPropThrust*100.0));
 
-	sprintf(tx_buffer, "%u,%u,%u,%u,%u,%u,%u\n\r", depthUp, depthDown, captureImage, forwardThrust, turnThrust, camUpDown, camLeftRight);
+	//Read back what was received
+	//sprintf(tx_buffer, "%u,%u,%u,%u,%u,%u,%u\n\r", depthUp, depthDown, captureImage, forwardThrust, turnThrust, camUpDown, camLeftRight);
+	
+	//sprintf(tx_buffer, "TestMessage,,,,,,,,,,,,,\n\r");
 
   HAL_UART_Transmit(&hlpuart1, (uint8_t *)tx_buffer, sizeof(tx_buffer), 10);	
 }

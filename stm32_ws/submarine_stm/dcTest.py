@@ -10,20 +10,25 @@ SerialObj.parity  ='N'   # No parity
 SerialObj.stopbits = 1   # Number of Stop bits = 1
 
 #Data that will come from controller
-depthUp = 0
+depthUp = 1
 depthDown = 0
-captureImage = 0
-forwardThrust = 128
-turnThrust = 128
-camUpDown = 128
-camLeftRight = 101
+captureImage = 1
+forwardThrust = 167
+turnThrust = 25
+camUpDown = 69
+camLeftRight = 241
 
 forwardBinary = bin(forwardThrust).split('b')[1]
 turnBinary = bin(turnThrust).split('b')[1]
 camUpDownBinary = bin(camUpDown).split('b')[1]
 camLeftRightBinary = bin(camLeftRight).split('b')[1]
 
-bitfield = str(depthUp) + str(depthDown) + str(captureImage) + str(forwardBinary) + str(turnBinary) + str(camUpDownBinary) + str(camLeftRightBinary)
+print(str(forwardBinary).zfill(8))
+print(str(turnBinary).zfill(8))
+print(str(camUpDownBinary).zfill(8))
+print(str(camLeftRightBinary).zfill(8))
+
+bitfield = str(depthUp) + str(depthDown) + str(captureImage) + str(forwardBinary).zfill(8) + str(turnBinary).zfill(8) + str(camUpDownBinary).zfill(8) + str(camLeftRightBinary).zfill(8)
 
 print("---------------------------------------")
 print("")
@@ -34,9 +39,10 @@ while (True):
 	SerialObj.write(bitfield.encode()) #35 bits
 	print("Sending: " + bitfield)
 	received = SerialObj.readline().decode('ascii').strip().strip('\x00')
-	print("Received: " + received)
-	
 	received_split = received.split(',')
+	print("Received: " + str(received_split))
+	
+	
 	
 	print("leftThrust: " + received_split[0])
 	print("rightThrust: " + received_split[1])
