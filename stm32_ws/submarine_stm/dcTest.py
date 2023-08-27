@@ -15,8 +15,8 @@ depthDown = 0
 captureImage = 1
 forwardThrust = 167
 turnThrust = 25
-camUpDown = 69
-camLeftRight = 241
+camUpDown = 0
+camLeftRight = 128
 
 forwardBinary = bin(forwardThrust).split('b')[1]
 turnBinary = bin(turnThrust).split('b')[1]

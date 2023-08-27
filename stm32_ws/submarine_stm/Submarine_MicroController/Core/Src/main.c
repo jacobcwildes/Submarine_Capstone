@@ -107,6 +107,7 @@ void parseComs(void);
 void transmitData(void);
 
 void updateProps(void);
+void updateServos(void);
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -171,7 +172,8 @@ uint16_t z_mag;
 
 
 //GLOBAL PWM
-uint16_t ARR = 11999;
+uint16_t ARR_Prop = 11999;
+uint32_t ARR_Servo = 2399999;
 
 //GLOBAL Thrust
 float leftThrust;
@@ -180,6 +182,8 @@ float forThrust;
 float backThrust;
 float leftPropThrust;
 float rightPropThrust;
+float camVerticalDuty;
+float camHorizontalDuty;
 
 
 
@@ -243,6 +247,7 @@ int main(void)
 		  parseComs();
 		  //imuPullData();
 		  updateProps();
+		  updateServos();
 		  transmitData();
 			rx_received = 0;
 
@@ -1007,27 +1012,45 @@ void updateProps(void)
   //LEFT PROP SET DC (TIM3_CH2 = forward) (TIM3_CH3 = backward)
   if (leftPropThrust >= 0) 
   {
-    TIM3->CCR2 = leftPropThrust*ARR;
+    TIM3->CCR2 = leftPropThrust*ARR_Prop;
     TIM3->CCR3 = 0;
   }
   else 
   {
-    TIM3->CCR3 = -leftPropThrust*ARR;
+    TIM3->CCR3 = -leftPropThrust*ARR_Prop;
     TIM3->CCR2 = 0;
   }
   
   //RIGHT PROP SET DC (TIM4_CH2 = forward) (TIM4_CH3 = backward)
   if (rightPropThrust >= 0) 
   {
-    TIM4->CCR2 = rightPropThrust*ARR;
+    TIM4->CCR2 = rightPropThrust*ARR_Prop;
     TIM4->CCR3 = 0;
   }
   else
   {
-    TIM4->CCR3 = -rightPropThrust*ARR;
+    TIM4->CCR3 = -rightPropThrust*ARR_Prop;
     TIM4->CCR2 = 0;
   }
   
+}
+
+void updateServos(void)
+{
+  //HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_14); //toggle LED for dev 
+  //Convert coms thrust vals in percentages for f,b,l,r
+  
+  //Setup for 1ms <-> 2ms
+  //camVerticalDuty = (0.000196 * (float)camUpDown) + 0.05;
+  //camHorizontalDuty = (0.000196 * (float)camLeftRight) + 0.05;
+  
+  //Setup for 0.5ms <-> 2.5ms
+  camVerticalDuty = (0.000392 * (float)camUpDown) + 0.025;
+  camHorizontalDuty = (0.000392 * (float)camLeftRight) + 0.025;
+  
+  //Set Duty Cycles
+  TIM5->CCR2 = camVerticalDuty*ARR_Servo;
+  TIM5->CCR3 = camHorizontalDuty*ARR_Servo;
 }
 
 void parseComs(void)
