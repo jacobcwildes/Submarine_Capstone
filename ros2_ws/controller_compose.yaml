@@ -8,9 +8,10 @@ services:
         network_mode: host
         tty: true
         volumes:
-            - '/tmp/.x11-unix:/tmp/.X11-unix'
-            - './controller_entrypoint.sh'
+            - '/tmp/.X11-unix:/tmp/.X11-unix:rw'
+            - './controller_entrypoint.sh:/ROS/entrypoint.sh'
         devices:
-            - '/dev/ttyACM0'
+            - '/dev/ttyACM0:/dev/ttyACM0'
         environment: 
-            - Display=$DISPLAY   
+            - DISPLAY=$DISPLAY   
+        entrypoint: /ROS/entrypoint.sh
