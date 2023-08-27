@@ -58,7 +58,7 @@ ENV RMW_IMPLEMENTATION=rmw_cyclonedds_cpp
 
 ##Install Xpra for display purposes
 RUN wget -O "/usr/share/keyrings/xpra.asc" https://xpra.org/xpra.asc
-RUN cd /etc/apt/sources.list.d ; wget https://raw/githubusercontent.com/Xpra-org/xpra/master/packaging/repos/focal/xpra.sources
+RUN cd /etc/apt/sources.list.d ; wget https://raw.githubusercontent.com/Xpra-org/xpra/master/packaging/repos/focal/xpra.sources
 RUN apt update && apt install xpra -y
 
 ##########################################################################################
@@ -85,7 +85,7 @@ ENV POETRY_NO_INTERACTION=1 \
                     POETRY_HOME="/opt/poetry" \
                     VENV_PATH="/opt/pysetup/.venv"
 RUN curl -sSL https://install.python-poetry.org | python3 -
-ENV PATH = "$POETRY_HOME/bin:$VENV_PATH/bin:$PATH"
+ENV PATH="$POETRY_HOME/bin:$VENV_PATH/bin:$PATH"
 RUN pip3 install colcon-poetry-ros
 
 WORKDIR /ROS/Submarine_Capstone

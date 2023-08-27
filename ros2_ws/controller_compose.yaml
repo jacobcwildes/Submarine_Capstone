@@ -9,8 +9,9 @@ services:
         tty: true
         volumes:
             - '/tmp/.x11-unix:/tmp/.X11-unix'
-            - './controller_entrypoint.sh'
+            - './controller_entrypoint.sh:/ROS/entrypoint.sh'
         devices:
-            - '/dev/ttyACM0'
+            - '/dev/ttyACM0:/dev/ttyACM0'
         environment: 
             - Display=$DISPLAY   
+        entrypoint: /ROS/entrypoint.sh
