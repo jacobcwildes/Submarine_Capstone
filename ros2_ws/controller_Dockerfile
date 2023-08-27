@@ -98,7 +98,7 @@ ADD src/ /ROS/Submarine_Capstone/src
 ADD launch/ /ROS/Submarine_Capstone/launch
 
 ##Install Poetry - specify paths so that I know exactly where Poetry installs its venv 
-##(Docker is difficult to track down paths
+##(Docker is difficult to track down paths)
 
 ENV POETRY_NO_INTERACTION=1 \
                     POETRY_VIRTUALENVS_IN_PROJECT=true \
@@ -111,4 +111,12 @@ RUN pip3 install colcon-poetry-ros
 
 WORKDIR /ROS/Submarine_Capstone
 RUN python3 -m colcon_poetry_ros.dependencies.install --base-paths src/
+
+##Build packages
+RUN . /opt/ros/foxy/setup.sh && colcon build
+
+##Fix a Python TypeAlias import error
+RUN python3 -m pip uninstall cast_control
+RUN python3 -m pip install cast_control==0.10.11
+
 #########################################################################################

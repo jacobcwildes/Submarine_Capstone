@@ -6,7 +6,7 @@ authors = ["jacobcwildes <wildes126@gmail.com>"]
 
 [tool.poetry.dependencies]
 python = "^3.8"
-serial = "^0.0.97"
+pyserial = "^3.5"
 
 [tool.poetry.scripts]
 con_gui = "controller_gui.con_gui:main"

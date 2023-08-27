@@ -1,8 +1,8 @@
 #!/bin/bash
 
-source /opt/ros/foxy/setup.bash
+#source /opt/ros/foxy/setup.bash
 
-colcon build
+#colcon build
 
 source install/setup.bash
 
