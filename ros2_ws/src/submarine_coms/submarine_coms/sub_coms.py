@@ -83,7 +83,7 @@ class Submarine(Node):
         self.camUpDownBinary = bin(self.camUpDown).split('b')[1]
         self.camLeftRightBinary = bin(self.camLeftRight).split('b')[1]
 				
-        self.bitfield = str(depthUp) + str(depthDown) + str(captureImage) + str(forwardBinary) + str(turnBinary) + str(camUpDownBinary) + str(camLeftRightBinary)
+        self.bitfield = str(depthUp) + str(depthDown) + str(captureImage) + str(forwardBinary).zfill(8) + str(turnBinary).zfill(8) + str(camUpDownBinary).zfill(8) + str(camLeftRightBinary).zfill(8)
 
         SerialObj.write(bitfield.encode()) #35 bits
         print("Sending: " + bitfield)
