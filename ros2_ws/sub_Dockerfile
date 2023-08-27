@@ -63,7 +63,7 @@ RUN apt update && apt install xpra -y
 
 ##########################################################################################
 ##SUBMARINE DEPLOY
-FROM capstone-dev as submarine-deploy
+FROM capstone-base as submarine-deploy
 LABEL maintainer="wildes126@gmail.com"
 LABEL version="1"
 LABEL description="Run the submarine in a virtual environment that is easily deployable"
@@ -80,8 +80,8 @@ ADD launch/ /ROS/Submarine_Capstone/launch
 ##(Docker is difficult to track down paths
 
 ENV POETRY_NO_INTERACTION=1 \
-                    POETRY_VIRTUALENVS_IN_PROJECT=1 \
-                    POETRY_VIRTUALENVS_CREATE=1 \
+                    POETRY_VIRTUALENVS_IN_PROJECT=true \
+                    POETRY_VIRTUALENVS_CREATE=true \
                     POETRY_HOME="/opt/poetry" \
                     VENV_PATH="/opt/pysetup/.venv"
 RUN curl -sSL https://install.python-poetry.org | python3 -
@@ -90,4 +90,12 @@ RUN pip3 install colcon-poetry-ros
 
 WORKDIR /ROS/Submarine_Capstone
 RUN python3 -m colcon_poetry_ros.dependencies.install --base-paths src/
+
+##Build packages
+RUN . /opt/ros/foxy/setup.sh && colcon build
+
+##Fix a Python TypeAlias import error
+RUN python3 -m pip uninstall cast_control
+RUN python3 -m pip install cast_control==0.10.11
+
 #########################################################################################

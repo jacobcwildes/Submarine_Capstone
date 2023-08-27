@@ -1,12 +1,12 @@
 #!/bin/bash
 
-source /opt/ros/foxy/setup.bash
+#source /opt/ros/foxy/setup.bash
 
-colcon build
+#colcon build
 
 source install/setup.bash
 
 cd launch
 
-xpra start --bind-tcp=0.0.0.0:10000 --mdns=no --ssl=off --webcam=no --no-daemon --start "ros2 launch sub_launch.py"
+ros2 launch sub_launch.py
 
