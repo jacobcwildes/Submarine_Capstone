@@ -13,5 +13,5 @@ services:
         devices:
             - '/dev/ttyACM0:/dev/ttyACM0'
         environment: 
-            - DISPLAY=$DISPLAY   
+            - DISPLAY=127.0.0.1:0.0  
         entrypoint: /ROS/entrypoint.sh
