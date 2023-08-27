@@ -1,0 +1,10 @@
+12:07:11 **** Incremental Build of configuration Debug for project Submarine_Microcontroller ****
+make -j8 all 
+arm-none-eabi-size   Submarine_Microcontroller.elf 
+   text	   data	    bss	    dec	    hex	filename
+  42996	    144	   4064	  47204	   b864	Submarine_Microcontroller.elf
+Finished building: default.size.stdout
+ 
+
+12:07:12 Build Finished. 0 errors, 0 warnings. (took 475ms)
+
