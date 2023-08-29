@@ -63,7 +63,12 @@ Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_tim_ex.c \
 Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_pcd.c \
 Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_pcd_ex.c \
 Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_ll_usb.c \
-Core/Src/system_stm32l4xx.c
+Core/Src/system_stm32l4xx.c \
+Core/Src/perception.c \
+Core/Src/state_estimation.c \
+Core/Src/planner.c \
+Core/Src/controller.c \
+Core/Src/actuator.c
 
 # ASM sources
 ASM_SOURCES =  \
