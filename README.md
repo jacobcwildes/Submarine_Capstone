@@ -82,11 +82,12 @@ Then do the following:
 1) ```cd Submarine_Capstone/ros2_ws```. This is where the Dockerfiles are.
 
 2) Build the Controller Docker image (Note that this will take a long time - it must download everything from the Ubuntu:20.04.5 base)
-INSERT ACTUAL COMMANDS HERE, NEED THE ONE WITH CONTEXT
+docker build -t controller_image . < controller_Dockerfile
 
 3) Build the Submarine Docker image:
-INSERT ACTUAL COMMANDS HERE, NEED THE ONE WITH CONTEXT
+docker build -t controller_image . < sub_Dockerfile
 
 Once the builds are complete, the launch sequence is the same for both methods of installation.  Simply run
 
-ADD ACTUAL COMPOSE COMMAND (DON'T REMEMBER RIGHT NOW)
+```docker compose -f controller_compose.yaml up``` For the controller
+```docker compose -f sub_compose.yaml up``` For the submarine
