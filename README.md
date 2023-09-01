@@ -91,6 +91,8 @@ sudo apt install sudo apt install ubuntu-desktop -y && sudo reboot
 ```
 Once the desktop is installed, you will be ready to download/run the nodes!
 
+Note: This must be done twice, once for each Pi. Make very sure that the designated IP address for the eth0 port is not the same on both Pis! It absolutely will not work if both Pis have the same. 
+
 
 1)
 ```bash
