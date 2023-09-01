@@ -43,35 +43,101 @@ Since this is a large project, installs can sometimes get pretty messy. For exam
 
 To actually download/install, follow these steps:
 
-1)
-```git clone https://github.com/jacobcwildes/Submarine_Capstone.git```
+## Pi Setup
 
-2) 
-```cd Submarine_Capstone/ros2_ws```
+As per usual, it is never a super easy process to set anything up. To flash the Raspberry Pi Jacob opted to use the official [Raspberry Pi Imager](https://www.raspberrypi.com/software/). This tool allows for easy flashing of SD cards. However, when perusing the options to install the Ubuntu environment, as of the date of flashing (7/23), there was no 64-bit Ubuntu 20.04.5 LTS desktop option. The only option was a server version. Without much other option, the server option works as a good enough base. In Jacob's experience, even if a Wi-Fi setting is given in the imager, it still fails to find a network connection when the server is booted (note that the server version is only a command line). 
+
+In order to solve these networking woes, we need to modify our netplan file. This can be done by running 
+```sudoedit /etc/netplan/<filename>.yaml``` 
+where "filename" is the first entry that shows up when you hit tab a couple times. In Jacob's case it was 50-cloud-init.yaml, though your mileage may vary. 
+Once inside the document, you will want to paste the following into it:
+```bash
+
+network:
+    ethernets:
+        eth0:
+            dhcp4: true
+            optional: true
+            addresses:
+                - <your_desired_address>/24
+    version: 2
+    wifis:
+        renderer: networkd
+        wlan0:
+            access-points:
+                <Wi-Fi_name>:
+                    password: <your_password>
+            dhcp4: true
+            optional: true
+
+```
+"your_desired_address> should be something like 192.168.1.X, but it can be whatever you like. This makes it so when we attach both Pis together, they have a static IP and can immediately talk to each other. "Wi-Fi_name" is the name of your wireless network. "your_password" is the password of your wireless network. 
+
+The eth0 option is needed because by default the Pi will not pick up the ethernet connection. This is probably because the gnome desktop is installed over top of the server installation, and the GUI functionality does not work.
+
+Once that is done, it is time to apply those changes. Run the following:
+```bash
+sudo netplan generate && sudo netplan apply
+```
+This command will take some time, but afterward the Pi should be attached to the web!
+
+## Getting the Ubuntu Desktop
+Now that the Pi is on the web, it is important to actually get our GUI installed. To do so run the following:
+```bash
+sudo apt update && sudo apt upgrade -y
+```
+```bash
+sudo apt install sudo apt install ubuntu-desktop -y && sudo reboot
+```
+Once the desktop is installed, you will be ready to download/run the nodes!
+
+
+1)
+```bash
+git clone https://github.com/jacobcwildes/Submarine_Capstone.git
+```
 
 3)
-```source /opt/ros/foxy/setup.bash```
+```bash
+cd Submarine_Capstone/ros2_ws
+```
 
-4) Note: **Before** running this step, make sure you are NOT in the ros2_ws/src directory. When colcon builds it makes 3 directories. An install, a build, and a log directory. When we go to run a ROS2 node, we first source the bash script in the install folder. The way Jacob has set up the launchfiles, the node WILL fail if the folders are not properly built.
-```colcon build```
+4)
+```bash
+source /opt/ros/foxy/setup.bash
+```
 
-5) Once the build is finished
-```source install/setup.bash```
+6) Note: **Before** running this step, make sure you are NOT in the ros2_ws/src directory. When colcon builds it makes 3 directories. An install, a build, and a log directory. When we go to run a ROS2 node, we first source the bash script in the install folder. The way Jacob has set up the launchfiles, the node WILL fail if the folders are not properly built.
+```bash
+colcon build
+```
+
+8) Once the build is finished
+```bash
+source install/setup.bash
+```
 
 In order to run the STM side (to query controller inputs and also run the submarine motors)
 ***Add screenshots of the IDE & Makefile gen here**
 
 Thankfully, once a board is flashed it stays flashed. Once the board is powered, it will immediately begin whatever program is on it.
+
 ## Docker
 If these installation steps sound gross, no sweat! Jacob has made a docker image which is able to run on just about any 64 bit version of Linux. MacOS and Windows may be compatible, but are untested. In order to use the provided images, do the following:
 
 1) Clone this repo
-```git clone https://github.com/jacobcwildes/Submarine_Capstone.git```
+```bash
+git clone https://github.com/jacobcwildes/Submarine_Capstone.git
+```
 
-2) Pull the images down from Docker Hub:
-```docker pull jacobcwildes/2023-submarine-capstone:controller-deploy```
+3) Pull the images down from Docker Hub:
+```bash
+docker pull jacobcwildes/2023-submarine-capstone:controller-deploy
+```
 
-```docker pull jacobcwildes/2023-submarine-capstone:submarine-deploy```
+```bash
+docker pull jacobcwildes/2023-submarine-capstone:submarine-deploy
+```
 
 These downloads will take a little time, as they are both between 1 and 1.6 GB. 
 
@@ -79,15 +145,29 @@ Alternatively, if you desire to build the Docker images locally, repeat step 1 a
 
 Then do the following:
 
-1) ```cd Submarine_Capstone/ros2_ws```. This is where the Dockerfiles are.
+1) This is where the Dockerfiles are.
+```bash
+ cd Submarine_Capstone/ros2_ws
+```
 
-2) Build the Controller Docker image (Note that this will take a long time - it must download everything from the Ubuntu:20.04.5 base)
+2)
+  Build the Controller Docker image (Note that this will take a long time - it must download everything from the Ubuntu:20.04.5 base)
+```bash
 docker build -t controller_image . < controller_Dockerfile
+```
 
-3) Build the Submarine Docker image:
+4) Build the Submarine Docker image:
+```bash
 docker build -t controller_image . < sub_Dockerfile
+```
 
-Once the builds are complete, the launch sequence is the same for both methods of installation.  Simply run
+Once the builds are complete, the launch sequence is the same for both methods of installation.  Simply run:
 
-```docker compose -f controller_compose.yaml up``` For the controller
-```docker compose -f sub_compose.yaml up``` For the submarine
+For the controller:
+```bash
+docker compose -f controller_compose.yaml up
+```
+For the submarine:
+```bash
+docker compose -f sub_compose.yaml up
+``` 
