@@ -24,6 +24,7 @@ class ControllerOutput(Node):
         timer_period = 0.001
         self.timer = self.create_timer(timer_period, self.timer_callback)
         
+        
     def timer_callback(self):            
         #Read serial data and save to variables
         self.serialLine = self.serialport.readline()
@@ -36,12 +37,12 @@ class ControllerOutput(Node):
             if len(localDat) == 7:
                 #Set message to custom datatype
                 msg = ComInfo()
-               
-                #Put data in each field of datatype
-                msg.left_toggle_ud = int(localDat[0])
-                msg.left_toggle_lr = int(localDat[1])
-                msg.right_toggle_ud = int(localDat[2])
-                msg.right_toggle_lr = int(localDat[3])
+                
+                #Normalize & put data in each field of datatype
+                msg.left_toggle_ud = normalization(int(localDat[0]))
+                msg.left_toggle_lr = normalization(int(localDat[1]))
+                msg.right_toggle_ud = normalization(int(localDat[2]))
+                msg.right_toggle_lr = normalization(int(localDat[3]))
                 msg.sub_up = int(localDat[4])
                 msg.sub_down = int(localDat[5])
                 msg.screenshot = int(localDat[6])
@@ -54,9 +55,22 @@ class ControllerOutput(Node):
                 self.get_logger().info('Publishing SubUp: "%d' % msg.sub_up)
                 self.get_logger().info('Publishing SubDown: "%d' % msg.sub_down)  
                 self.get_logger().info('Publishing Screenshot: "%d' % msg.screenshot) 
-                
+         
+        #Sometimes the first data line is bad - no need to crash the entire program
+        #because of it       
         except ValueError:
             pass
+        except UnicodeDecodeError:  
+            pass
+
+def normalization(data):
+    normal = int((((4.64 * (10 ** -3) * (data ** 2)) - (.182 * data))))
+    return normal
+    
+    
+    #for i in range(len(localDat)):
+    #    normalized_data.append((((4.64 * (10**-3)) * (int(str(localDat[int(i)])) ** 2)) - (.182 * int(str(localDat[int(i)])))))
+    return normalized_data
 
 def main(args=None):
     rclpy.init(args=args)
