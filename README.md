@@ -36,7 +36,7 @@ python3 -m pip install pyserial
 ## Hardware Requirements
 - 2 Raspberry Pi 4Bs were used with 8 GB of RAM (one for the submarine, one for the controller). It may be possible to achieve success with less, but bear in mind there is much OpenCV work being done on the controller side to run the display.
 - STM32 Nucleo-L4R5ZI (For submarine)
-- STM32 Nucleo-L452RET-P (For controller)
+- STM32 Nucleo-L452RE-P (For controller)
 ## Installation
 
 Since this is a large project, installs can sometimes get pretty messy. For example, ROS2 uses ```colcon build``` to prepare an executable. This is very handy and incredibly powerful. _However_ there isn't any sane way to rein in what colcon attemps to build, and surprise surprise, when colcon expects python and runs across C source code, it has no idea what to do. To alleviate this, we have made subdirectories called ros2_ws (which acts as our root ROS2 folder for all nodes) and stm32_ws (which acts as the root STM workspace for both the controller and submarine).
@@ -93,7 +93,7 @@ Once the desktop is installed, you will be ready to download/run the nodes!
 
 Note: This must be done twice, once for each Pi. Make very sure that the designated IP address for the eth0 port is not the same on both Pis! It absolutely will not work if both Pis have the same. 
 
-
+## Software Install
 1)
 ```bash
 git clone https://github.com/jacobcwildes/Submarine_Capstone.git
@@ -119,7 +119,12 @@ colcon build
 source install/setup.bash
 ```
 
-In order to run the STM side (to query controller inputs and also run the submarine motors)
+## Flashing STM Boards
+
+_Installing with STM32CubeIDE_
+First, make sure that the IDE is installed on your computer. It can be installed from [STM's website](https://www.st.com/en/development-tools/stm32cubeide.html).
+Once the software is installed, open the IDE and navigate first to the controller_stm.ioc which can be found in ```Submarine_Capstone/stm32_ws/controller_stm```. Once the project is open in the IDE, the next step is to press the green play button on the top of the screen to flash the Nucleo-L452RE-P with the controller program.
+
 ***Add screenshots of the IDE & Makefile gen here**
 
 Thankfully, once a board is flashed it stays flashed. Once the board is powered, it will immediately begin whatever program is on it.
