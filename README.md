@@ -122,10 +122,74 @@ source install/setup.bash
 ## Flashing STM Boards
 
 _Installing with STM32CubeIDE_
-First, make sure that the IDE is installed on your computer. It can be installed from [STM's website](https://www.st.com/en/development-tools/stm32cubeide.html).
-Once the software is installed, open the IDE and navigate first to the controller_stm.ioc which can be found in ```Submarine_Capstone/stm32_ws/controller_stm```. Once the project is open in the IDE, the next step is to press the green play button on the top of the screen to flash the Nucleo-L452RE-P with the controller program.
 
-***Add screenshots of the IDE & Makefile gen here**
+First, make sure that the IDE is installed on your computer. It can be installed from [STM's website](https://www.st.com/en/development-tools/stm32cubeide.html).
+Once the software is installed, open the IDE and navigate first to the controller_stm.ioc which can be found in ```Submarine_Capstone/stm32_ws/controller_stm```. Once the project is open in the IDE, the next step is to press the green play button on the top of the screen to flash the Nucleo-L452RE-P with the controller program as shown below
+![STM32CubeIDE Steps](https://github.com/jacobcwildes/Submarine_Capstone/blob/main/readme_imgs/IDE_Flash.png)
+
+You will know when the program flashes when the LED next to the USB connection illuminates green.
+
+Repeat this step for the submarine by navigating to ```Submarine_Capstone/stm32_ws/submarine_stm/Submarine_MicroController```
+
+_Installing with STM32CubeMX_
+
+Installing with the CubeMX is a little bit different than the IDE - it is significantly more involved, but for some is the preferred method (especially if your device does not support the IDE). 
+
+First, make sure that you have arm-none-eabi installed on your system. This step can be an absolute nuisance, so the steps are listed below:
+
+1) Check to make sure that you don't have any arm libraries lurking that could foul the download:
+```bash
+sudo apt remove gcc-arm-none-eabi
+```
+2) Download the [arm-none-eabi-gcc tarball](https://developer.arm.com/downloads/-/gnu-rm). Note this guide is specifically for Linux. MacOS and Windows mileage will vary from this  guide.
+
+3) Unpack the tarball into some sort of directory. In this case we arbitrarily chose /usr/share
+```bash
+sudo tar xjf gcc-arm-none-eabi-YOUR-VERSION.bz2 -C /usr/share/
+```
+"YOUR-VERSION" is whatever version ARM happens to have released at the time
+
+4) Create symlinks from the install folder to the /usr/bin folder like so:
+```bash
+sudo ln -s /usr/share/gcc-arm-none-eabi-YOUR-VERSION/bin/arm-none-eabi-gcc /usr/bin/arm-none-eabi-gcc 
+sudo ln -s /usr/share/gcc-arm-none-eabi-YOUR-VERSION/bin/arm-none-eabi-g++ /usr/bin/arm-none-eabi-g++
+sudo ln -s /usr/share/gcc-arm-none-eabi-YOUR-VERSION/bin/arm-none-eabi-gdb /usr/bin/arm-none-eabi-gdb
+sudo ln -s /usr/share/gcc-arm-none-eabi-YOUR-VERSION/bin/arm-none-eabi-size /usr/bin/arm-none-eabi-size
+sudo ln -s /usr/share/gcc-arm-none-eabi-YOUR-VERSION/bin/arm-none-eabi-objcopy /usr/bin/arm-none-eabi-objcopy
+```
+Note: These symlinks may or may not be necessary. On some systems Jacob has worked with, the symlinks were a problem. In other systems, they were not. For safety's sake it's easy enough to just create them and prevent headache later.
+
+5) ARM in its infinite wisdom does not give all the necessary dependencies in its README.txt, but these dependencies served well for this project:
+```bash
+sudo apt install libncurses-dev
+sudo ln -s /usr/lib/x86_64-linux-gnu/libncurses.so.6 /usr/lib/x86_64-linux-gnu/libncurses.so.5
+sudo ln -s /usr/lib/x86_64-linux-gnu/libtinfo.so.6 /usr/lib/x86_64-linux-gnu/libtinfo.so.5
+```
+Note: The libncurses.so.6/.so.5 may not be the same at a later date.
+
+6) Check to make sure that the arm-none-eabi was properly installed:
+```bash
+arm-none-eabi-gcc --version
+arm-none-eabi-g++ --version
+arm-none-eabi-gdb --version
+arm-none-eabi-size --version
+```
+Make should be installed on your system since OpenCV is a prerequisite for this system to work, but just in case it isn't:
+```bash
+sudo apt update && sudo apt install make
+```
+Next, navigate to ```Submarine_Capstone/stm32_ws/submarine_stm/Submarine_MicroController```. This is where the Makefile is.
+Run
+```bash
+make -j4
+```
+Once the build is complete, run the following:
+```bash
+cp BINARY_PATH /media/${USER}/BOARD_NAME/
+```
+BINARY_PATH will be filled in soon, BOARD_NAME is the name of the board when it is plugged into the computer.
+
+If all worked well, the board will be successfully flashed!
 
 Thankfully, once a board is flashed it stays flashed. Once the board is powered, it will immediately begin whatever program is on it.
 
