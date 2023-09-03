@@ -32,3 +32,16 @@ To answer the final question, ROS1 **only** supports TCP connections. That would
 
 ## Node Structure
 ![ROS2 Node Structure](https://github.com/jacobcwildes/Submarine_Capstone/blob/main/readme_imgs/ROS2_Node_List.png)
+
+## Why CycloneDDS and what is it?
+
+[CycloneDDS](https://github.com/eclipse-cyclonedds/cyclonedds#what-is-dds) is a very cool system. Basically, DDS is used in a huge variety of distributed systems (which if you aren't sure what a distributed system is, it's a netowrk of independent components that communicate together to acheive a common goal) from railway controls, medical systems, to smart greenhouses. The beauty of CycloneDDS is that it is built entirely in open source. Anyone is free to poke around all the inner workings as compared to a close relative, [OMG DDS](https://www.omg.org/spec/DDS/1.4/About-DDS/).
+
+As for why CycloneDDS was chosen, it is very popular in robotics and autonomous vehicales because of their dependency on high-throughput, low-latency control systems without having a single point of failure by the message broker. In addition, it is used by default as the middleware for ROS2 (another implicit reason to use it!)
+
+Since CycloneDDS is an open source version of OMG DDS, it follows the same following specifications:
+- Structural type definition to allow automatic endianness conversion
+- Type checking between readers and writers
+- Support for type evolution
+
+There are a whole host of other specifications that can be found both at the previously linked OMG DDS and CycloneDDS links.
