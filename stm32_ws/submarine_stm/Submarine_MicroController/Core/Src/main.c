@@ -40,35 +40,8 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-//GLOBAL I2C Addresses
-#define ACCEL_GYRO_ADR 0x6a
-#define MAG_ADR 0x1c
 
-//gyro
-#define OUTX_L_G (0x22 | 0x01)
-#define OUTX_H_G (0x23 | 0x01)
-#define OUTY_L_G (0x24 | 0x01)
-#define OUTY_H_G (0x25 | 0x01)
-#define OUTZ_L_G (0x26 | 0x01)
-#define OUTZ_H_G (0x27 | 0x01)
-//accel
-#define OUTX_L_XL (0x28 | 0x01)
-#define OUTX_H_XL (0x29 | 0x01)
-#define OUTY_L_XL (0x2A | 0x01)
-#define OUTY_H_XL (0x2B | 0x01)
-#define OUTZ_L_XL (0x2C | 0x01)
-#define OUTZ_H_XL (0x2D | 0x01)
-//magentometer
-#define OUT_X_L (0x28 | 0x01)
-#define OUT_X_H (0x29 | 0x01)
-#define OUT_Y_L (0x2A | 0x01)
-#define OUT_Y_H (0x2B | 0x01)
-#define OUT_Z_L (0x2C | 0x01)
-#define OUT_Z_H (0x2D | 0x01)
 
-//stepper positions
-
-#define full_close_steps 100
 
 
 /* USER CODE END PD */
@@ -118,92 +91,6 @@ static void MX_TIM5_Init(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-uint8_t rx_received = 0;
-char tx_buffer[100];
-uint8_t rx_data[35];
-
-//GLOBAL Coms Info
-uint8_t depthUp = 0;
-uint8_t depthDown = 0;
-uint8_t captureImage = 0;
-uint8_t forwardThrust = 0;
-uint8_t turnThrust = 0;
-uint8_t camUpDown = 0;
-uint8_t camLeftRight = 0;
-
-
-//GLOBAL Data info
-uint16_t degreesNorth = 180;
-float speedScalar = 10.4;
-uint16_t depthApprox = 5;
-uint16_t roll = 270;
-uint16_t pitch = 270;
-uint16_t yaw = 270;
-float voltageBattery = 16.9;
-
-//GLOBAL I2C pData registers
-uint8_t x_ang_L;
-uint8_t x_ang_H;
-uint8_t y_ang_L;
-uint8_t y_ang_H;
-uint8_t z_ang_L;
-uint8_t z_ang_H;
-
-uint8_t x_lin_L;
-uint8_t x_lin_H;
-uint8_t y_lin_L;
-uint8_t y_lin_H;
-uint8_t z_lin_L;
-uint8_t z_lin_H;
-
-uint8_t x_mag_L;
-uint8_t x_mag_H;
-uint8_t y_mag_L;
-uint8_t y_mag_H;
-uint8_t z_mag_L;
-uint8_t z_mag_H;
-
-//GLOBAL IMU DOF 
-uint16_t x_ang;
-uint16_t y_ang;
-uint16_t z_ang;
-
-uint16_t x_lin;
-uint16_t y_lin;
-uint16_t z_lin;
-
-uint16_t x_mag;
-uint16_t y_mag;
-uint16_t z_mag;
-
-
-//GLOBAL PWM
-uint16_t ARR_Prop = 11999;
-uint32_t ARR_Servo = 2399999;
-
-//GLOBAL Thrust
-float leftThrust;
-float rightThrust;
-float forThrust;
-float backThrust;
-float leftPropThrust;
-float rightPropThrust;
-
-//GLOBAL Camera
-float camVerticalDuty;
-float camHorizontalDuty;
-
-//GLOBAL Steppers
-uint8_t currentStepLeft = 0;
-uint8_t currentStepRight = 0;
-uint8_t baseStepperPos = 0;
-uint8_t leftStepperPos = 0;
-uint8_t rightStepperPos = 0;
-
-
-
-
-
 
 /* USER CODE END 0 */
 
@@ -253,12 +140,38 @@ int main(void)
 	HAL_TIM_PWM_Start(&htim5, TIM_CHANNEL_2);
 	HAL_TIM_PWM_Start(&htim5, TIM_CHANNEL_3);
 	
+	uint8_t rx_received = 0;
+	uint8_t rx_data[35];
+	
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   {
+  	//First pull sensor data in order to percieve the environment
+  	struct envData imuVectors = envRead(hi2c1);
+  	
+  	//Second, use the environment data to make a state estimation of the ROV
+  	struct state current_state = stateEstimation(envData);
+  	
+  	//Third, consult the goal given from uart coms in order to influence planning
+  	struct goalCommand com_data = parseComs(rx_received, rx_data);
+  	
+  	//Fourth, using the state estimation and the information from the planner, get control info for actuators
+  	struct actuator_command actuate = controller(com_data, state)
+  	
+  	//Lastly, relay the actuator command to the motors
+  	updateActuators(hlpuart1, actuate);
+  	
+  	
+  	
+  	
+  	
+  	
+  	
+  	
+  	/*
   	if (rx_received) //New Transmission from RPI
     {
 		  
@@ -266,12 +179,12 @@ int main(void)
 		  //imuPullData();
 		  updateProps();
 		  updateServos();
-		  transmitData();
+		  transmitData(hlpuart1);
 			rx_received = 0;
 
 		  
 		}
-		  
+		*/
 
   	
   	
@@ -865,6 +778,8 @@ static void MX_GPIO_Init(void)
 }
 
 /* USER CODE BEGIN 4 */
+
+
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 {
 	UNUSED(huart); //waring suppresion
@@ -874,7 +789,6 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 	
 	HAL_UART_Receive_IT(&hlpuart1, rx_data, 35); //reset UART interupt for next transmission
 }
-
 
 
 

@@ -1,5 +1,9 @@
 #include "planner.h"
 
+struct goalCommand *current_Command;
+
+
+
 uint8_t binaryToDecimal(int start_index, int bitCount)
 {
 	//MSB is on the left so we start high and go low on the exp
@@ -15,39 +19,45 @@ uint8_t binaryToDecimal(int start_index, int bitCount)
 }
 
 
-void parseComs(void)
+struct goalCommand parseComs(uint8_t received, uint8_t *data)
 {
-  //Coms parsing
-  HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_14); //toggle LED for dev
-  if (rx_data[0] == 48)
+  if (received)
   {
-  	depthUp = 0;
-  }
-  else if (rx_data[0] == 49)
-  {
-  	depthUp = 1;
+  	//Coms parsing
+		HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_14); //toggle LED for dev
+		if (data[0] == 48)
+		{
+			current_Command->depthUp = 0;
+		}
+		else if (data[0] == 49)
+		{
+			current_Command->depthUp = 1;
+		}
+		
+		if (data[1] == 48)
+		{
+			current_Command->depthDown = 0;
+		}
+		else if (data[1] == 49)
+		{
+			current_Command->depthDown = 1;
+		}
+		
+		if (data[2] == 48)
+		{
+			current_Command->captureImage = 0;
+		}
+		else if (data[2] == 49)
+		{
+			current_Command->captureImage = 1;
+		}
+		
+		current_Command->forwardThrust = binaryToDecimal(3, 8);
+		current_Command->turnThrust = binaryToDecimal(11, 8);
+		current_Command->camUpDown = binaryToDecimal(19, 8);
+		current_Command->camLeftRight = binaryToDecimal(27, 8);
   }
   
-  if (rx_data[1] == 48)
-  {
-  	depthDown = 0;
-  }
-  else if (rx_data[1] == 49)
-  {
-  	depthDown = 1;
-  }
-  
-  if (rx_data[2] == 48)
-  {
-  	captureImage = 0;
-  }
-  else if (rx_data[2] == 49)
-  {
-  	captureImage = 1;
-  }
-	
-	forwardThrust = binaryToDecimal(3, 8);
-	turnThrust = binaryToDecimal(11, 8);
-	camUpDown = binaryToDecimal(19, 8);
-	camLeftRight = binaryToDecimal(27, 8);
+  return *current_command;
 }
+

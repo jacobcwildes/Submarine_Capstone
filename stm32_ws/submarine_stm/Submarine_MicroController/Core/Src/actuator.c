@@ -1,5 +1,19 @@
 #include "actuator.h"
 
+#define ARR_Prop 11999
+#define ARR_Servo 2399999
+
+
+#define full_close_steps 100
+
+
+void updateActuators(UART_HandleTypeDef uart_com, struct actuator_command actuate)
+{
+	updateProps(actuate);
+	updateServos(actuate);
+	updateSteppers(actuate);
+	transmitData(uart_com, actuate);
+}
 
 void MTR_DRV_INIT(uint8_t currentValue, uint8_t decay, uint8_t reset, uint8_t sleep)
 {
@@ -49,65 +63,35 @@ void MTR_DRV_INIT(uint8_t currentValue, uint8_t decay, uint8_t reset, uint8_t sl
 }
 
 
-void updateProps(void)
+void updateProps(struct actuator_command actuate);
 {
-  //HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_14); //toggle LED for dev
-  
-  //Convert coms thrust vals in percentages for f,b,l,r
-  if (turnThrust < 128)
-  {
-  	leftThrust = ((float)(-turnThrust + 128))/256.0; // 0% <-> 50% 
-  	rightThrust = 0;
-  }
-  else
-  {
-  	leftThrust = 0;
-  	rightThrust = ((float)(turnThrust - 128))/256.0; // 0% <-> 50% 
-  }
-  
-  if (forwardThrust < 128)
-  {
-  	forThrust = 0;
-		backThrust = ((float)(-forwardThrust + 128))/256.0; // 0% <-> 50%
-  }
-  else
-  {
-  	forThrust = ((float)(forwardThrust - 128))/256.0; // 0% <-> 50%
-		backThrust = 0;
-  }
-  
-  
-  //mix individual thrust values into 
-  rightPropThrust = leftThrust - rightThrust + forThrust - backThrust; // -100% <-> 100%
-  leftPropThrust = rightThrust - leftThrust + forThrust - backThrust; // -100% <-> 100%
-  
   //LEFT PROP SET DC (TIM3_CH2 = forward) (TIM3_CH3 = backward)
-  if (leftPropThrust >= 0) 
+  if (act.leftPropThrust >= 0) 
   {
-    TIM3->CCR2 = leftPropThrust*ARR_Prop;
+    TIM3->CCR2 = act.leftPropThrust*ARR_Prop;
     TIM3->CCR3 = 0;
   }
   else 
   {
-    TIM3->CCR3 = -leftPropThrust*ARR_Prop;
+    TIM3->CCR3 = -act.leftPropThrust*ARR_Prop;
     TIM3->CCR2 = 0;
   }
   
   //RIGHT PROP SET DC (TIM4_CH2 = forward) (TIM4_CH3 = backward)
-  if (rightPropThrust >= 0) 
+  if (act.rightPropThrust >= 0) 
   {
-    TIM4->CCR2 = rightPropThrust*ARR_Prop;
+    TIM4->CCR2 = act.rightPropThrust*ARR_Prop;
     TIM4->CCR3 = 0;
   }
   else
   {
-    TIM4->CCR3 = -rightPropThrust*ARR_Prop;
+    TIM4->CCR3 = -act.rightPropThrust*ARR_Prop;
     TIM4->CCR2 = 0;
   }
   
 }
 
-void updateServos(void)
+void updateServos(struct actuator_command actuate)
 {
   //HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_14); //toggle LED for dev 
   //Convert coms thrust vals in percentages for f,b,l,r
@@ -116,63 +100,32 @@ void updateServos(void)
   //camVerticalDuty = (0.000196 * (float)camUpDown) + 0.05;
   //camHorizontalDuty = (0.000196 * (float)camLeftRight) + 0.05;
   
-  //Setup for 0.5ms <-> 2.5ms
-  camVerticalDuty = (0.000392 * (float)camUpDown) + 0.025;
-  camHorizontalDuty = (0.000392 * (float)camLeftRight) + 0.025;
+  
   
   //Set Duty Cycles
-  TIM5->CCR2 = camVerticalDuty*ARR_Servo;
-  TIM5->CCR3 = camHorizontalDuty*ARR_Servo;
+  TIM5->CCR2 = act.camVerticalDuty*ARR_Servo;
+  TIM5->CCR3 = act.camHorizontalDuty*ARR_Servo;
 }
 
-void leftBalastOpenStep(void)
+
+void updateSteppers(struct actuator_command actuate)
 {
-	currentStepLeft++;
-	if (currentStepLeft == 4) currentStepLeft = 0; //wrap around
-	
-}
-
-void leftBalastCloseStep(void)
-{
-	currentStepLeft--;
-	if (currentStepLeft == 255) currentStepLeft = 3; //wrap around
-}
-
-void rightBalastOpenStep(void)
-{
-	currentStepRight++;
-	if (currentStepRight == 4) currentStepRight = 0; //wrap around
-}
-
-void rightBalastCloseStep(void)
-{
-	currentStepRight--;
-	if (currentStepRight == 255) currentStepRight = 3; //wrap around
-}
-
-void updateSteppers(void)
-{
-	if (depthUp && baseStepperPos >= 10)
-	{
-		//Move toward full open
-		leftBalastOpenStep();
-		leftStepperPos--;
-		rightStepperOpenStep();
-		rightStepperPos--;
-		baseStepperPos--;
-	}
-	if (depthUp && rightStepperPos <= full_close_step - 10)
-	{
-		rightStepperOpenStep();
-		rightStepperPos--;
-	}
+	//DO STEPPERS
 }
 
 
 
-void transmitData(void)
+void transmitData(UART_HandleTypeDef uart_com, struct actuate_command actuate)
 {
 	//Data concat
+	struct state stateData = actuate.s;
+	struct envData environmentData = stateData.env;
+	struct adcData analogData = environmentData.adc;
+	struct inputData in = environment.input;
+	
+	char tx_buffer[100] = "YAYAYAYYAYA\r\n";
+	
+	
 	
 	// For actual communication back to RPI (STILL USING TEST DATA)(This sprintf call works)
 	sprintf(tx_buffer, "%u,%u,%u,%u,%u,%u,%u\n\r", degreesNorth, (uint16_t)(10*speedScalar), depthApprox, roll, pitch, yaw, (uint16_t)(10*voltageBattery));
@@ -187,5 +140,5 @@ void transmitData(void)
 	
 	//sprintf(tx_buffer, "TestMessage,,,,,,,,,,,,,\n\r");
 
-  HAL_UART_Transmit(&hlpuart1, (uint8_t *)tx_buffer, sizeof(tx_buffer), 10);	
+  HAL_UART_Transmit(&uart_com, (uint8_t *)tx_buffer, sizeof(tx_buffer), 10);	
 }

@@ -83,14 +83,32 @@ class Submarine(Node):
         self.camUpDownBinary = bin(self.camUpDown).split('b')[1]
         self.camLeftRightBinary = bin(self.camLeftRight).split('b')[1]
 				
-        self.bitfield = str(depthUp) + str(depthDown) + str(captureImage) + str(forwardBinary).zfill(8) + str(turnBinary).zfill(8) + str(camUpDownBinary).zfill(8) + str(camLeftRightBinary).zfill(8)
+        self.bitfield = str(self.depthUp) + str(self.depthDown) + str(self.captureImage) + str(self.forwardBinary).zfill(8) + str(self.turnBinary).zfill(8) + str(self.camUpDownBinary).zfill(8) + str(self.camLeftRightBinary).zfill(8)
 
-        SerialObj.write(bitfield.encode()) #35 bits
-        print("Sending: " + bitfield)
-        received = SerialObj.readline().decode('ascii').strip().strip('\x00')
+        print(str(self.depthUp))
+        print(str(self.depthDown))
+        print(str(self.captureImage))
+        print(self.forwardThrust)
+        print(self.turnThrust)
+        print(self.camUpDown)
+        print(self.camLeftRight)
+
+        self.serialport.write(self.bitfield.encode()) #35 bits
+        print("Sending: " + self.bitfield)
+        received = self.serialport.readline().decode('ascii').strip().strip('\x00')
         print("Received: " + received)
 
         received_split = received.split(',')
+        
+        print("DegreesNorth: " + received_split[0])
+        print("SpeedScalar: " + str(int(received_split[1])/10))
+        print("DepthApprox: " + received_split[2])
+        print("Roll: " + received_split[3])
+        print("Pitch: " + received_split[4])
+        print("Yaw: " + received_split[5])
+        print("Voltage: " + str(int(received_split[6])/10))
+        print("---------------------------------------")
+        print("")
 
         self.degreesNorth = int(received_split[0])
         self.speedScalar = float(received_split[1])/10.0
@@ -101,7 +119,6 @@ class Submarine(Node):
         self.voltageBattery = float(received_split[6])/10.0
         
         dataReceived = True
-
 
 def main(args=None):
     rclpy.init(args=args)
