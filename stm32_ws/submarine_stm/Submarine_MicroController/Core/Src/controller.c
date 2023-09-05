@@ -1,16 +1,16 @@
 #include "controller.h"
 
-struct actuator_command controller(com_data, state)
+struct actuator_command controller(struct goalCommand com_data, struct state s)
 {
 	//DO PID controller
-	struct actuator_command *actuate;
+	struct actuator_command actuate;
 	
-	actuate->s = state;
-	propellor_control(actuate, com_data);
-	servo_control(actuate, com_data);
-	stepper_control(actuate, com_data);
+	actuate.s = s;
+	propellor_control(&actuate, com_data);
+	servo_control(&actuate, com_data);
+	stepper_control(&actuate, com_data);
 	
-	return actuator_command;
+	return actuate;
 }
 
 void propellor_control(struct actuator_command *act, struct goalCommand com)
@@ -51,8 +51,8 @@ void propellor_control(struct actuator_command *act, struct goalCommand com)
 void servo_control(struct actuator_command *act, struct goalCommand com)
 {
 	//Setup for 0.5ms <-> 2.5ms
-  act->camVerticalDuty = (0.000392 * (float)camUpDown) + 0.025;
-  act->camHorizontalDuty = (0.000392 * (float)camLeftRight) + 0.025;
+  act->camVerticalDuty = (0.000392 * (float)com.camUpDown) + 0.025;
+  act->camHorizontalDuty = (0.000392 * (float)com.camLeftRight) + 0.025;
 }
 
 void stepper_control(struct actuator_command *act, struct goalCommand com)

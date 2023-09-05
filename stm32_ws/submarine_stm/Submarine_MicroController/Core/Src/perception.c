@@ -30,11 +30,11 @@
 
 struct envData envRead(I2C_HandleTypeDef com)
 {
-	struct envData *environment;
+	struct envData environment;
 	
-	environment->imu = imuRead(com);
-	environment->adc = adcRead();
-	environment->input = inputRead();
+	environment.imu = imuRead(com);
+	environment.adc = adcRead();
+	environment.input = inputRead();
 	
 	return environment;
 }
@@ -56,7 +56,7 @@ struct adcData adcRead()
 	adcInfo.leftBallastPosition = 0.5;
 	adcInfo.rightBallastPosition = 0.5;
 
-	
+	return adcInfo;
 	
 }
 
@@ -68,6 +68,8 @@ struct inputData inputRead()
 	inputInfo.nFaultLeft = 0;
 	inputInfo.nFaultRight = 0;
 	inputInfo.nFaultProp = 0;
+	
+	return inputInfo;
 }
 
 struct imuData imuRead(I2C_HandleTypeDef com)
@@ -132,7 +134,7 @@ struct imuData imuRead(I2C_HandleTypeDef com)
 	
 	if (retVal == HAL_OK) //If reading without error
 	{
-		HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_14); //toggle LED for dev	
+		//HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_14); //toggle LED for dev	
 		imuVectors.x_ang = twosComptoDec(x_ang_L, x_ang_H);//get xyz values for all 9DOF
 		imuVectors.y_ang = twosComptoDec(y_ang_L, y_ang_H);//will need to do further calc for position, rotation, compass
 		imuVectors.z_ang = twosComptoDec(z_ang_L, z_ang_H);

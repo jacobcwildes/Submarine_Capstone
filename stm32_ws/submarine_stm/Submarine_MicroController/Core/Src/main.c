@@ -91,6 +91,8 @@ static void MX_TIM5_Init(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+uint8_t rx_received = 0;
+uint8_t rx_data[35];
 
 /* USER CODE END 0 */
 
@@ -139,9 +141,8 @@ int main(void)
 	HAL_TIM_PWM_Start(&htim4, TIM_CHANNEL_3);
 	HAL_TIM_PWM_Start(&htim5, TIM_CHANNEL_2);
 	HAL_TIM_PWM_Start(&htim5, TIM_CHANNEL_3);
+	initialize_states();
 	
-	uint8_t rx_received = 0;
-	uint8_t rx_data[35];
 	
   /* USER CODE END 2 */
 
@@ -153,39 +154,19 @@ int main(void)
   	struct envData imuVectors = envRead(hi2c1);
   	
   	//Second, use the environment data to make a state estimation of the ROV
-  	struct state current_state = stateEstimation(envData);
+  	struct state current_state = stateEstimation(&imuVectors);
   	
   	//Third, consult the goal given from uart coms in order to influence planning
   	struct goalCommand com_data = parseComs(rx_received, rx_data);
   	
   	//Fourth, using the state estimation and the information from the planner, get control info for actuators
-  	struct actuator_command actuate = controller(com_data, state)
+  	struct actuator_command actuate = controller(com_data, current_state);
   	
   	//Lastly, relay the actuator command to the motors
   	updateActuators(hlpuart1, actuate);
   	
   	
   	
-  	
-  	
-  	
-  	
-  	
-  	/*
-  	if (rx_received) //New Transmission from RPI
-    {
-		  
-		  parseComs();
-		  //imuPullData();
-		  updateProps();
-		  updateServos();
-		  transmitData(hlpuart1);
-			rx_received = 0;
-
-		  
-		}
-		*/
-
   	
   	
     /* USER CODE END WHILE */
@@ -784,7 +765,8 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 {
 	UNUSED(huart); //waring suppresion
 	
-	//HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_14); //toggle LED for dev
+	HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_14); //toggle LED for dev
+	
 	rx_received = 1;//set flag for use in while loop
 	
 	HAL_UART_Receive_IT(&hlpuart1, rx_data, 35); //reset UART interupt for next transmission

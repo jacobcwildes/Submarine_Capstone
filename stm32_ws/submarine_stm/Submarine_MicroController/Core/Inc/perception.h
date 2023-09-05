@@ -11,12 +11,7 @@ struct imuData imuRead(I2C_HandleTypeDef com);
 uint16_t twosComptoDec(uint8_t low_reg, uint8_t high_reg);
 
 
-struct __attribute__((__packed__)) envData {
-  //GLOBAL IMU DOF 
-	struct imuData imu;
-	struct adcData adc;
-	struct inputData input;
-};
+
 
 struct __attribute__((__packed__)) imuData 
 {
@@ -44,6 +39,13 @@ struct __attribute__((__packed__)) inputData
 	uint8_t nFaultLeft;
 	uint8_t nFaultRight;
 	uint8_t nFaultProp;
+};
+
+struct __attribute__((__packed__)) envData {
+  //GLOBAL IMU DOF 
+	struct imuData imu;
+	struct adcData adc;
+	struct inputData input;
 };
 
 #endif

@@ -32,10 +32,12 @@ while (True):
 	
 	SerialObj.write(bitfield.encode()) #35 bits
 	print("Sending: " + bitfield)
-	received = SerialObj.readline().decode('ascii').strip().strip('\x00')
-	print("Received: " + received)
+	received = SerialObj.readline()
+	#print("Rec: " + received)
+	rec = received.decode('ascii').strip().strip('\x00')
+	print("Received: " + rec)
 	
-	received_split = received.split(',')
+	received_split = rec.split(',')
 	
 	print("DegreesNorth: " + received_split[0])
 	print("SpeedScalar: " + str(int(received_split[1])/10))

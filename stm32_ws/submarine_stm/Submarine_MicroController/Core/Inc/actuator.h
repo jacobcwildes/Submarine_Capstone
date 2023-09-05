@@ -5,6 +5,7 @@
 #include <sys/types.h>
 #include <stdio.h>
 #include "stm32l4xx_hal.h"
+#include "controller.h"
 
 
 void MTR_DRV_INIT(uint8_t currentValue, uint8_t decay, uint8_t reset, uint8_t sleep);

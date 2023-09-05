@@ -4,13 +4,13 @@ struct goalCommand *current_Command;
 
 
 
-uint8_t binaryToDecimal(int start_index, int bitCount)
+uint8_t binaryToDecimal(int start_index, int bitCount, uint8_t *data)
 {
 	//MSB is on the left so we start high and go low on the exp
 	uint8_t result = 0;
 	for (int i = bitCount - 1; i >= 0; i--)
 	{
-		if (rx_data[start_index + i] == 49)
+		if (data[start_index + i] == 49)
 		{
 			result += pow(2, 7 - i);
 		}
@@ -52,12 +52,12 @@ struct goalCommand parseComs(uint8_t received, uint8_t *data)
 			current_Command->captureImage = 1;
 		}
 		
-		current_Command->forwardThrust = binaryToDecimal(3, 8);
-		current_Command->turnThrust = binaryToDecimal(11, 8);
-		current_Command->camUpDown = binaryToDecimal(19, 8);
-		current_Command->camLeftRight = binaryToDecimal(27, 8);
+		current_Command->forwardThrust = binaryToDecimal(3, 8, data);
+		current_Command->turnThrust = binaryToDecimal(11, 8, data);
+		current_Command->camUpDown = binaryToDecimal(19, 8, data);
+		current_Command->camLeftRight = binaryToDecimal(27, 8, data);
   }
   
-  return *current_command;
+  return *current_Command;
 }
 

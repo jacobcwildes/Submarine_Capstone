@@ -63,29 +63,29 @@ void MTR_DRV_INIT(uint8_t currentValue, uint8_t decay, uint8_t reset, uint8_t sl
 }
 
 
-void updateProps(struct actuator_command actuate);
+void updateProps(struct actuator_command actuate)
 {
   //LEFT PROP SET DC (TIM3_CH2 = forward) (TIM3_CH3 = backward)
-  if (act.leftPropThrust >= 0) 
+  if (actuate.leftPropThrust >= 0) 
   {
-    TIM3->CCR2 = act.leftPropThrust*ARR_Prop;
+    TIM3->CCR2 = actuate.leftPropThrust*ARR_Prop;
     TIM3->CCR3 = 0;
   }
   else 
   {
-    TIM3->CCR3 = -act.leftPropThrust*ARR_Prop;
+    TIM3->CCR3 = -actuate.leftPropThrust*ARR_Prop;
     TIM3->CCR2 = 0;
   }
   
   //RIGHT PROP SET DC (TIM4_CH2 = forward) (TIM4_CH3 = backward)
-  if (act.rightPropThrust >= 0) 
+  if (actuate.rightPropThrust >= 0) 
   {
-    TIM4->CCR2 = act.rightPropThrust*ARR_Prop;
+    TIM4->CCR2 = actuate.rightPropThrust*ARR_Prop;
     TIM4->CCR3 = 0;
   }
   else
   {
-    TIM4->CCR3 = -act.rightPropThrust*ARR_Prop;
+    TIM4->CCR3 = -actuate.rightPropThrust*ARR_Prop;
     TIM4->CCR2 = 0;
   }
   
@@ -103,8 +103,8 @@ void updateServos(struct actuator_command actuate)
   
   
   //Set Duty Cycles
-  TIM5->CCR2 = act.camVerticalDuty*ARR_Servo;
-  TIM5->CCR3 = act.camHorizontalDuty*ARR_Servo;
+  TIM5->CCR2 = actuate.camVerticalDuty*ARR_Servo;
+  TIM5->CCR3 = actuate.camHorizontalDuty*ARR_Servo;
 }
 
 
@@ -115,20 +115,20 @@ void updateSteppers(struct actuator_command actuate)
 
 
 
-void transmitData(UART_HandleTypeDef uart_com, struct actuate_command actuate)
+void transmitData(UART_HandleTypeDef uart_com, struct actuator_command actuate)
 {
 	//Data concat
 	struct state stateData = actuate.s;
 	struct envData environmentData = stateData.env;
 	struct adcData analogData = environmentData.adc;
-	struct inputData in = environment.input;
+	struct inputData in = environmentData.input;
 	
-	char tx_buffer[100] = "YAYAYAYYAYA\r\n";
+	char tx_buffer[500] = "";
 	
 	
 	
 	// For actual communication back to RPI (STILL USING TEST DATA)(This sprintf call works)
-	sprintf(tx_buffer, "%u,%u,%u,%u,%u,%u,%u\n\r", degreesNorth, (uint16_t)(10*speedScalar), depthApprox, roll, pitch, yaw, (uint16_t)(10*voltageBattery));
+	sprintf(tx_buffer, "%u,%u,%u,%u,%u,%u,%u\n\r", stateData.degreesNorth, (uint16_t)(10*stateData.speedScalar), stateData.depthApprox, stateData.roll, stateData.pitch, stateData.yaw, (uint16_t)(10*analogData.batteryVoltage));
 	
 	// For reading the i2c values on the RPI
 	//sprintf(tx_buffer, "%u,%u,%u,%u,%u,%u,%u,%u,%u\n\r", x_ang, y_ang, z_ang, x_lin, y_lin, z_lin, x_mag, y_mag, z_mag );
