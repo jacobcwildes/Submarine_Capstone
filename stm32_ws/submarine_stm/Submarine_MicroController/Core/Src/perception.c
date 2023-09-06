@@ -5,26 +5,26 @@
 #define MAG_ADR 0x1c
 
 //gyro
-#define OUTX_L_G (0x22 | 0x01)
-#define OUTX_H_G (0x23 | 0x01)
-#define OUTY_L_G (0x24 | 0x01)
-#define OUTY_H_G (0x25 | 0x01)
-#define OUTZ_L_G (0x26 | 0x01)
-#define OUTZ_H_G (0x27 | 0x01)
+#define OUTX_L_G (0x22)
+#define OUTX_H_G (0x23)
+#define OUTY_L_G (0x24)
+#define OUTY_H_G (0x25)
+#define OUTZ_L_G (0x26)
+#define OUTZ_H_G (0x27)
 //accel
-#define OUTX_L_XL (0x28 | 0x01)
-#define OUTX_H_XL (0x29 | 0x01)
-#define OUTY_L_XL (0x2A | 0x01)
-#define OUTY_H_XL (0x2B | 0x01)
-#define OUTZ_L_XL (0x2C | 0x01)
-#define OUTZ_H_XL (0x2D | 0x01)
+#define OUTX_L_XL (0x28)
+#define OUTX_H_XL (0x29)
+#define OUTY_L_XL (0x2A)
+#define OUTY_H_XL (0x2B)
+#define OUTZ_L_XL (0x2C)
+#define OUTZ_H_XL (0x2D)
 //magentometer
-#define OUT_X_L (0x28 | 0x01)
-#define OUT_X_H (0x29 | 0x01)
-#define OUT_Y_L (0x2A | 0x01)
-#define OUT_Y_H (0x2B | 0x01)
-#define OUT_Z_L (0x2C | 0x01)
-#define OUT_Z_H (0x2D | 0x01)
+#define OUT_X_L (0x28)
+#define OUT_X_H (0x29)
+#define OUT_Y_L (0x2A)
+#define OUT_Y_H (0x2B)
+#define OUT_Z_L (0x2C)
+#define OUT_Z_H (0x2D)
 
 
 
@@ -111,26 +111,26 @@ struct imuData imuRead(I2C_HandleTypeDef com)
 	HAL_StatusTypeDef retVal = HAL_OK;
 	
 	//Gyro
-	if (HAL_I2C_Mem_Read(&com, ACCEL_GYRO_ADR, OUTX_L_G, 1, &x_ang_L, sizeof(x_ang_L), 10) != HAL_OK) retVal = HAL_ERROR;
-	if (HAL_I2C_Mem_Read(&com, ACCEL_GYRO_ADR, OUTX_H_G, 1, &x_ang_H, sizeof(x_ang_H), 10) != HAL_OK) retVal = HAL_ERROR;
-	if (HAL_I2C_Mem_Read(&com, ACCEL_GYRO_ADR, OUTY_L_G, 1, &y_ang_L, sizeof(y_ang_L), 10) != HAL_OK) retVal = HAL_ERROR;
-	if (HAL_I2C_Mem_Read(&com, ACCEL_GYRO_ADR, OUTY_H_G, 1, &y_ang_H, sizeof(y_ang_H), 10) != HAL_OK) retVal = HAL_ERROR;
-	if (HAL_I2C_Mem_Read(&com, ACCEL_GYRO_ADR, OUTZ_L_G, 1, &z_ang_L, sizeof(z_ang_L), 10) != HAL_OK) retVal = HAL_ERROR;
-	if (HAL_I2C_Mem_Read(&com, ACCEL_GYRO_ADR, OUTZ_H_G, 1, &z_ang_H, sizeof(z_ang_H), 10) != HAL_OK) retVal = HAL_ERROR;
+	if (HAL_I2C_Mem_Read(&com, ACCEL_GYRO_ADR << 1, OUTX_L_G << 1, 1, &x_ang_L, sizeof(x_ang_L), 10) != HAL_OK) retVal = HAL_ERROR;
+	if (HAL_I2C_Mem_Read(&com, ACCEL_GYRO_ADR << 1, OUTX_H_G << 1, 1, &x_ang_H, sizeof(x_ang_H), 10) != HAL_OK) retVal = HAL_ERROR;
+	if (HAL_I2C_Mem_Read(&com, ACCEL_GYRO_ADR << 1, OUTY_L_G << 1, 1, &y_ang_L, sizeof(y_ang_L), 10) != HAL_OK) retVal = HAL_ERROR;
+	if (HAL_I2C_Mem_Read(&com, ACCEL_GYRO_ADR << 1, OUTY_H_G << 1, 1, &y_ang_H, sizeof(y_ang_H), 10) != HAL_OK) retVal = HAL_ERROR;
+	if (HAL_I2C_Mem_Read(&com, ACCEL_GYRO_ADR << 1, OUTZ_L_G << 1, 1, &z_ang_L, sizeof(z_ang_L), 10) != HAL_OK) retVal = HAL_ERROR;
+	if (HAL_I2C_Mem_Read(&com, ACCEL_GYRO_ADR << 1, OUTZ_H_G << 1, 1, &z_ang_H, sizeof(z_ang_H), 10) != HAL_OK) retVal = HAL_ERROR;
 	//Accel
-	if (HAL_I2C_Mem_Read(&com, ACCEL_GYRO_ADR, OUTX_L_XL, 1, &x_lin_L, sizeof(x_lin_L), 10) != HAL_OK) retVal = HAL_ERROR;
-	if (HAL_I2C_Mem_Read(&com, ACCEL_GYRO_ADR, OUTX_H_XL, 1, &x_lin_H, sizeof(x_lin_H), 10) != HAL_OK) retVal = HAL_ERROR;
-	if (HAL_I2C_Mem_Read(&com, ACCEL_GYRO_ADR, OUTY_L_XL, 1, &y_lin_L, sizeof(y_lin_L), 10) != HAL_OK) retVal = HAL_ERROR;
-	if (HAL_I2C_Mem_Read(&com, ACCEL_GYRO_ADR, OUTY_H_XL, 1, &y_lin_H, sizeof(y_lin_H), 10) != HAL_OK) retVal = HAL_ERROR;
-	if (HAL_I2C_Mem_Read(&com, ACCEL_GYRO_ADR, OUTZ_L_XL, 1, &z_lin_L, sizeof(z_lin_L), 10) != HAL_OK) retVal = HAL_ERROR;
-	if (HAL_I2C_Mem_Read(&com, ACCEL_GYRO_ADR, OUTZ_H_XL, 1, &z_lin_H, sizeof(z_lin_H), 10) != HAL_OK) retVal = HAL_ERROR;
+	if (HAL_I2C_Mem_Read(&com, ACCEL_GYRO_ADR << 1, OUTX_L_XL << 1, 1, &x_lin_L, sizeof(x_lin_L), 10) != HAL_OK) retVal = HAL_ERROR;
+	if (HAL_I2C_Mem_Read(&com, ACCEL_GYRO_ADR << 1, OUTX_H_XL << 1, 1, &x_lin_H, sizeof(x_lin_H), 10) != HAL_OK) retVal = HAL_ERROR;
+	if (HAL_I2C_Mem_Read(&com, ACCEL_GYRO_ADR << 1, OUTY_L_XL << 1, 1, &y_lin_L, sizeof(y_lin_L), 10) != HAL_OK) retVal = HAL_ERROR;
+	if (HAL_I2C_Mem_Read(&com, ACCEL_GYRO_ADR << 1, OUTY_H_XL << 1, 1, &y_lin_H, sizeof(y_lin_H), 10) != HAL_OK) retVal = HAL_ERROR;
+	if (HAL_I2C_Mem_Read(&com, ACCEL_GYRO_ADR << 1, OUTZ_L_XL << 1, 1, &z_lin_L, sizeof(z_lin_L), 10) != HAL_OK) retVal = HAL_ERROR;
+	if (HAL_I2C_Mem_Read(&com, ACCEL_GYRO_ADR << 1, OUTZ_H_XL << 1, 1, &z_lin_H, sizeof(z_lin_H), 10) != HAL_OK) retVal = HAL_ERROR;
 	//Magnet
-	if (HAL_I2C_Mem_Read(&com, MAG_ADR, OUT_X_L, 1, &x_mag_L, sizeof(x_mag_L), 10) != HAL_OK) retVal = HAL_ERROR;
-	if (HAL_I2C_Mem_Read(&com, MAG_ADR, OUT_X_H, 1, &x_mag_H, sizeof(x_mag_H), 10) != HAL_OK) retVal = HAL_ERROR;
-	if (HAL_I2C_Mem_Read(&com, MAG_ADR, OUT_Y_L, 1, &y_mag_L, sizeof(y_mag_L), 10) != HAL_OK) retVal = HAL_ERROR;
-	if (HAL_I2C_Mem_Read(&com, MAG_ADR, OUT_Y_H, 1, &y_mag_H, sizeof(y_mag_H), 10) != HAL_OK) retVal = HAL_ERROR;
-	if (HAL_I2C_Mem_Read(&com, MAG_ADR, OUT_Z_L, 1, &z_mag_L, sizeof(z_mag_L), 10) != HAL_OK) retVal = HAL_ERROR;
-	if (HAL_I2C_Mem_Read(&com, MAG_ADR, OUT_Z_H, 1, &z_mag_H, sizeof(z_mag_H), 10) != HAL_OK) retVal = HAL_ERROR;
+	if (HAL_I2C_Mem_Read(&com, MAG_ADR << 1, OUT_X_L << 1, 1, &x_mag_L, sizeof(x_mag_L), 10) != HAL_OK) retVal = HAL_ERROR;
+	if (HAL_I2C_Mem_Read(&com, MAG_ADR << 1, OUT_X_H << 1, 1, &x_mag_H, sizeof(x_mag_H), 10) != HAL_OK) retVal = HAL_ERROR;
+	if (HAL_I2C_Mem_Read(&com, MAG_ADR << 1, OUT_Y_L << 1, 1, &y_mag_L, sizeof(y_mag_L), 10) != HAL_OK) retVal = HAL_ERROR;
+	if (HAL_I2C_Mem_Read(&com, MAG_ADR << 1, OUT_Y_H << 1, 1, &y_mag_H, sizeof(y_mag_H), 10) != HAL_OK) retVal = HAL_ERROR;
+	if (HAL_I2C_Mem_Read(&com, MAG_ADR << 1, OUT_Z_L << 1, 1, &z_mag_L, sizeof(z_mag_L), 10) != HAL_OK) retVal = HAL_ERROR;
+	if (HAL_I2C_Mem_Read(&com, MAG_ADR << 1, OUT_Z_H << 1, 1, &z_mag_H, sizeof(z_mag_H), 10) != HAL_OK) retVal = HAL_ERROR;
 	
 	if (retVal == HAL_OK) //If reading without error
 	{
