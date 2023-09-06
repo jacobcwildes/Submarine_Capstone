@@ -40,10 +40,10 @@ cv.rectangle(img, (compass_bottom_x, compass_bottom_y), (compass_top_x, compass_
 cv.rectangle(img, (compass_bottom_x, compass_bottom_y), (compass_top_x, compass_top_y), (255, 255, 255), 2)
 #Draw left box
 cv.rectangle(img, (compass_bottom_x, compass_bottom_y), (compass_bottom_x + 50, compass_top_y), (255, 255, 255), 2)
-cv.putText(img, "000", (compass_bottom_x + 10, compass_bottom_y + 15), cv.FONT_HERSHEY_SIMPLEX, .5, (255, 255, 255), 1, cv.LINE_AA)
+
 #Draw right box
 cv.rectangle(img, (compass_top_x - 50, compass_bottom_y), (compass_top_x, compass_top_y), (255, 255, 255), 2)
-cv.putText(img, "NW", (663, 25), cv.FONT_HERSHEY_SIMPLEX, .5, (255, 255, 255), 1, cv.LINE_AA) 
+ 
 
 #Draw heading pointer
 p1 = (500, 34)
@@ -58,18 +58,71 @@ while True:
     #Show the battery gradient
    # for i in range(99):
    #     cv.rectangle(img, ((852 + i), 11), ((852 + i), 49), (0, 255, 0), -1)
-   #     cv.imshow("Window", img)       
+   #     cv.imshow("Window", img)          
    #     cv.waitKey(20)
       
-    for i in range(99):
+    for i in range(101):
         #255/99 steps = 2.57 - the step to make the color gradient on each increment
         #Draw red/green bar
         cv.rectangle(img, (battery_bottom_x, battery_bottom_y), (battery_top_x, battery_top_y),  (0, (255 - (i * 2.57)), 0 + (i * 2.57)), -1)
         
-        cv.rectangle(img, ((battery_top_x - i), 11), (battery_top_x, 49), (150, 150, 150), -1)
+        cv.rectangle(img, ((battery_top_x - i), 10), (battery_top_x, 50), (150, 150, 150), -1)
         
         cv.putText(img, str(100 - i).zfill(2), (930, 40), cv.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 1, cv.LINE_AA)
         cv.imshow("Window", img)
-        cv.waitKey(40)
+        cv.waitKey(20)
 
 ##Note, when used in the actual submarine, the image will be different each time so the percentages will not overlap each other like they do in this test. It isn't really worth the time to go back and try to make the numbers not overlap since this is just a proof of concept
+    for deg in range(361):
+        #The length of the compass box - 100 (the size of the two sidebars) is 300/359 (the possible number of degree points) = .836
+        scale_deg = deg*.386
+        #Want to display each heading in the box... Need to make it so that everything gets centered on the point that the arrow is on
+        #That way when we're heading North, North is atop the needle... etc. That point is 500
+        #Compass base
+        cv.rectangle(img, (compass_bottom_x, compass_bottom_y), (compass_top_x, compass_top_y), (150, 150, 150), -1)
+        cv.rectangle(img, (compass_bottom_x, compass_bottom_y), (compass_top_x, compass_top_y), (255, 255, 255), 2)
+        #Draw left box
+        cv.rectangle(img, (compass_bottom_x, compass_bottom_y), (compass_bottom_x + 50, compass_top_y), (255, 255, 255), 2)
+
+        #Draw right box
+        cv.rectangle(img, (compass_top_x - 50, compass_bottom_y), (compass_top_x, compass_top_y), (255, 255, 255), 2)
+
+        if(deg + 300 > 340) and (deg + 300 < 640):
+            
+            cv.putText(img, "N", (500 - deg, 25), cv.FONT_HERSHEY_SIMPLEX, .5, (255, 255, 255), 1, cv.LINE_AA)
+            cv.putText(img, "NE", (500 - deg, 25), cv.FONT_HERSHEY_SIMPLEX, .5, (255, 255, 255), 1, cv.LINE_AA)
+            cv.putText(img, "E", (500 - deg, 25), cv.FONT_HERSHEY_SIMPLEX, .5, (255, 255, 255), 1, cv.LINE_AA)
+            cv.putText(img, "SE", (500 - deg, 25), cv.FONT_HERSHEY_SIMPLEX, .5, (255, 255, 255), 1, cv.LINE_AA)
+            cv.putText(img, "S", (500 - deg, 25), cv.FONT_HERSHEY_SIMPLEX, .5, (255, 255, 255), 1, cv.LINE_AA)
+            cv.putText(img, "SW", (500 - deg, 25), cv.FONT_HERSHEY_SIMPLEX, .5, (255, 255, 255), 1, cv.LINE_AA)
+            cv.putText(img, "W", (500 - deg , 25), cv.FONT_HERSHEY_SIMPLEX, .5, (255, 255, 255), 1, cv.LINE_AA)
+            cv.putText(img, "NW", (500 - deg, 25), cv.FONT_HERSHEY_SIMPLEX, .5, (255, 255, 255), 1, cv.LINE_AA)
+           
+        #Write the actual heading in the compass right box
+        #Will clean this up so that it's a struct or something that I stringify instead. Maybe. Either way there are going to be a bunch of "if" statements checking for the heading
+        if(0 < deg < 44) or (deg == 360):
+            cv.putText(img, "N", (663, 25), cv.FONT_HERSHEY_SIMPLEX, .5, (255, 255, 255), 1, cv.LINE_AA)
+        if(45 < deg < 89):
+            cv.putText(img, "NE", (663, 25), cv.FONT_HERSHEY_SIMPLEX, .5, (255, 255, 255), 1, cv.LINE_AA)
+        if(90 < deg < 134):
+            cv.putText(img, "E", (663, 25), cv.FONT_HERSHEY_SIMPLEX, .5, (255, 255, 255), 1, cv.LINE_AA)
+        if(135 < deg < 179):
+            cv.putText(img, "SE", (663, 25), cv.FONT_HERSHEY_SIMPLEX, .5, (255, 255, 255), 1, cv.LINE_AA)
+        if(180 < deg < 224):
+            cv.putText(img, "S", (663, 25), cv.FONT_HERSHEY_SIMPLEX, .5, (255, 255, 255), 1, cv.LINE_AA)
+        if(225 < deg < 269):
+            cv.putText(img, "SW", (663, 25), cv.FONT_HERSHEY_SIMPLEX, .5, (255, 255, 255), 1, cv.LINE_AA)
+        if(270 < deg < 314):
+            cv.putText(img, "W", (663, 25), cv.FONT_HERSHEY_SIMPLEX, .5, (255, 255, 255), 1, cv.LINE_AA)
+        if(315 < deg < 359):
+            cv.putText(img, "NW", (663, 25), cv.FONT_HERSHEY_SIMPLEX, .5, (255, 255, 255), 1, cv.LINE_AA)
+
+        #Draw right box
+        cv.rectangle(img, (compass_top_x - 50, compass_bottom_y), (compass_top_x, compass_top_y), (255, 255, 255), 2)
+
+        #Display degree heading
+        cv.putText(img, str(deg), (compass_bottom_x + 10, compass_bottom_y + 15), cv.FONT_HERSHEY_SIMPLEX, .5, (255, 255, 255), 1, cv.LINE_AA)
+        cv.rectangle(img, (compass_top_x - 50, compass_bottom_y), (compass_top_x, compass_top_y), (255, 255, 255), 2)
+
+        cv.imshow("Window", img)
+        cv.waitKey(20)
