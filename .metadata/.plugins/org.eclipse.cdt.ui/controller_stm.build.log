@@ -1,0 +1,21 @@
+23:49:06 **** Incremental Build of configuration Debug for project controller_stm ****
+make -j4 all 
+arm-none-eabi-gcc "../Core/Src/main.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32L452xx -c -I../Core/Inc -I../Drivers/STM32L4xx_HAL_Driver/Inc -I../Drivers/STM32L4xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32L4xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Core/Src/main.d" -MT"Core/Src/main.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Core/Src/main.o"
+../Core/Src/main.c: In function 'main':
+../Core/Src/main.c:124:11: warning: variable 'localbuff' set but not used [-Wunused-but-set-variable]
+  124 |   uint8_t localbuff[7];
+      |           ^~~~~~~~~
+arm-none-eabi-gcc -o "controller_stm.elf" @"objects.list"   -mcpu=cortex-m4 -T"/home/jacob/Submarine_Capstone/stm32_ws/controller_stm/STM32L452RETXP_FLASH.ld" --specs=nosys.specs -Wl,-Map="controller_stm.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+Finished building target: controller_stm.elf
+ 
+arm-none-eabi-size   controller_stm.elf 
+arm-none-eabi-objdump -h -S  controller_stm.elf  > "controller_stm.list"
+   text	   data	    bss	    dec	    hex	filename
+  23376	    100	   2212	  25688	   6458	controller_stm.elf
+Finished building: default.size.stdout
+ 
+Finished building: controller_stm.list
+ 
+
+23:49:11 Build Finished. 0 errors, 1 warnings. (took 4s.881ms)
+

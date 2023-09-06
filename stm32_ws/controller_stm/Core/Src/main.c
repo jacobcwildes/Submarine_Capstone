@@ -65,17 +65,6 @@ static void MX_USART2_UART_Init(void);
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
 
-//Initialize structure variables to nothing
-uint8_t leftToggleUD = 0;
-uint8_t leftToggleLR = 0;
-uint8_t rightToggleUD = 0;
-uint8_t rightToggleLR = 0;
-uint8_t subDown = 0;
-uint8_t subUp = 0;
-uint8_t screenshot = 0;
-
-//Store toggle data
-uint32_t toggleData[4];
 /* USER CODE END 0 */
 
 /**
@@ -85,7 +74,17 @@ uint32_t toggleData[4];
 int main(void)
 {
   /* USER CODE BEGIN 1 */
-	//Initialize variables
+	//Initialize structure variables to nothing
+	uint8_t leftToggleUD = 0;
+	uint8_t leftToggleLR = 0;
+	uint8_t rightToggleUD = 0;
+	uint8_t rightToggleLR = 0;
+	uint8_t subDown = 0;
+	uint8_t subUp = 0;
+	uint8_t screenshot = 0;
+
+	//Store toggle data
+	uint32_t toggleData[4];
 
   /* USER CODE END 1 */
 
@@ -139,14 +138,16 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
+	//Start ADC in DMA mode
 	while (1)
 	{
 		//Poll data from GPIO pins and ADC channels 1-4
 		if(HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_12) == GPIO_PIN_SET) subUp = 1;
 		if(HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_5) == GPIO_PIN_SET) subDown = 1;
 		if(HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_7) == GPIO_PIN_SET) screenshot = 1;
-		//Start ADC in DMA mode
+
 		HAL_ADC_Start_DMA(&hadc1, toggleData, 4);
+
 		leftToggleUD = toggleData[0];
 		leftToggleLR = toggleData[1];
 		rightToggleUD = toggleData[2];
@@ -441,17 +442,18 @@ static void MX_GPIO_Init(void)
 }
 
 /* USER CODE BEGIN 4 */
-void HAL_ADC_ConvHalfCpltCallback(ADC_HandleTypeDef* hadc)
-{
-	leftToggleUD = toggleData[0];
-	leftToggleLR = toggleData[1];
-}
+//void HAL_ADC_ConvHalfCpltCallback(ADC_HandleTypeDef* hadc)
+//{
 
-void HAL_ADC_COnvCpltCallback(ADC_HandleTypeDef* hadc)
-{
-	rightToggleUD = toggleData[2];
-	rightToggleLR = toggleData[3];
-}
+//}
+
+//void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc)
+//{
+//	leftToggleUD = toggleData[0];
+//	leftToggleLR = toggleData[1];
+//	rightToggleUD = toggleData[2];
+//	rightToggleLR = toggleData[3];
+//}
 /* USER CODE END 4 */
 
 /**
