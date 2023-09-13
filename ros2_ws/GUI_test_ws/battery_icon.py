@@ -13,6 +13,7 @@ compass_bottom_x = 300
 compass_bottom_y = 10
 compass_top_x = 700
 compass_top_y = 30
+
 #Create a blank image
 img = np.zeros((512, 512, 3), np.uint8)
 
@@ -54,26 +55,49 @@ cv.line(img, p2, p3, (255, 255, 255), 2)
 cv.line(img, p1, p3, (255, 255, 255), 2)
 
 cv.waitKey(1)
+
+#Actual FPS
+FPS = 0
+#Time
+previous_time = 0
+#print(previous_time)
 while True:
-    #Show the battery gradient
-   # for i in range(99):
-   #     cv.rectangle(img, ((852 + i), 11), ((852 + i), 49), (0, 255, 0), -1)
-   #     cv.imshow("Window", img)          
-   #     cv.waitKey(20)
-      
+    
     for i in range(101):
         #255/99 steps = 2.57 - the step to make the color gradient on each increment
+        #Start tracking FPS
+        #Using monotonic time because I don't really care about real timezones. The 
+        #monotonic clock naively ticks up - perfect for what I want
+        current_time = time.monotonic()
+        #print(current_time)
+
+
+        #test = current_time - previous_time
+        #print(test)
+        #test = 1/test
+        #print(test)
+        
         #Draw red/green bar
         cv.rectangle(img, (battery_bottom_x, battery_bottom_y), (battery_top_x, battery_top_y),  (0, (255 - (i * 2.57)), 0 + (i * 2.57)), -1)
         
         cv.rectangle(img, ((battery_top_x - i), 10), (battery_top_x, 50), (150, 150, 150), -1)
         
         cv.putText(img, str(100 - i).zfill(2), (930, 40), cv.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 1, cv.LINE_AA)
+        
+        difference = current_time - previous_time
+        FPS = 1/difference
+        previous_time = current_time
+        
+        #This rectangle will not be necessary - the image will always be different so the writing won't get ugly overtop of itself
+        cv.rectangle(img, (0,0), (22, 22), (0, 0, 0), -1)
+        cv.putText(img, str(int(FPS)), (2, 15), cv.FONT_HERSHEY_SIMPLEX, .5, (255, 255, 255), 1, cv.LINE_AA)
+        #This is not a perfect indication of the FPS in this case, but it is the logic that needs to be used in the execution (i.e. it won't be in a bunch of for loops because there won't BE for loops)
         cv.imshow("Window", img)
         cv.waitKey(20)
 
 ##Note, when used in the actual submarine, the image will be different each time so the percentages will not overlap each other like they do in this test. It isn't really worth the time to go back and try to make the numbers not overlap since this is just a proof of concept
     for deg in range(361):
+        current_time = time.monotonic()
         #The length of the compass box - 100 (the size of the two sidebars) is 300/359 (the possible number of degree points) = .836
         scale_deg = deg*.386
         #Want to display each heading in the box... Need to make it so that everything gets centered on the point that the arrow is on
@@ -124,5 +148,15 @@ while True:
         cv.putText(img, str(deg), (compass_bottom_x + 10, compass_bottom_y + 15), cv.FONT_HERSHEY_SIMPLEX, .5, (255, 255, 255), 1, cv.LINE_AA)
         cv.rectangle(img, (compass_top_x - 50, compass_bottom_y), (compass_top_x, compass_top_y), (255, 255, 255), 2)
 
+        difference = current_time - previous_time
+        FPS = 1/difference
+        previous_time = current_time
+        
+        #This rectangle will not be necessary - the image will always be different so the writing won't get ugly overtop of itself
+        cv.rectangle(img, (0,0), (22, 22), (0, 0, 0), -1)
+        cv.putText(img, str(int(FPS)), (2, 15), cv.FONT_HERSHEY_SIMPLEX, .5, (255, 255, 255), 1, cv.LINE_AA)
+        #This is not a perfect indication of the FPS in this case, but it is the logic that needs to be used in the execution (i.e. it won't be in a bunch of for loops because there won't BE for loops) Also, this will be directly impacted by how long the waitkey is. The waitkey in actual program will not wait at all
         cv.imshow("Window", img)
-        cv.waitKey(20)
+        cv.waitKey(40)
+    
+
