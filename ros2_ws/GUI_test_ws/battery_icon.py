@@ -54,6 +54,13 @@ cv.line(img, p1, p2, (255, 255, 255), 2)
 cv.line(img, p2, p3, (255, 255, 255), 2)
 cv.line(img, p1, p3, (255, 255, 255), 2)
 
+#The length of the compass box - 100 (the size of the two sidebars) is 300/90 (The desired amount of degrees shown)
+#After a lot of subjective testing, the above does work, but it doesn't look particularly great. This number makes 
+#The headings appear much more nicely than before
+scale_deg = 2.15
+
+directions = ["N", "NW", "W", "SW", "S", "SE", "E", "NE"]
+
 cv.waitKey(1)
 
 #Actual FPS
@@ -96,15 +103,16 @@ while True:
         cv.waitKey(20)
 
 ##Note, when used in the actual submarine, the image will be different each time so the percentages will not overlap each other like they do in this test. It isn't really worth the time to go back and try to make the numbers not overlap since this is just a proof of concept
-    for deg in range(361):
+    
+    for deg in range(360):
         current_time = time.monotonic()
-        #The length of the compass box - 100 (the size of the two sidebars) is 300/359 (the possible number of degree points) = .836
-        scale_deg = deg*.386
+        
         #Want to display each heading in the box... Need to make it so that everything gets centered on the point that the arrow is on
         #That way when we're heading North, North is atop the needle... etc. That point is 500
         #Compass base
         cv.rectangle(img, (compass_bottom_x, compass_bottom_y), (compass_top_x, compass_top_y), (150, 150, 150), -1)
         cv.rectangle(img, (compass_bottom_x, compass_bottom_y), (compass_top_x, compass_top_y), (255, 255, 255), 2)
+       
         #Draw left box
         cv.rectangle(img, (compass_bottom_x, compass_bottom_y), (compass_bottom_x + 50, compass_top_y), (255, 255, 255), 2)
 
@@ -112,16 +120,12 @@ while True:
         cv.rectangle(img, (compass_top_x - 50, compass_bottom_y), (compass_top_x, compass_top_y), (255, 255, 255), 2)
         
         #Draw compass headings
-        if(deg + 300 > 340) and (deg + 300 < 640):
-            
-            cv.putText(img, "N", (500 - deg, 25), cv.FONT_HERSHEY_SIMPLEX, .5, (255, 255, 255), 1, cv.LINE_AA)
-            cv.putText(img, "NE", (545 - deg, 25), cv.FONT_HERSHEY_SIMPLEX, .5, (255, 255, 255), 1, cv.LINE_AA)
-            cv.putText(img, "E", (590 - deg, 25), cv.FONT_HERSHEY_SIMPLEX, .5, (255, 255, 255), 1, cv.LINE_AA)
-            cv.putText(img, "SE", (635 - deg, 25), cv.FONT_HERSHEY_SIMPLEX, .5, (255, 255, 255), 1, cv.LINE_AA)
-            cv.putText(img, "S", (680 - deg, 25), cv.FONT_HERSHEY_SIMPLEX, .5, (255, 255, 255), 1, cv.LINE_AA)
-            cv.putText(img, "SW", (455 - deg, 25), cv.FONT_HERSHEY_SIMPLEX, .5, (255, 255, 255), 1, cv.LINE_AA)
-            cv.putText(img, "W", (410 - deg , 25), cv.FONT_HERSHEY_SIMPLEX, .5, (255, 255, 255), 1, cv.LINE_AA)
-            cv.putText(img, "NW", (365 - deg, 25), cv.FONT_HERSHEY_SIMPLEX, .5, (255, 255, 255), 1, cv.LINE_AA)
+        for cardinal in range(8): #each direction label
+                degree = deg + cardinal*45 #calculate actual degree in clockwise manner
+                if degree > 180: #Cut 360 in half so we go from -180- -> 180 (put NW, W, and SW on the left)
+                    degree -= 360
+                if(degree >= -60 and degree <= 60):
+                    cv.putText(img, str(directions[cardinal]), (int(degree*scale_deg + 500), 25), cv.FONT_HERSHEY_SIMPLEX, .5, (255, 255, 255), 1, cv.LINE_AA)
            
         #Write the actual heading in the compass right box
         #Will clean this up so that it's a struct or something that I stringify instead. Maybe. Either way there are going to be a bunch of "if" statements checking for the heading
@@ -159,5 +163,4 @@ while True:
         #This is not a perfect indication of the FPS in this case, but it is the logic that needs to be used in the execution (i.e. it won't be in a bunch of for loops because there won't BE for loops) Also, this will be directly impacted by how long the waitkey is. The waitkey in actual program will not wait at all
         cv.imshow("Window", img)
         cv.waitKey(40)
-    
-
+        
