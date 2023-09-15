@@ -119,6 +119,43 @@ colcon build
 source install/setup.bash
 ```
 
+_Creating a Mountpoint for the USB drive_
+First, make sure that the USB drive you are trying to flash is in FAT32 type. It can be any size as we are only saving desired screenshots to the drive. Once it is formatted (if necessary at all), plug into the Pi and do the following:
+
+1)
+```bash
+sudo fdisk -l
+```
+Find the drive that corresponds to your drive. I found it is easiest to identify by size and type. If you know it is FAT32 and is 16GB in size, you can deduce the device mountpoint. In our case, it was "/dev/sdb1"
+
+2) Next we need to get the UUID of the drive by running the following:
+```bash
+sudo ls -l /dev/disk/by-uuid/
+```
+Look for the entry that corresponds to your mountpoint. For example, our UUID was "A097-2639"
+
+3) Now we need to make a folder for the USB to mount to
+```bash
+sudo mkdir /mnt/usb
+```
+The folder name can be whatever you want, but for simplicity I went with "usb"
+
+4) Now we're going to modify the fstab file so that the drive will _always_ be mounted to the "/mnt/usb" partition
+```bash
+sudo nano /etc/fstab
+```
+
+5) Add the following line to the end
+```bash
+UUID=A097-2639 /mnt/usb vfat uid=${USER},gid={USER} 0 0
+```
+UUID is your drive ID, and ${USER} is your system username. 
+
+6) Reboot or immediately test by running:
+```bash
+sudo mount -a
+```
+If all went well, the drive will be mounted to "/mnt/usb"!
 ## Flashing STM Boards
 
 _Installing with STM32CubeIDE_
