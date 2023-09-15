@@ -119,7 +119,8 @@ colcon build
 source install/setup.bash
 ```
 
-_Creating a Mountpoint for the USB drive_
+## Creating a Mountpoint for the USB drive
+
 First, make sure that the USB drive you are trying to flash is in FAT32 type. It can be any size as we are only saving desired screenshots to the drive. Once it is formatted (if necessary at all), plug into the Pi and do the following:
 
 1)
