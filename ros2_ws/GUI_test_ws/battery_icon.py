@@ -232,7 +232,7 @@ while True:
         cv.rectangle(img, (920, 560), (1024, 600), (255, 255, 255), -1)
         cv.putText(img, str(prog_time), (930, 585), cv.FONT_HERSHEY_SIMPLEX, .65, (0, 0, 0), 1, cv.LINE_AA)
         cv.imshow("Window", img)
-        cv.waitKey(20)
+        cv.waitKey(10)
     
     #Simulate the ballasts filling
     for i in range(98):
@@ -245,6 +245,17 @@ while True:
         #Right ballast
         cv.rectangle(img, (152, 201), (173, 201), (150, 150, 150), -1)
         cv.rectangle(img, (152, 201), (173, 201 + i), (255, 0, 0), -1)
+        
+        cv.imshow("Window", img)
+        cv.waitKey(10)
+        
+    #Simulate depth change
+    for i in range(21):
+        #Place Depth counter
+        #This will not be a necessary thing to draw, just needs to be drawn each round because it's a static image in the testbench
+        cv.rectangle(img, (0, 559), (90, 500), (0, 0, 0), -1)
+        cv.putText(img, "Depth: ", (10, 540), cv.FONT_HERSHEY_SIMPLEX, .5, (255, 255, 255), 1, cv.LINE_AA)
+        cv.putText(img, str(i), (65, 540), cv.FONT_HERSHEY_SIMPLEX, .5, (255, 255, 255), 1, cv.LINE_AA)
         
         cv.imshow("Window", img)
         cv.waitKey(20)
