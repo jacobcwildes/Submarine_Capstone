@@ -51,12 +51,16 @@ class GUI(Node):
         self.data_sub = Subscriber(self, DataInfo, 'dummy_data')
         
         #Synchronize the two data streams to prevent screen tearing
-        queue_size = 30
+        queue_size = 10
         self.ts = TimeSynchronizer([self.cam_sub, self.data_sub], queue_size)
         self.ts.registerCallback(self.cam_callback)
         
         #Previous time (for FPS calc)
         self.previous_time = 0
+        
+        #Dead voltage of the battery. Going to use the difference on the current
+        #charge and dead charge.
+        self.battery_dead = 12
         
         #Make the object that will convert a ROS2 image message to
         #an OpenCV image format
@@ -87,8 +91,9 @@ class GUI(Node):
         #Although not exactly current at the time of display, close enough for our purposes
         prog_current = datetime.now()
         prog_time = prog_current - self.prog_start
+        current_voltage = data_sub.voltage_battery - self.battery_dead
         #Overlay data onto the image
-        RGB_img = overlay(RGB_img, data_sub.speed_scalar, data_sub.voltage_battery,
+        RGB_img = overlay(RGB_img, data_sub.speed_scalar, current_voltage,
                             data_sub.depth_approx, data_sub.degrees_north, prog_time)
         
         #Make frame per second count. Isn't perfect, but it is a degree of inaccuracy I am 

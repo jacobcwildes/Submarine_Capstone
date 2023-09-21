@@ -46,13 +46,13 @@ def overlay(img, speed, battery, depth, deg, time_start):
     cv.rectangle(img, (battery_top_x, 25), (battery_top_x + 10, 35), (255, 255, 255), -1)
     
     #Next, need to correlate the 2.8V range from full to empty to 0->100% (Battery is fully charged at 14.8V, dead at 12V)
-    #100/2.8 = 35.7. Rectangle is 255 pixels long, so 255/35.7 = 7.14 for color gradient
+    #100/2.8 = 35.7. Rectangle is 255 pixels long, so 255/2.8 = 91.07 for color gradient
     #Draw red/green bar
-    cv.rectangle(img, (battery_bottom_x, battery_bottom_y), (battery_top_x, battery_top_y),  (0, (255 - int(battery * 7.14)), 0 + int(battery * 7.14)), -1)
+    cv.rectangle(img, (battery_bottom_x, battery_bottom_y), (battery_top_x, battery_top_y),  (255 - int(battery * 91.07), (0 + int(battery * 91.07)), 0), -1)
+    
+    cv.rectangle(img, ((battery_bottom_x + int((battery * 35.7))), 10), (battery_top_x, 50), (150, 150, 150), -1)
         
-    cv.rectangle(img, ((battery_top_x - int((battery * 7.14))), 10), (battery_top_x, 50), (150, 150, 150), -1)
-        
-    cv.putText(img, str(100 - int(battery * 7.14)).zfill(2), (930, 40), cv.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 1, cv.LINE_AA)
+    cv.putText(img, str(int(battery * 35.7)).zfill(2), (930, 40), cv.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 1, cv.LINE_AA)
     
     ##DRAW COMPASS:
     #Compass base
@@ -174,11 +174,11 @@ def overlay(img, speed, battery, depth, deg, time_start):
         
     #Left ballast
     cv.rectangle(img, (12, 201), (33, 201), (150, 150, 150), -1)
-    cv.rectangle(img, (12, 201), (33, 201 + depth), (255, 0, 0), -1)
+    cv.rectangle(img, (12, 201), (33, 201 + depth), (0, 0, 255), -1)
     
     #Right ballast
     cv.rectangle(img, (152, 201), (173, 201), (150, 150, 150), -1)
-    cv.rectangle(img, (152, 201), (173, 201 + depth), (255, 0, 0), -1)
+    cv.rectangle(img, (152, 201), (173, 201 + depth), (0, 0, 255), -1)
     
     
     ##DRAW DEPTH:

@@ -11,7 +11,7 @@ class DummyPublisher(Node):
     def __init__(self):
         super().__init__('dummy')
         self.publisher = self.create_publisher(DataInfo, '/dummy_data', 10)
-        timer_period = .5 #In seconds
+        timer_period = .066 #In seconds (15 FPS)
         #Create the callback that will go into the "timer_callback" method (also publishes data)
         self.timer = self.create_timer(timer_period, self.timer_callback)
         self.north = 0
