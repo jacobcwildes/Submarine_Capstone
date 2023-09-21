@@ -3,7 +3,7 @@ import rclpy
 from rclpy.node import Node
 from sensor_msgs.msg import Image
 import message_filters
-from message_filters import Subscriber
+from message_filters import Subscriber, TimeSynchronizer
 
 #Import custom message type
 from com_interfaces.msg import DataInfo
@@ -18,23 +18,40 @@ import tkinter as tk
 import PIL.Image
 import PIL.ImageTk
 
+#Import time to track longetivity of the program
+import time
+from datetime import datetime
+
+#In my experience importing a module from another file can be... finnicky. This
+#solution has worked every time for me
+import sys
+import os
+sys.path.insert(0, 'src/controller_gui/controller_gui')
+import overlay
+
 class GUI(Node):
 
     def __init__(self):
+        #Track the start of the program
+        self.prog_start = datetime.now()
         super().__init__('controller_gui')
         
         #Make an object that holds subscription info for the cam
-        self.cam_sub = Subscriber(self, Image, "camera/image")
-        cache = message_filters.Cache(self.cam_sub, 10)
-        cache.registerCallback(self.cam_callback)
+        #self.cam_sub = Subscriber(self, Image, "camera/image")
+        #cache = message_filters.Cache(self.cam_sub, 10)
+        #cache.registerCallback(self.cam_callback)
         
-        self.subscription = self.create_subscription(Image, 'camera/image', 
-                                                    self.cam_callback, 10)
-        self.subscription
-        
-        
+        self.cam_sub = Subscriber(self, Image, 'camera/image')
+
         #Data subscription will go here
+        #Initially going to subscribe to a dummy node so that I can
+        #test the GUI without all the other nodes
+        self.data_sub = Subscriber(self, DataInfo, 'dummy_data')
         
+        #Synchronize the two data streams to prevent screen tearing
+        queue_size = 30
+        self.ts = TimeSynchronizer([self.cam_sub, self.data_sub], queue_size)
+        self.ts.registerCallback(self.cam_callback)
         
         #Make the object that will convert a ROS2 image message to
         #an OpenCV image format
@@ -50,13 +67,31 @@ class GUI(Node):
         self.panelA = None
         
     #This will eventually be time synchronized with incoming sub metrics
-    def cam_callback(self, cam_sub): #Data will be passed here too
+    def cam_callback(self, cam_sub, data_sub): #Data will be passed here too
+        
+        #Using monotonic time because I don't really care about real timezones. The 
+        #monotonic clock naively ticks up - perfect for what I want
+        current_time = time.monotonic()
         
         #Convert from ROS2 message to OpenCV image format
         convert_image = self.Bridge.imgmsg_to_cv2(cam_sub)
         
         #OpenCV stores colors in BGR. PIL uses RGB - need to convert
         RGB_img = cv.cvtColor(convert_image, cv.COLOR_BGR2RGB)
+        
+        #Although not exactly current at the time of display, close enough for our purposes
+        prog_current = datetime.now()
+        prog_time = prog_current - self.prog_start
+        #Overlay data onto the image
+        RGB_img = overlay(RGB_img, data_sub.speed_scalar, data_sub.voltage_battery,
+                            data_sub.depth_approx, prog_time)
+        
+        #Make frame per second count. Isn't perfect, but it is a degree of inaccuracy I am 
+        #willing to absorb since it is not in our favor
+        difference = current_time - previous_time
+        FPS = 1/difference
+        previous_time = current_time
+        cv.putText(RGB_img, str(int(FPS)), (2, 15), cv.FONT_HERSHEY_SIMPLEX, .5, (255, 255, 255), 1, cv.LINE_AA)
         
         #Convert images to PIL format
         PIL_img = PIL.Image.fromarray(RGB_img)
