@@ -1,3 +1,4 @@
+std_msgs/Header header
 int32 degrees_north
 float32 speed_scalar
 int32 depth_approx

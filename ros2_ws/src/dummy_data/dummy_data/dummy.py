@@ -22,11 +22,11 @@ class DummyPublisher(Node):
     def timer_callback(self):
         if(self.north == 359):
             self.north = 0
-        if(self.speed == 2.5):
+        if(self.speed > 2.5):
             self.speed = 0
         if(self.depth == 10):
             self.depth = 0
-        if(self.batt == 12): #Each ICR cell has a dead voltage of 3V. 3*4 = 12
+        if(self.batt < 12): #Each ICR cell has a dead voltage of 3V. 3*4 = 12
             self.batt = 14.8
             
         #Set the message data fields to dummy data

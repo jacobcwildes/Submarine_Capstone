@@ -6,6 +6,8 @@ import message_filters
 from message_filters import Subscriber, TimeSynchronizer
 
 #Import custom message type
+#Note that DataInfo needed a header for ROS2 to add a timestamp to. Without it, the 
+#time synchro fails because it can never retrieve a time
 from com_interfaces.msg import DataInfo
 
 #Import OpenCV libraries
@@ -27,7 +29,7 @@ from datetime import datetime
 import sys
 import os
 sys.path.insert(0, 'src/controller_gui/controller_gui')
-import overlay
+from overlay import overlay
 
 class GUI(Node):
 
@@ -52,6 +54,9 @@ class GUI(Node):
         queue_size = 30
         self.ts = TimeSynchronizer([self.cam_sub, self.data_sub], queue_size)
         self.ts.registerCallback(self.cam_callback)
+        
+        #Previous time (for FPS calc)
+        self.previous_time = 0
         
         #Make the object that will convert a ROS2 image message to
         #an OpenCV image format
@@ -84,13 +89,13 @@ class GUI(Node):
         prog_time = prog_current - self.prog_start
         #Overlay data onto the image
         RGB_img = overlay(RGB_img, data_sub.speed_scalar, data_sub.voltage_battery,
-                            data_sub.depth_approx, prog_time)
+                            data_sub.depth_approx, data_sub.degrees_north, prog_time)
         
         #Make frame per second count. Isn't perfect, but it is a degree of inaccuracy I am 
         #willing to absorb since it is not in our favor
-        difference = current_time - previous_time
+        difference = current_time - self.previous_time
         FPS = 1/difference
-        previous_time = current_time
+        self.previous_time = current_time
         cv.putText(RGB_img, str(int(FPS)), (2, 15), cv.FONT_HERSHEY_SIMPLEX, .5, (255, 255, 255), 1, cv.LINE_AA)
         
         #Convert images to PIL format
