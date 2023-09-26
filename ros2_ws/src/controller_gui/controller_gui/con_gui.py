@@ -103,11 +103,32 @@ class GUI(Node):
         self.previous_time = current_time
         cv.putText(RGB_img, str(int(FPS)), (2, 15), cv.FONT_HERSHEY_SIMPLEX, .5, (255, 255, 255), 1, cv.LINE_AA)
         
+        #Get error messages for display
+        text = str(data_sub.message)
+        
+        #Current Program time
+        prog_time = datetime.now() - self.prog_start
+        
+        #Remove microseconds from time delta
+        prog_time = str(prog_time).split(".")[0]
+        
+        #Draw uptime counter
+        cv.rectangle(RGB_img, (920, 560), (1024, 600), (255, 255, 255), -1)
+        cv.rectangle(RGB_img, (920, 560), (1024, 600), (0, 0, 0), 2)
+        cv.putText(RGB_img, str(prog_time), (930, 585), cv.FONT_HERSHEY_SIMPLEX, .65, (0, 0, 0), 1, cv.LINE_AA)
+        
+        #Draw Error Messages
+        cv.rectangle(RGB_img, (0, 560), (900, 600), (255, 255, 255), -1)
+        cv.rectangle(RGB_img, (0, 560), (900, 600), (0, 0, 0), 2)
+        cv.putText(RGB_img, str(text), (25, 590), cv.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 0), 1, cv.LINE_AA)
+        
         #Convert images to PIL format
         PIL_img = PIL.Image.fromarray(RGB_img)
         
         #Convert from PIL to ImageTk format (what actually gets displayed)
         tk_img = PIL.ImageTk.PhotoImage(PIL_img)
+        
+
         
         #Work to display will be shown here
         #Init panels at start

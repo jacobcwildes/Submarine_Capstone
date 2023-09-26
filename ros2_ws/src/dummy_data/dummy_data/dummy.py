@@ -18,6 +18,7 @@ class DummyPublisher(Node):
         self.speed = 0
         self.depth = 0
         self.batt = 14.8 #Charged voltage of the battery bank sub-side
+        self.i = 0 #Simple message counter for dummy message line
         
     def timer_callback(self):
         if(self.north == 359):
@@ -36,6 +37,7 @@ class DummyPublisher(Node):
         msg.speed_scalar = float(self.speed)
         msg.depth_approx = int(self.depth)
         msg.voltage_battery = float(self.batt)
+        msg.message = "Message #: " + str(self.i)
         
         self.publisher.publish(msg)
         self.get_logger().info("Publishing data")
@@ -45,6 +47,7 @@ class DummyPublisher(Node):
         self.speed += .01
         self.depth += 1
         self.batt -= .01
+        self.i += 1
 
 def main(args=None):
    rclpy.init(args=args)
