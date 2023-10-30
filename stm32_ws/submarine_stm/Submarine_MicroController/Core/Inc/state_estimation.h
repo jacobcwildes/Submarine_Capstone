@@ -9,15 +9,7 @@ struct state stateEstimation(struct envData *environment);
 
 void initialize_states();
 void STATE_INIT(struct state *s);
-void getRoll(struct state *now, struct envData *env);
-void getPitch(struct state *now, struct envData *env);
-void getYaw(struct state *now, struct envData *env);
-void getX(struct state *now, struct envData *env);
-void getY(struct state *now, struct envData *env);
-void getZ(struct state *now, struct envData *env);
-void getSpeed(struct state *now, struct envData *env);
-void getDirection(struct state *now, struct envData *env);
-void getDepth(struct state *now, struct envData *env);
+void double_integrate();
 
 struct __attribute__((__packed__)) state {
 	uint16_t roll;
@@ -25,14 +17,18 @@ struct __attribute__((__packed__)) state {
 	uint16_t yaw;
 	uint16_t x_lin;
 	uint16_t y_lin;
-	uint16_t z_lin;
 	
-	uint16_t roll_Speed;
-	uint16_t pitch_Speed;
-	uint16_t yaw_Speed;
-	uint16_t x_lin_Speed;
-	uint16_t y_lin_Speed;
-	uint16_t z_lin_Speed;
+	uint16_t w_roll;
+	uint16_t w_pitch;
+	uint16_t w_yaw;
+	uint16_t w_z;
+	uint16_t w_for;
+	
+	uint16_t v_roll;
+	uint16_t v_pitch;
+	uint16_t v_yaw;
+	uint16_t v_z;
+	uint16_t v_for;
 	
 	uint16_t speedScalar;
 	uint16_t degreesNorth;

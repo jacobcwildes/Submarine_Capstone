@@ -6,6 +6,7 @@ struct actuator_command controller(struct goalCommand com_data, struct state s)
 	struct actuator_command actuate;
 	
 	actuate.s = s;
+	actuate.c = com_data;
 	propellor_control(&actuate, com_data);
 	servo_control(&actuate, com_data);
 	stepper_control(&actuate, com_data);

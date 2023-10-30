@@ -68,24 +68,24 @@ void updateProps(struct actuator_command actuate)
   //LEFT PROP SET DC (TIM3_CH2 = forward) (TIM3_CH3 = backward)
   if (actuate.leftPropThrust >= 0) 
   {
-    TIM3->CCR2 = actuate.leftPropThrust*ARR_Prop;
+    TIM3->CCR2 = actuate.leftPropThrust*ARR_Prop/3;
     TIM3->CCR3 = 0;
   }
   else 
   {
-    TIM3->CCR3 = -actuate.leftPropThrust*ARR_Prop;
+    TIM3->CCR3 = -actuate.leftPropThrust*ARR_Prop/3;
     TIM3->CCR2 = 0;
   }
   
   //RIGHT PROP SET DC (TIM4_CH2 = forward) (TIM4_CH3 = backward)
   if (actuate.rightPropThrust >= 0) 
   {
-    TIM4->CCR2 = actuate.rightPropThrust*ARR_Prop;
+    TIM4->CCR2 = actuate.rightPropThrust*ARR_Prop/3;
     TIM4->CCR3 = 0;
   }
   else
   {
-    TIM4->CCR3 = -actuate.rightPropThrust*ARR_Prop;
+    TIM4->CCR3 = -actuate.rightPropThrust*ARR_Prop/3;
     TIM4->CCR2 = 0;
   }
   
@@ -122,13 +122,62 @@ void transmitData(UART_HandleTypeDef uart_com, struct actuator_command actuate)
 	struct envData environmentData = stateData.env;
 	struct adcData analogData = environmentData.adc;
 	struct inputData in = environmentData.input;
+	struct imuData imu = environmentData.imu;
+	struct goalCommand command = actuate.c;
+	struct stepper_instruction left_s = actuate.left_stepper;
+	struct stepper_instruction right_s = actuate.right_stepper;
 	
 	char tx_buffer[500] = "";
 	
 	
+	//tHIS IS a test print that prints EVERYTHING I WANT TO KNOW
+	sprintf(tx_buffer,
+		"%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u", 
+		analogData.leftBallastPosition, //adc
+		analogData.rightBallastPosition, 
+		analogData.batteryVoltage, 
+		in.nFaultLeft,  //faults
+		in.nFaultRight, 
+		in.nFaultProp, 
+		imu.x_ang,  //imuacceleration
+		imu.y_ang, 
+		imu.z_ang, 
+		imu.x_lin, 
+		imu.y_lin, 
+		imu.z_lin, 
+		imu.x_mag, 
+		imu.y_mag, 
+		imu.z_mag,
+		stateData.roll, //imupos
+		stateData.pitch,
+		stateData.yaw,
+		stateData.x_lin,
+		stateData.y_lin,
+		stateData.speedScalar, //important imu info
+		stateData.degreesNorth,
+		stateData.depthApprox,
+		command.depthUp, //information received
+		command.depthDown,
+		command.captureImage,
+		command.forwardThrust,
+		command.turnThrust,
+		command.camUpDown,
+		command.camLeftRight,
+		left_s.a_one, //stepper L
+		left_s.a_two,
+		left_s.b_one,
+		left_s.b_two,
+		right_s.a_one, //stepper R
+		right_s.a_two,
+		right_s.b_one,
+		right_s.b_two,
+		actuate.rightPropThrust,
+		actuate.leftPropThrust)
+	 
+	 
 	
 	// For actual communication back to RPI (STILL USING TEST DATA)(This sprintf call works)
-	sprintf(tx_buffer, "%u,%u,%u,%u,%u,%u,%u\n\r", stateData.degreesNorth, (uint16_t)(10*stateData.speedScalar), stateData.depthApprox, stateData.roll, stateData.pitch, stateData.yaw, (uint16_t)(10*analogData.batteryVoltage));
+	//sprintf(tx_buffer, "%u,%u,%u,%u,%u,%u,%u\n\r", stateData.degreesNorth, (uint16_t)(10*stateData.speedScalar), stateData.depthApprox, stateData.roll, stateData.pitch, stateData.yaw, (uint16_t)(10*analogData.batteryVoltage));
 	
 	// For reading the i2c values on the RPI
 	//sprintf(tx_buffer, "%u,%u,%u,%u,%u,%u,%u,%u,%u\n\r", x_ang, y_ang, z_ang, x_lin, y_lin, z_lin, x_mag, y_mag, z_mag );

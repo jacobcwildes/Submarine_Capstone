@@ -22,6 +22,7 @@ struct __attribute__((__packed__)) actuator_command {
   struct stepper_instruction left_stepper;
   struct stepper_instruction right_stepper;
   struct state s;
+  struct goalCommand c;
 };
 
 struct actuator_command controller(struct goalCommand com_data, struct state s);

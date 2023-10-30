@@ -3,7 +3,11 @@
 struct state delayOne;
 struct state delayTwo;
 
-
+void double_integrate(*env)
+{
+	
+	
+}
 
 
 struct state stateEstimation(struct envData *environment)
@@ -12,17 +16,36 @@ struct state stateEstimation(struct envData *environment)
 	
 	now.env = *environment;
 	
-	getRoll(&now, environment);
-	getPitch(&now, environment);
-	getYaw(&now, environment);
-	getX(&now, environment);
-	getY(&now, environment);
-	getZ(&now, environment);
-	getSpeed(&now, environment);
-	getDirection(&now, environment);
-	getDepth(&now, environment);
+	//double integrate everything needed
+	now.w_roll = now.env->x_ang + delayOne.w_roll;
+	now.w_pitch = now.env->y_ang + delayOne.w_pitch;
+	now.w_yaw = now.env->z_ang + delayOne.w_yaw;
+	now.w_z = now.env->z_lin + delayOne.w_z;
+	now.w_for = now.env->x_lin + delayOne.w_for;
 	
-	delayTwo = delayOne;
+	uint16_t s_roll = (now.w_roll + delayOne.w_roll)/2;
+	uint16_t s_pitch = (now.w_pitch + delayOne.w_pitch)/2;
+	uint16_t s_yaw = (now.w_yaw + delayOne.w_yaw)/2;
+	uint16_t s_z = (now.w_z + delayOne.w_z)/2;
+	now.speedScalar = (now.w_roll + delayOne.w_roll)/2; //SPEED SCALAR
+	
+	now.v_roll = s_roll + delayOne.w_roll;
+	now.v_pitch = s_pitch + delayOne.w_pitch;
+	now.v_yaw = s_yaw + delayOne.w_yaw;
+	now.v_z = s_z + delayOne.w_z;
+	now.v_for = now.speedScalar + delayOne.w_for;
+	
+	now.roll = (now.v_roll + delayOne.v_roll)/2;
+	now.pitch = (now.v_pitch + delayOne.v_pitch)/2;
+	now.yaw = (now.v_yaw + delayOne.v_yaw)/2;
+	now.depthApprox = (now.v_z + delayOne.v_z)/2;
+	uint16_t forward = (now.v_for + delayOne.v_for)/2;
+	
+	now.degreesNorth = math.atan(now.env->y_mag/now.env->x_mag);
+	
+	now.x_lin = forward*math.cos(now.degreesNorth) + delayOne.x_lin;
+	now.y_lin = forward*math.sin(now.degreesNorth) + delayOne.y_lin;
+	
 	delayOne = now;
 	
 	return now;
@@ -80,53 +103,5 @@ void STATE_INIT(struct state *s)
 	s->degreesNorth = 0;
 	s->depthApprox = 0;
 	
-}
-void getRoll(struct state *now, struct envData *env)
-{
-	now->roll = 0;
-	now->roll_Speed = 0;
-}
-void getPitch(struct state *now, struct envData *env)
-{
-	now->pitch = 0;
-	now->pitch_Speed = 0;
-}
-void getYaw(struct state *now, struct envData *env)
-{
-	now->yaw = 0;
-	now->yaw_Speed = 0;
-}
-
-void getX(struct state *now, struct envData *env)
-{
-	now->x_lin = 0;
-	now->x_lin_Speed = 0;
-}
-
-void getY(struct state *now, struct envData *env)
-{
-	now->y_lin = 0;
-	now->y_lin_Speed = 0;
-}
-
-void getZ(struct state *now, struct envData *env)
-{
-	now->z_lin = 0;
-	now->z_lin_Speed = 0;
-}
-
-void getSpeed(struct state *now, struct envData *env)
-{
-	now->speedScalar = now->x_lin_Speed;
-}
-
-void getDirection(struct state *now, struct envData *env)
-{
-	now->degreesNorth = (float)(tan((float)env->imu.x_mag/(float)env->imu.y_mag));
-}
-
-void getDepth(struct state *now, struct envData *env)
-{
-	now->depthApprox = 0;
 }
 
