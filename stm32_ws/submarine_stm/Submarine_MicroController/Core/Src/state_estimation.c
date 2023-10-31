@@ -1,13 +1,6 @@
 #include "state_estimation.h"
 
 struct state delayOne;
-struct state delayTwo;
-
-void double_integrate(*env)
-{
-	
-	
-}
 
 
 struct state stateEstimation(struct envData *environment)

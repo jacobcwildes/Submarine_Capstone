@@ -111,6 +111,40 @@ void updateServos(struct actuator_command actuate)
 void updateSteppers(struct actuator_command actuate)
 {
 	//DO STEPPERS
+	/*
+	//LEFT
+	AIN1 -> PA4
+	AIN2 -> PA3
+	BIN1 -> PA5
+	BIN2 -> PA6
+	
+	//RIGHT
+	AIN1 -> PC4
+	AIN2 -> PA7
+	BIN1 -> PC5
+	BIN2 -> PB0
+	*/
+	
+	//Left
+	if (actuate.left_stepper.a_one) HAL_GPIO_WritePin(GPIOA, GPIO_PIN_4, GPIO_PIN_SET);
+	else HAL_GPIO_WritePin(GPIOA, GPIO_PIN_4, GPIO_PIN_RESET);
+	if (actuate.left_stepper.a_two) HAL_GPIO_WritePin(GPIOA, GPIO_PIN_3, GPIO_PIN_SET);
+	else HAL_GPIO_WritePin(GPIOA, GPIO_PIN_3, GPIO_PIN_RESET);
+	if (actuate.left_stepper.b_one) HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_SET);
+	else HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_RESET);
+	if (actuate.left_stepper.b_two) HAL_GPIO_WritePin(GPIOA, GPIO_PIN_6, GPIO_PIN_SET);
+	else HAL_GPIO_WritePin(GPIOA, GPIO_PIN_6, GPIO_PIN_RESET);
+	
+	//Right
+	if (actuate.left_stepper.a_one) HAL_GPIO_WritePin(GPIOC, GPIO_PIN_4, GPIO_PIN_SET);
+	else HAL_GPIO_WritePin(GPIOC, GPIO_PIN_4, GPIO_PIN_RESET);
+	if (actuate.left_stepper.a_two) HAL_GPIO_WritePin(GPIOA, GPIO_PIN_7, GPIO_PIN_SET);
+	else HAL_GPIO_WritePin(GPIOA, GPIO_PIN_7, GPIO_PIN_RESET);
+	if (actuate.left_stepper.b_one) HAL_GPIO_WritePin(GPIOC, GPIO_PIN_5, GPIO_PIN_SET);
+	else HAL_GPIO_WritePin(GPIOC, GPIO_PIN_5, GPIO_PIN_RESET);
+	if (actuate.left_stepper.b_two) HAL_GPIO_WritePin(GPIOB, GPIO_PIN_0, GPIO_PIN_SET);
+	else HAL_GPIO_WritePin(GPIOB, GPIO_PIN_0, GPIO_PIN_RESET);
+	
 }
 
 

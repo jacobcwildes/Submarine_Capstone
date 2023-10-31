@@ -1,5 +1,19 @@
 #include "controller.h"
 
+#define adc_max_l 0
+#define adc_min_l 0
+#define adc_max_r 0
+#define adc_min_r 0
+
+
+
+uint8_t steps[] = [0b1010, 0b0110, 0b0101, 0b1001];
+float depthTarget = 0;
+uint8_t step_timer = 0;
+uint8_t leftStep = 0;
+uint8_t rightStep = 0;
+
+
 struct actuator_command controller(struct goalCommand com_data, struct state s)
 {
 	//DO PID controller
@@ -58,19 +72,74 @@ void servo_control(struct actuator_command *act, struct goalCommand com)
 
 void stepper_control(struct actuator_command *act, struct goalCommand com)
 {
-	struct stepper_instruction left;
-	struct stepper_instruction right;
+	//Update stepper timer. This is set so that it cant change tooooo much
+	step_timer++;
 	
-	left.a_one = 0;
-	left.a_two = 0;
-	left.b_one = 0;
-	left.b_two = 0;
+	//Need to get target depth first (ALWAYS KEEP TRACK OF THIS)
+	if (com.depthUp) depthTarget += 0.25;
+	else if (com.depthDown) depthTarget -=0.25;
+		
+	if (step_timer >= 10) {
+		step_timer = 0;
 	
-	right.a_one = 0;
-	right.a_two = 0;
-	right.b_one = 0;
-	right.b_two = 0;
+		currentDepth = act->s.depthApprox;
+		
+		if (currentDepth < depthTarget) bouyancyUp();
+		else if (currentDepth > depthTarget) bouyancyDown();
+		
+		//check roll
+		currentRoll = act->s.roll
+		
+		if (currentRoll < 0) rotateCCW();
+		else if (currentRoll > 0) rotateCW();
+		
+		struct stepper_instruction left;
+		struct stepper_instruction right;
+		
+		left.a_one = steps[leftStep] & 0b1000;
+		left.a_two = steps[leftStep] & 0b0100;
+		left.b_one = steps[leftStep] & 0b0010;
+		left.b_two = steps[leftStep] & 0b0001;
+		
+		right.a_one = steps[rightStep] & 0b1000;
+		right.a_two = steps[rightStep] & 0b0100;
+		right.b_one = steps[rightStep] & 0b0010;
+		right.b_two = steps[rightStep] & 0b0001;
+		
+		act->left_stepper = left;
+		act->right_stepper = right;
+	}
 	
-	act->left_stepper = left;
-	act->right_stepper = right;
+	
 }
+
+void bouyancyUp(struct actuator_command act){
+	//This needs to check the upwards speed. If positive, do NOTHING
+	//if negative or zero, move CW
+	
+	if (act.s.env.adc.leftBallastPosition < adc_max_l && ){
+		
+	}
+}
+
+void bouyancyDown(struct actuator_command act){
+	//This needs to check the upwards speed. If negative, do NOTHING
+	//if negative or zero, move CW
+	
+	if (act.s.env.adc.leftBallastPosition > adc_min_l){
+	
+	}
+}
+
+void rotateCCW(struct actuator_command act){
+	if (act.s.env.adc.leftBallastPosition < adc_max_r){
+	
+	}
+}
+
+void rotateCW(struct actuator_command act){
+	if (act.s.env.adc.leftBallastPosition > adc_min_r){
+	
+	}
+}
+

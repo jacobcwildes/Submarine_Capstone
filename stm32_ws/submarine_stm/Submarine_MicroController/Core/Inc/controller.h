@@ -29,6 +29,9 @@ struct actuator_command controller(struct goalCommand com_data, struct state s);
 void propellor_control(struct actuator_command *act, struct goalCommand com);
 void servo_control(struct actuator_command *act, struct goalCommand com);
 void stepper_control(struct actuator_command *act, struct goalCommand com);
-
+void bouyancyUp(struct actuator_command act);
+void bouyancyDown(struct actuator_command act);
+void rotateCCW(struct actuator_command act);
+void rotateCW(struct actuator_command act);
 
 #endif
