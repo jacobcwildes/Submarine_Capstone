@@ -117,8 +117,9 @@ void bouyancyUp(struct actuator_command act){
 	//This needs to check the upwards speed. If positive, do NOTHING
 	//if negative or zero, move CW
 	
-	if (act.s.env.adc.leftBallastPosition < adc_max_l && ){
-		
+	if (act.s.env.adc.leftBallastPosition < adc_max_l && act.s.env.adc.rightBallastPosition < adc_max_r && act.s.upwardSpeed <= 0){
+		leftStep++;
+		rightStep++;
 	}
 }
 
@@ -126,20 +127,28 @@ void bouyancyDown(struct actuator_command act){
 	//This needs to check the upwards speed. If negative, do NOTHING
 	//if negative or zero, move CW
 	
-	if (act.s.env.adc.leftBallastPosition > adc_min_l){
-	
+	if (act.s.env.adc.leftBallastPosition > adc_min_l && act.s.env.adc.rightBallastPosition > adc_min_r && act.s.upwardSpeed >= 0){
+		leftStep--;
+		rightStep--;
 	}
 }
 
 void rotateCCW(struct actuator_command act){
-	if (act.s.env.adc.leftBallastPosition < adc_max_r){
+	//This needs to check the CCW roll. If positive, do NOTHING
+	//if negative or zero, move CCW
 	
+	if (act.s.env.adc.leftBallastPosition > adc_min_l && act.s.env.adc.rightBallastPosition < adc_max_r && act.s.rollSpeed <= 0){
+		leftStep--;
+		rightStep++;
 	}
 }
 
 void rotateCW(struct actuator_command act){
-	if (act.s.env.adc.leftBallastPosition > adc_min_r){
-	
+	//This needs to check the CW roll. If positive, do NOTHING
+	//if negative or zero, move CW
+	if (act.s.env.adc.leftBallastPosition < adc_max_l && act.s.env.adc.rightBallastPosition > adc_min_r && act.s.rollSpeed >= 0){
+		leftStep++;
+		rightStep--;
 	}
 }
 

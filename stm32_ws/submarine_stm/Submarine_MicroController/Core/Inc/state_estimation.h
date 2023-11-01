@@ -33,6 +33,8 @@ struct __attribute__((__packed__)) state {
 	uint16_t speedScalar;
 	uint16_t degreesNorth;
 	uint16_t depthApprox;
+	uint16_t upwardSpeed;
+	uint16_t rollSpeed;
 	
 	struct envData env;
 };

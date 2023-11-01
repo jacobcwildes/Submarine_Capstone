@@ -16,16 +16,16 @@ struct state stateEstimation(struct envData *environment)
 	now.w_z = now.env->z_lin + delayOne.w_z;
 	now.w_for = now.env->x_lin + delayOne.w_for;
 	
-	uint16_t s_roll = (now.w_roll + delayOne.w_roll)/2;
+	now.rollSpeed = (now.w_roll + delayOne.w_roll)/2;
 	uint16_t s_pitch = (now.w_pitch + delayOne.w_pitch)/2;
 	uint16_t s_yaw = (now.w_yaw + delayOne.w_yaw)/2;
-	uint16_t s_z = (now.w_z + delayOne.w_z)/2;
+	now.upwardSpeed = (now.w_z + delayOne.w_z)/2;
 	now.speedScalar = (now.w_roll + delayOne.w_roll)/2; //SPEED SCALAR
 	
-	now.v_roll = s_roll + delayOne.w_roll;
+	now.v_roll = rollSpeed + delayOne.w_roll;
 	now.v_pitch = s_pitch + delayOne.w_pitch;
 	now.v_yaw = s_yaw + delayOne.w_yaw;
-	now.v_z = s_z + delayOne.w_z;
+	now.v_z = upwardSpeed + delayOne.w_z;
 	now.v_for = now.speedScalar + delayOne.w_for;
 	
 	now.roll = (now.v_roll + delayOne.v_roll)/2;
@@ -48,7 +48,6 @@ struct state stateEstimation(struct envData *environment)
 void initialize_states()
 {
 	STATE_INIT(&delayOne);
-	STATE_INIT(&delayTwo);
 }
 
 void STATE_INIT(struct state *s)
