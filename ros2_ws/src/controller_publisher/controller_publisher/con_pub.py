@@ -64,13 +64,17 @@ class ControllerOutput(Node):
             pass
 
 def normalization(data):
-    normal = int((((4.64 * (10 ** -3) * (data ** 2)) - (.182 * data))))
-    return normal
-    
+    ##normal = abs(int((((4.64 * (10 ** -3) * (data ** 2)) - (.182 * data)))))
+    #return normal
+    if data > 100 and data < 150:
+        data = 128
+        return data
+    else:
+        return data
     
     #for i in range(len(localDat)):
     #    normalized_data.append((((4.64 * (10**-3)) * (int(str(localDat[int(i)])) ** 2)) - (.182 * int(str(localDat[int(i)])))))
-    return normalized_data
+    #return normalized_data
 
 def main(args=None):
     rclpy.init(args=args)
