@@ -65,9 +65,9 @@ struct inputData inputRead()
 {
 	struct inputData inputInfo;
 	
-	inputInfo.nFaultLeft = 0;
-	inputInfo.nFaultRight = 0;
-	inputInfo.nFaultProp = 0;
+	inputInfo.nFaultLeft = HAL_GPIO_ReadPin(GPIOE, GPIO_PIN_11);
+	inputInfo.nFaultRight = HAL_GPIO_ReadPin(GPIOE, GPIO_PIN_12);
+	inputInfo.nFaultProp = HAL_GPIO_ReadPin(GPIOE, GPIO_PIN_13);
 	
 	return inputInfo;
 }

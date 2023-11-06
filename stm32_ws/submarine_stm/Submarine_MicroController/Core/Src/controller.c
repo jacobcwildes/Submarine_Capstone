@@ -7,11 +7,12 @@
 
 
 
-uint8_t steps[] = [0b1010, 0b0110, 0b0101, 0b1001];
+uint8_t steps[4] = {0b1010, 0b0110, 0b0101, 0b1001};
 float depthTarget = 0;
 uint8_t step_timer = 0;
 uint8_t leftStep = 0;
 uint8_t rightStep = 0;
+
 
 
 struct actuator_command controller(struct goalCommand com_data, struct state s)
@@ -82,16 +83,16 @@ void stepper_control(struct actuator_command *act, struct goalCommand com)
 	if (step_timer >= 10) {
 		step_timer = 0;
 	
-		currentDepth = act->s.depthApprox;
+		uint8_t currentDepth = act->s.depthApprox;
 		
-		if (currentDepth < depthTarget) bouyancyUp();
-		else if (currentDepth > depthTarget) bouyancyDown();
+		if (currentDepth < depthTarget) bouyancyUp(*act);
+		else if (currentDepth > depthTarget) bouyancyDown(*act);
 		
 		//check roll
-		currentRoll = act->s.roll
+		uint8_t currentRoll = act->s.roll;
 		
-		if (currentRoll < 0) rotateCCW();
-		else if (currentRoll > 0) rotateCW();
+		if (currentRoll < 0) rotateCCW(*act);
+		else if (currentRoll > 0) rotateCW(*act);
 		
 		struct stepper_instruction left;
 		struct stepper_instruction right;

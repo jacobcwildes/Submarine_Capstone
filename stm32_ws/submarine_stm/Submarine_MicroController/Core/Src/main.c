@@ -157,7 +157,8 @@ int main(void)
   	struct state current_state = stateEstimation(&imuVectors);
   	
   	//Third, consult the goal given from uart coms in order to influence planning
-  	struct goalCommand com_data = parseComs(rx_received, rx_data);
+  	struct goalCommand com_data;
+  	if (rx_received) com_data = parseComs(rx_data);
   	
   	//Fourth, using the state estimation and the information from the planner, get control info for actuators
   	struct actuator_command actuate = controller(com_data, current_state);

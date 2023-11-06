@@ -165,11 +165,12 @@ void transmitData(UART_HandleTypeDef uart_com, struct actuator_command actuate)
 	
 	
 	//tHIS IS a test print that prints EVERYTHING I WANT TO KNOW
+	
 	sprintf(tx_buffer,
-		"%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u", 
-		analogData.leftBallastPosition, //adc
-		analogData.rightBallastPosition, 
-		analogData.batteryVoltage, 
+		"%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u\n\r", 
+		(int)(analogData.leftBallastPosition * 10), //adc
+		(int)(analogData.rightBallastPosition * 10), 
+		(int)(analogData.batteryVoltage * 10), 
 		in.nFaultLeft,  //faults
 		in.nFaultRight, 
 		in.nFaultProp, 
@@ -206,7 +207,7 @@ void transmitData(UART_HandleTypeDef uart_com, struct actuator_command actuate)
 		right_s.b_one,
 		right_s.b_two,
 		actuate.rightPropThrust,
-		actuate.leftPropThrust)
+		actuate.leftPropThrust);
 	 
 	 
 	
@@ -214,7 +215,7 @@ void transmitData(UART_HandleTypeDef uart_com, struct actuator_command actuate)
 	//sprintf(tx_buffer, "%u,%u,%u,%u,%u,%u,%u\n\r", stateData.degreesNorth, (uint16_t)(10*stateData.speedScalar), stateData.depthApprox, stateData.roll, stateData.pitch, stateData.yaw, (uint16_t)(10*analogData.batteryVoltage));
 	
 	// For reading the i2c values on the RPI
-	//sprintf(tx_buffer, "%u,%u,%u,%u,%u,%u,%u,%u,%u\n\r", x_ang, y_ang, z_ang, x_lin, y_lin, z_lin, x_mag, y_mag, z_mag );
+	//sprintf(tx_buffer, "%u,%u,%u,%u,%u,%u,%u,%u,%u\n\r", imu.x_ang, imu.y_ang, imu.z_ang, imu.x_lin, imu.y_lin, imu.z_lin, imu.x_mag, imu.y_mag, imu.z_mag );
 
   //sprintf(tx_buffer, "%u,%u,%u,%u,%d,%d\n\r", (uint8_t)(leftThrust*100.0), (uint8_t)(rightThrust*100.0), (uint8_t)(forThrust*100.0), (uint8_t)(backThrust*100.0), (int)(leftPropThrust*100.0), (int)(rightPropThrust*100.0));
 
