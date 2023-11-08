@@ -10,7 +10,7 @@ SerialObj.parity  ='N'   # No parity
 SerialObj.stopbits = 1   # Number of Stop bits = 1
 
 #Data that will come from controller
-depthUp = 1
+depthUp = 0
 depthDown = 0
 captureImage = 1
 forwardThrust = 167
