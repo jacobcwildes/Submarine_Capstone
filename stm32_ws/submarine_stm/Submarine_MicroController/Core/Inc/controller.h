@@ -15,8 +15,8 @@ struct __attribute__((__packed__)) stepper_instruction {
 };
 
 struct __attribute__((__packed__)) actuator_command {
-  uint8_t rightPropThrust;
-  uint8_t leftPropThrust; 
+  float rightPropThrust;
+  float leftPropThrust; 
   float camVerticalDuty;
   float camHorizontalDuty;
   struct stepper_instruction left_stepper;

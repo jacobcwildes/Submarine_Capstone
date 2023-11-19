@@ -43,7 +43,7 @@ while (True):
 	print("Received: " + str(received_split))
 	
 	
-	
+	'''
 	print("leftThrust: " + received_split[0])
 	print("rightThrust: " + received_split[1])
 	print("forThrust: " + received_split[2])
@@ -53,6 +53,6 @@ while (True):
 
 	print("---------------------------------------")
 	print("")
-	
+	'''
 	time.sleep(2)
 

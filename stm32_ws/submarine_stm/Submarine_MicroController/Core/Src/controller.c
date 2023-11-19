@@ -76,6 +76,18 @@ void stepper_control(struct actuator_command *act, struct goalCommand com)
 	//Update stepper timer. This is set so that it cant change tooooo much
 	step_timer++;
 	
+	if (com.depthUp)
+	{
+		leftStep++;
+		rightStep++;
+	}	
+	else if (com.depthDown)
+	{
+		leftStep--;
+		rightStep--;
+	}	
+	
+	/*
 	//Need to get target depth first (ALWAYS KEEP TRACK OF THIS)
 	if (com.depthUp) depthTarget += 0.25;
 	else if (com.depthDown) depthTarget -=0.25;
@@ -93,23 +105,24 @@ void stepper_control(struct actuator_command *act, struct goalCommand com)
 		
 		if (currentRoll < 0) rotateCCW(*act);
 		else if (currentRoll > 0) rotateCW(*act);
+		*/
 		
-		struct stepper_instruction left;
-		struct stepper_instruction right;
-		
-		left.a_one = steps[leftStep] & 0b1000;
-		left.a_two = steps[leftStep] & 0b0100;
-		left.b_one = steps[leftStep] & 0b0010;
-		left.b_two = steps[leftStep] & 0b0001;
-		
-		right.a_one = steps[rightStep] & 0b1000;
-		right.a_two = steps[rightStep] & 0b0100;
-		right.b_one = steps[rightStep] & 0b0010;
-		right.b_two = steps[rightStep] & 0b0001;
-		
-		act->left_stepper = left;
-		act->right_stepper = right;
-	}
+	struct stepper_instruction left;
+	struct stepper_instruction right;
+	
+	left.a_one = steps[leftStep] & 0b1000;
+	left.a_two = steps[leftStep] & 0b0100;
+	left.b_one = steps[leftStep] & 0b0010;
+	left.b_two = steps[leftStep] & 0b0001;
+	
+	right.a_one = steps[rightStep] & 0b1000;
+	right.a_two = steps[rightStep] & 0b0100;
+	right.b_one = steps[rightStep] & 0b0010;
+	right.b_two = steps[rightStep] & 0b0001;
+	
+	act->left_stepper = left;
+	act->right_stepper = right;
+	
 	
 	
 }

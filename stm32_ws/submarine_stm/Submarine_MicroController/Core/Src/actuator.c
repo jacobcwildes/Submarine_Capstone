@@ -152,6 +152,7 @@ void updateSteppers(struct actuator_command actuate)
 void transmitData(UART_HandleTypeDef uart_com, struct actuator_command actuate)
 {
 	//Data concat
+	
 	struct state stateData = actuate.s;
 	struct envData environmentData = stateData.env;
 	struct adcData analogData = environmentData.adc;
@@ -165,7 +166,7 @@ void transmitData(UART_HandleTypeDef uart_com, struct actuator_command actuate)
 	
 	
 	//tHIS IS a test print that prints EVERYTHING I WANT TO KNOW
-	
+	/*
 	sprintf(tx_buffer,
 		"%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u\n\r", 
 		(int)(analogData.leftBallastPosition * 10), //adc
@@ -209,10 +210,10 @@ void transmitData(UART_HandleTypeDef uart_com, struct actuator_command actuate)
 		actuate.rightPropThrust,
 		actuate.leftPropThrust);
 	 
-	 
+	*/
 	
 	// For actual communication back to RPI (STILL USING TEST DATA)(This sprintf call works)
-	//sprintf(tx_buffer, "%u,%u,%u,%u,%u,%u,%u\n\r", stateData.degreesNorth, (uint16_t)(10*stateData.speedScalar), stateData.depthApprox, stateData.roll, stateData.pitch, stateData.yaw, (uint16_t)(10*analogData.batteryVoltage));
+	sprintf(tx_buffer, "%u,%u,%u,%u,%u,%u,%u\n\r", stateData.degreesNorth, (uint16_t)(10*stateData.speedScalar), stateData.depthApprox, stateData.roll, stateData.pitch, stateData.yaw, (uint16_t)(10*analogData.batteryVoltage));
 	
 	// For reading the i2c values on the RPI
 	//sprintf(tx_buffer, "%u,%u,%u,%u,%u,%u,%u,%u,%u\n\r", imu.x_ang, imu.y_ang, imu.z_ang, imu.x_lin, imu.y_lin, imu.z_lin, imu.x_mag, imu.y_mag, imu.z_mag );

@@ -21,7 +21,7 @@ class Submarine(Node):
         self.subscription
         #Data publisher (UDP)
         self.data_pub = self.create_publisher(DataInfo, 'data_info', 10)
-        self.timer = self.create_timer(0.5, self.data_callback)
+        self.timer = self.create_timer(1, self.data_callback)
         
         self.serialport = serial.Serial('/dev/ttyACM0')
         self.serialport.baudrate = 115200  # set Baud rate to 115200
@@ -57,6 +57,7 @@ class Submarine(Node):
 
     def data_callback(self):
         if self.dataReceived:
+            print("IN CALLBACK")
             msg = DataInfo()
             msg.degrees_north = int(self.degreesNorth)
             msg.speed_scalar = float(self.speedScalar)
@@ -67,58 +68,61 @@ class Submarine(Node):
             msg.voltage_battery = float(self.voltageBattery)
 
             self.data_pub.publish(msg)
-            self.get_logger().info('Publishing: ' + msg.data)
+            self.get_logger().info('Publishing: ')
         
     def com_callback(self, command):
-        self.depthUp = command.sub_up
-        self.depthDown = command.sub_down
-        self.captureImage = command.screenshot
-        self.forwardThrust = command.left_toggle_ud
-        self.turnThrust = command.left_toggle_lr
-        self.camUpDown = command.right_toggle_ud
-        self.camLeftRight = command.right_toggle_lr    
+        try:
+            self.depthUp = command.sub_up
+            self.depthDown = command.sub_down
+            self.captureImage = command.screenshot
+            self.forwardThrust = command.left_toggle_ud
+            self.turnThrust = command.left_toggle_lr
+            self.camUpDown = command.right_toggle_ud
+            self.camLeftRight = command.right_toggle_lr    
 
-        self.forwardBinary = bin(self.forwardThrust).split('b')[1]
-        self.turnBinary = bin(self.turnThrust).split('b')[1]
-        self.camUpDownBinary = bin(self.camUpDown).split('b')[1]
-        self.camLeftRightBinary = bin(self.camLeftRight).split('b')[1]
+            self.forwardBinary = bin(self.forwardThrust).split('b')[1]
+            self.turnBinary = bin(self.turnThrust).split('b')[1]
+            self.camUpDownBinary = bin(self.camUpDown).split('b')[1]
+            self.camLeftRightBinary = bin(self.camLeftRight).split('b')[1]
 				
-        self.bitfield = str(self.depthUp) + str(self.depthDown) + str(self.captureImage) + str(self.forwardBinary).zfill(8) + str(self.turnBinary).zfill(8) + str(self.camUpDownBinary).zfill(8) + str(self.camLeftRightBinary).zfill(8)
+            self.bitfield = str(self.depthUp) + str(self.depthDown) + str(self.captureImage) + str(self.forwardBinary).zfill(8) + str(self.turnBinary).zfill(8) + str(self.camUpDownBinary).zfill(8) + str(self.camLeftRightBinary).zfill(8)
 
-        print(str(self.depthUp))
-        print(str(self.depthDown))
-        print(str(self.captureImage))
-        print(self.forwardThrust)
-        print(self.turnThrust)
-        print(self.camUpDown)
-        print(self.camLeftRight)
+            print(str(self.depthUp))
+            print(str(self.depthDown))
+            print(str(self.captureImage))
+            print(self.forwardThrust)
+            print(self.turnThrust)
+            print(self.camUpDown)
+            print(self.camLeftRight)
 
-        self.serialport.write(self.bitfield.encode()) #35 bits
-        print("Sending: " + self.bitfield)
-        received = self.serialport.readline().decode('ascii').strip().strip('\x00')
-        print("Received: " + received)
+            self.serialport.write(self.bitfield.encode()) #35 bits
+            print("Sending: " + self.bitfield)
+            received = self.serialport.readline().decode('ascii').strip().strip('\x00')
+            print("Received: " + received)
 
-        received_split = received.split(',')
+            received_split = received.split(',')
         
-        print("DegreesNorth: " + received_split[0])
-        print("SpeedScalar: " + str(int(received_split[1])/10))
-        print("DepthApprox: " + received_split[2])
-        print("Roll: " + received_split[3])
-        print("Pitch: " + received_split[4])
-        print("Yaw: " + received_split[5])
-        print("Voltage: " + str(int(received_split[6])/10))
-        print("---------------------------------------")
-        print("")
+            print("DegreesNorth: " + received_split[0])
+            print("SpeedScalar: " + str(int(received_split[1])/10))
+            print("DepthApprox: " + received_split[2])
+            print("Roll: " + received_split[3])
+            print("Pitch: " + received_split[4])
+            print("Yaw: " + received_split[5])
+            print("Voltage: " + str(int(received_split[6])/10))
+            print("---------------------------------------")
+            print("")
 
-        self.degreesNorth = int(received_split[0])
-        self.speedScalar = float(received_split[1])/10.0
-        self.depthApprox = int(received_split[2])
-        self.roll = int(received_split[3])
-        self.pitch = int(received_split[4])
-        self.yaw = int(received_split[5])
-        self.voltageBattery = float(received_split[6])/10.0
+            self.degreesNorth = int(received_split[0])
+            self.speedScalar = float(received_split[1])/10.0
+            self.depthApprox = int(received_split[2])
+            self.roll = int(received_split[3])
+            self.pitch = int(received_split[4])
+            self.yaw = int(received_split[5])
+            self.voltageBattery = float(received_split[6])/10.0
         
-        dataReceived = True
+            self.dataReceived = True
+        except:
+            print("UH OH")    
 
 def main(args=None):
     rclpy.init(args=args)

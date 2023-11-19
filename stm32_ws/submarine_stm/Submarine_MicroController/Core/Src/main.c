@@ -89,8 +89,9 @@ static void MX_TIM5_Init(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-uint8_t rx_received = 0;
-uint8_t rx_data[35];
+volatile uint8_t rx_received = 0;
+volatile uint8_t rx_data[35];
+char tx_buffer[500] = "";
 
 /* USER CODE END 0 */
 
@@ -131,7 +132,16 @@ int main(void)
   MX_TIM5_Init();
   /* USER CODE BEGIN 2 */
 	MTR_DRV_INIT(0x00, 0x00, 0x01, 0x01);
-	HAL_UART_Receive_IT(&hlpuart1, rx_data, 35); //Init recieve global interupt for 35 bit buffer
+	
+	
+	sprintf(tx_buffer, "Initialize\n\r");
+	HAL_UART_Transmit(&hlpuart1, (uint8_t *)tx_buffer, sizeof(tx_buffer), 10);	
+	
+	HAL_Delay(1000);
+	
+	HAL_StatusTypeDef result = HAL_UART_Receive_IT(&hlpuart1, (uint8_t *)rx_data, 35); //Init recieve global interupt for 35 bit buffer
+	sprintf(tx_buffer, "%d\n\r", result);
+	HAL_UART_Transmit(&hlpuart1, (uint8_t *)tx_buffer, sizeof(tx_buffer), 10);	
 	HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_2);
 	HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_3);
 	HAL_TIM_PWM_Start(&htim4, TIM_CHANNEL_2);
@@ -154,9 +164,8 @@ int main(void)
   	struct state current_state = stateEstimation(&imuVectors);
   	
   	//Third, consult the goal given from uart coms in order to influence planning
-  	struct goalCommand com_data;
-  	if (rx_received) com_data = parseComs(rx_data);
-  	
+  	struct goalCommand com_data = parseComs((uint8_t *)rx_data, rx_received);
+  		
   	//Fourth, using the state estimation and the information from the planner, get control info for actuators
   	struct actuator_command actuate = controller(com_data, current_state);
   	
@@ -340,7 +349,7 @@ static void MX_LPUART1_UART_Init(void)
 {
 
   /* USER CODE BEGIN LPUART1_Init 0 */
-
+	//HAL_GPIO_WritePin(GPIOB, GPIO_PIN_14, GPIO_PIN_SET);
   /* USER CODE END LPUART1_Init 0 */
 
   /* USER CODE BEGIN LPUART1_Init 1 */
@@ -359,18 +368,22 @@ static void MX_LPUART1_UART_Init(void)
   hlpuart1.FifoMode = UART_FIFOMODE_DISABLE;
   if (HAL_UART_Init(&hlpuart1) != HAL_OK)
   {
+  	//HAL_GPIO_WritePin(GPIOB, GPIO_PIN_14, GPIO_PIN_SET);
     Error_Handler();
   }
   if (HAL_UARTEx_SetTxFifoThreshold(&hlpuart1, UART_TXFIFO_THRESHOLD_1_8) != HAL_OK)
   {
+  	//HAL_GPIO_WritePin(GPIOB, GPIO_PIN_14, GPIO_PIN_SET);
     Error_Handler();
   }
   if (HAL_UARTEx_SetRxFifoThreshold(&hlpuart1, UART_RXFIFO_THRESHOLD_1_8) != HAL_OK)
   {
+  	//HAL_GPIO_WritePin(GPIOB, GPIO_PIN_14, GPIO_PIN_SET);
     Error_Handler();
   }
   if (HAL_UARTEx_DisableFifoMode(&hlpuart1) != HAL_OK)
   {
+  	//HAL_GPIO_WritePin(GPIOB, GPIO_PIN_14, GPIO_PIN_SET);
     Error_Handler();
   }
   /* USER CODE BEGIN LPUART1_Init 2 */
@@ -712,14 +725,14 @@ static void MX_GPIO_Init(void)
 
 
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
-{
-	UNUSED(huart); //waring suppresion
-	
-	HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_14); //toggle LED for dev
+{	
+	//HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_14); //toggle LED for dev
 	
 	rx_received = 1;//set flag for use in while loop
 	
-	HAL_UART_Receive_IT(&hlpuart1, rx_data, 35); //reset UART interupt for next transmission
+	HAL_UART_Receive_IT(&hlpuart1, (uint8_t *)
+	rx_data, 35); //reset UART interupt for next transmission
+	
 }
 
 
@@ -739,6 +752,7 @@ void Error_Handler(void)
 {
   /* USER CODE BEGIN Error_Handler_Debug */
   /* User can add his own implementation to report the HAL error return state */
+  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_14, GPIO_PIN_SET);
   __disable_irq();
   while (1)
   {
