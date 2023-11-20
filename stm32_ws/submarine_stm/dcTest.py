@@ -16,8 +16,8 @@ forwardThrust = 167
 turnThrust = 25
 camUpDown = 0
 camLeftRight = 128
-pitch = 300
-depth = 8
+pitch = 200
+depth = 240
 
 
 
@@ -26,7 +26,8 @@ print("")
 
 
 while(True):
-	depthUp += 1
+	depth += 1
+	if depth > 255: depth = 0
 	try:
 		forwardBinary = bin(forwardThrust).split('b')[1]
 		turnBinary = bin(turnThrust).split('b')[1]
@@ -42,10 +43,12 @@ while(True):
 
 		bitfield = str(depthUp) + str(depthDown) + str(forwardBinary).zfill(8) + str(turnBinary).zfill(8) + str(camUpDownBinary).zfill(8) + str(camLeftRightBinary).zfill(8) + str(pitchBinary).zfill(8) + str(depthBinary).zfill(8)
 		
-		SerialObj.write(bitfield.encode()) #35 bits
+		SerialObj.write(bitfield.encode()) #50 bits
 		print("Sending: " + bitfield)
-		received = SerialObj.readline().decode('ascii').strip().strip('\x00')
+		received = str(SerialObj.readline().decode('ascii')).replace('\r','').replace('\n','').replace('\x00', '')
 		received_split = received.split(',')
+
+		if len(received_split) != 8: raise Exception
 		print("Received: " + str(received_split))
 	
 	
@@ -61,6 +64,8 @@ while(True):
 		print("")
 	except:
 		print("UH OH")	
+		print("---------------------------------------")
+		print("")
 	
-	time.sleep(0.01)
+	time.sleep(.01)
 

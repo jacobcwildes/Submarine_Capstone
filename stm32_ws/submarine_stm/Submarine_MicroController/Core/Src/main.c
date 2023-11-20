@@ -96,25 +96,17 @@ static void MX_TIM4_Init(void);
 static void MX_TIM5_Init(void);
 /* USER CODE BEGIN PFP */
 uint8_t binaryToDecimal(int start_index, int bitCount);
-HAL_StatusTypeDef imuRead(void);
-void imuPullData(void);
-uint16_t twosComptoDec(uint8_t low_reg, uint8_t high_reg);
-
-
-void MTR_DRV_INIT(uint8_t currentValue, uint8_t decay, uint8_t reset, uint8_t sleep);
-
 void parseComs(void);
 void transmitData(void);
 
-void updateProps(void);
-void updateServos(void);
+
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
 uint8_t rx_received = 0;
-char tx_buffer[100];
 uint8_t rx_data[50];
+char tx_buffer[100];
 
 //GLOBAL Coms Info
 uint8_t depthUp = 0;
@@ -187,7 +179,7 @@ int main(void)
   MX_TIM4_Init();
   MX_TIM5_Init();
   /* USER CODE BEGIN 2 */
-	MTR_DRV_INIT(0x00, 0x00, 0x01, 0x01);
+
 	HAL_UART_Receive_IT(&hlpuart1, rx_data, 50); //Init recieve global interupt for 35 bit buffer
 	HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_2);
 	HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_3);
@@ -810,7 +802,7 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 	UNUSED(huart); //waring suppresion
 	
 	HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_14); //toggle LED for dev
-	rx_received = 1;//set flag for use in while loop
+	if (sizeof(rx_data) == 50) rx_received = 1;//set flag for use in while loop
 	
 	HAL_UART_Receive_IT(&hlpuart1, rx_data, 50); //reset UART interupt for next transmission
 }
@@ -846,8 +838,8 @@ void parseComs(void)
 	turnThrust = binaryToDecimal(10, 8);
 	camUpDown = binaryToDecimal(18, 8);
 	camLeftRight = binaryToDecimal(26, 8);
-	depth = binaryToDecimal(34, 8);
-	pitch = binaryToDecimal(42, 8);
+	pitch = binaryToDecimal(34, 8);
+	depth = binaryToDecimal(42, 8);
 }
 
 void transmitData(void)
@@ -863,7 +855,7 @@ void transmitData(void)
   //sprintf(tx_buffer, "%u,%u,%u,%u,%d,%d\n\r", (uint8_t)(leftThrust*100.0), (uint8_t)(rightThrust*100.0), (uint8_t)(forThrust*100.0), (uint8_t)(backThrust*100.0), (int)(leftPropThrust*100.0), (int)(rightPropThrust*100.0));
 
 	//Read back what was received
-	sprintf(tx_buffer, "%u,%u,%u,%u,%u,%u,%u,%u,%u\n\r", depthUp, depthDown, captureImage, forwardThrust, turnThrust, camUpDown, camLeftRight);
+	sprintf(tx_buffer, "%u,%u,%u,%u,%u,%u,%u,%u\n\r", depthUp, depthDown, forwardThrust, turnThrust, camUpDown, camLeftRight, pitch, depth);
 	
 	//sprintf(tx_buffer, "TestMessage,,,,,,,,,,,,,\n\r");
 
