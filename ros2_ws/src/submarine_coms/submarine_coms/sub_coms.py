@@ -10,6 +10,12 @@ import serial
 import time
 import numpy as np
 
+#In my experience importing a module from another file can be... finnicky. This
+#solution has worked every time for me
+import sys
+import os
+sys.path.insert(0, 'src/submarine_coms/submarine_coms')
+from imu import imu
 
 class Submarine(Node):
 
@@ -53,11 +59,16 @@ class Submarine(Node):
         self.pitch = None
         self.yaw = None
         self.voltageBattery = None
+        self.acceleration = None
+        self.gyro = None
+        self.magnetic = None
+        
 
 
     def data_callback(self):
         if self.dataReceived:
             print("IN CALLBACK")
+            self.acceleration, self.gyro, self.magnetic = imu()
             msg = DataInfo()
             msg.degrees_north = int(self.degreesNorth)
             msg.speed_scalar = float(self.speedScalar)
