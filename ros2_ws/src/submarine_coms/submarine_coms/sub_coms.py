@@ -68,9 +68,6 @@ class Submarine(Node):
     def data_callback(self):
         if self.dataReceived:
             print("IN CALLBACK")
-            #These variables will need to be broken down later, Dyllon is the mastermind behind
-            #how he wants these to look, so I put base functionality in
-            self.acceleration, self.gyro, self.magnetic = imu()
             msg = DataInfo()
             msg.degrees_north = int(self.degreesNorth)
             msg.speed_scalar = float(self.speedScalar)
@@ -124,7 +121,10 @@ class Submarine(Node):
             print("Voltage: " + str(int(received_split[6])/10))
             print("---------------------------------------")
             print("")
-
+            
+            #These variables will need to be broken down later, Dyllon is the mastermind behind
+            #how he wants these to look, so I put base functionality in
+            self.acceleration, self.gyro, self.magnetic = imu()
             self.degreesNorth = int(received_split[0])
             self.speedScalar = float(received_split[1])/10.0
             self.depthApprox = int(received_split[2])
