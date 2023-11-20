@@ -114,66 +114,27 @@ void updateServos(void);
 /* USER CODE BEGIN 0 */
 uint8_t rx_received = 0;
 char tx_buffer[100];
-uint8_t rx_data[35];
+uint8_t rx_data[50];
 
 //GLOBAL Coms Info
 uint8_t depthUp = 0;
 uint8_t depthDown = 0;
-uint8_t captureImage = 0;
 uint8_t forwardThrust = 0;
 uint8_t turnThrust = 0;
 uint8_t camUpDown = 0;
 uint8_t camLeftRight = 0;
+uint8_t depth = 0;
+uint8_t pitch = 0;
 
 
 //GLOBAL Data info
-uint16_t degreesNorth = 180;
-float speedScalar = 10.4;
-uint16_t depthApprox = 5;
-uint16_t roll = 270;
-uint16_t pitch = 270;
-uint16_t yaw = 270;
 float voltageBattery = 16.9;
-
-//GLOBAL I2C pData registers
-uint8_t x_ang_L;
-uint8_t x_ang_H;
-uint8_t y_ang_L;
-uint8_t y_ang_H;
-uint8_t z_ang_L;
-uint8_t z_ang_H;
-
-uint8_t x_lin_L;
-uint8_t x_lin_H;
-uint8_t y_lin_L;
-uint8_t y_lin_H;
-uint8_t z_lin_L;
-uint8_t z_lin_H;
-
-uint8_t x_mag_L;
-uint8_t x_mag_H;
-uint8_t y_mag_L;
-uint8_t y_mag_H;
-uint8_t z_mag_L;
-uint8_t z_mag_H;
-
-//GLOBAL IMU DOF 
-uint16_t x_ang;
-uint16_t y_ang;
-uint16_t z_ang;
-
-uint16_t x_lin;
-uint16_t y_lin;
-uint16_t z_lin;
-
-uint16_t x_mag;
-uint16_t y_mag;
-uint16_t z_mag;
 
 
 //GLOBAL PWM
 uint16_t ARR_Prop = 11999;
 uint32_t ARR_Servo = 2399999;
+
 
 //GLOBAL Thrust
 float leftThrust;
@@ -227,7 +188,7 @@ int main(void)
   MX_TIM5_Init();
   /* USER CODE BEGIN 2 */
 	MTR_DRV_INIT(0x00, 0x00, 0x01, 0x01);
-	HAL_UART_Receive_IT(&hlpuart1, rx_data, 35); //Init recieve global interupt for 35 bit buffer
+	HAL_UART_Receive_IT(&hlpuart1, rx_data, 50); //Init recieve global interupt for 35 bit buffer
 	HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_2);
 	HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_3);
 	HAL_TIM_PWM_Start(&htim4, TIM_CHANNEL_2);
@@ -245,9 +206,6 @@ int main(void)
     {
 		  
 		  parseComs();
-		  //imuPullData();
-		  updateProps();
-		  updateServos();
 		  transmitData();
 			rx_received = 0;
 
@@ -851,10 +809,10 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 {
 	UNUSED(huart); //waring suppresion
 	
-	//HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_14); //toggle LED for dev
+	HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_14); //toggle LED for dev
 	rx_received = 1;//set flag for use in while loop
 	
-	HAL_UART_Receive_IT(&hlpuart1, rx_data, 35); //reset UART interupt for next transmission
+	HAL_UART_Receive_IT(&hlpuart1, rx_data, 50); //reset UART interupt for next transmission
 }
 
 
@@ -873,221 +831,23 @@ uint8_t binaryToDecimal(int start_index, int bitCount)
 }
 
 
-HAL_StatusTypeDef imuRead(void)
-{
-		/*
-			HAL_StatusTypeDef HAL_I2C_Mem_Read	(	I2C_HandleTypeDef * 	hi2c,
-																						uint16_t 	DevAddress,
-																						uint16_t 	MemAddress,
-																						uint16_t 	MemAddSize,
-																						uint8_t * 	pData,
-																						uint16_t 	Size,
-																						uint32_t 	Timeout 
-)		
-		*/
-	
-	HAL_StatusTypeDef retVal = HAL_OK;
-	
-	//Gyro
-	if (HAL_I2C_Mem_Read(&hi2c1, ACCEL_GYRO_ADR, OUTX_L_G, 1, &x_ang_L, sizeof(x_ang_L), 10) != HAL_OK) retVal = HAL_ERROR;
-	if (HAL_I2C_Mem_Read(&hi2c1, ACCEL_GYRO_ADR, OUTX_H_G, 1, &x_ang_H, sizeof(x_ang_H), 10) != HAL_OK) retVal = HAL_ERROR;
-	if (HAL_I2C_Mem_Read(&hi2c1, ACCEL_GYRO_ADR, OUTY_L_G, 1, &y_ang_L, sizeof(y_ang_L), 10) != HAL_OK) retVal = HAL_ERROR;
-	if (HAL_I2C_Mem_Read(&hi2c1, ACCEL_GYRO_ADR, OUTY_H_G, 1, &y_ang_H, sizeof(y_ang_H), 10) != HAL_OK) retVal = HAL_ERROR;
-	if (HAL_I2C_Mem_Read(&hi2c1, ACCEL_GYRO_ADR, OUTZ_L_G, 1, &z_ang_L, sizeof(z_ang_L), 10) != HAL_OK) retVal = HAL_ERROR;
-	if (HAL_I2C_Mem_Read(&hi2c1, ACCEL_GYRO_ADR, OUTZ_H_G, 1, &z_ang_H, sizeof(z_ang_H), 10) != HAL_OK) retVal = HAL_ERROR;
-	//Accel
-	if (HAL_I2C_Mem_Read(&hi2c1, ACCEL_GYRO_ADR, OUTX_L_XL, 1, &x_lin_L, sizeof(x_lin_L), 10) != HAL_OK) retVal = HAL_ERROR;
-	if (HAL_I2C_Mem_Read(&hi2c1, ACCEL_GYRO_ADR, OUTX_H_XL, 1, &x_lin_H, sizeof(x_lin_H), 10) != HAL_OK) retVal = HAL_ERROR;
-	if (HAL_I2C_Mem_Read(&hi2c1, ACCEL_GYRO_ADR, OUTY_L_XL, 1, &y_lin_L, sizeof(y_lin_L), 10) != HAL_OK) retVal = HAL_ERROR;
-	if (HAL_I2C_Mem_Read(&hi2c1, ACCEL_GYRO_ADR, OUTY_H_XL, 1, &y_lin_H, sizeof(y_lin_H), 10) != HAL_OK) retVal = HAL_ERROR;
-	if (HAL_I2C_Mem_Read(&hi2c1, ACCEL_GYRO_ADR, OUTZ_L_XL, 1, &z_lin_L, sizeof(z_lin_L), 10) != HAL_OK) retVal = HAL_ERROR;
-	if (HAL_I2C_Mem_Read(&hi2c1, ACCEL_GYRO_ADR, OUTZ_H_XL, 1, &z_lin_H, sizeof(z_lin_H), 10) != HAL_OK) retVal = HAL_ERROR;
-	//Magnet
-	if (HAL_I2C_Mem_Read(&hi2c1, MAG_ADR, OUT_X_L, 1, &x_mag_L, sizeof(x_mag_L), 10) != HAL_OK) retVal = HAL_ERROR;
-	if (HAL_I2C_Mem_Read(&hi2c1, MAG_ADR, OUT_X_H, 1, &x_mag_H, sizeof(x_mag_H), 10) != HAL_OK) retVal = HAL_ERROR;
-	if (HAL_I2C_Mem_Read(&hi2c1, MAG_ADR, OUT_Y_L, 1, &y_mag_L, sizeof(y_mag_L), 10) != HAL_OK) retVal = HAL_ERROR;
-	if (HAL_I2C_Mem_Read(&hi2c1, MAG_ADR, OUT_Y_H, 1, &y_mag_H, sizeof(y_mag_H), 10) != HAL_OK) retVal = HAL_ERROR;
-	if (HAL_I2C_Mem_Read(&hi2c1, MAG_ADR, OUT_Z_L, 1, &z_mag_L, sizeof(z_mag_L), 10) != HAL_OK) retVal = HAL_ERROR;
-	if (HAL_I2C_Mem_Read(&hi2c1, MAG_ADR, OUT_Z_H, 1, &z_mag_H, sizeof(z_mag_H), 10) != HAL_OK) retVal = HAL_ERROR;
-	
-	
-	return retVal;
-}
-
-void imuPullData(void)
-{
-  //Begin reading IMU data
-	if (imuRead() == HAL_OK) //If reading without error
-	{
-		HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_14); //toggle LED for dev	
-		x_ang = twosComptoDec(x_ang_L, x_ang_H);//get xyz values for all 9DOF
-		y_ang = twosComptoDec(y_ang_L, y_ang_H);//will need to do further calc for position, rotation, compass
-		z_ang = twosComptoDec(z_ang_L, z_ang_H);
-
-		x_lin = twosComptoDec(x_lin_L, x_lin_H);
-		y_lin = twosComptoDec(y_lin_L, y_lin_H);
-		z_lin = twosComptoDec(z_lin_L, z_lin_H);
-
-		x_mag = twosComptoDec(x_mag_L, x_mag_H);
-		y_mag = twosComptoDec(y_mag_L, y_mag_H);
-		z_mag = twosComptoDec(z_mag_L, z_mag_H);
-	}
-}
-
-uint16_t twosComptoDec(uint8_t low_reg, uint8_t high_reg)
-{
-	uint16_t combined = ((uint16_t)high_reg << 8) | low_reg;
-	if ((combined & 0x8000) == 0) return combined; //negative if top bit is 1
-	else return -(~combined + 1);
-}
-
-void MTR_DRV_INIT(uint8_t currentValue, uint8_t decay, uint8_t reset, uint8_t sleep)
-{
-  //Current Set
-  /*
-    xI1 xI0 current
-    0b00 -> 0x0 -> 100%
-    0b01 -> 0x1 -> 71%
-    0b10 -> 0x2 -> 38%
-    0b11 -> 0x3 -> 0%
-    
-    AI1 -> PF13
-    AI0 -> PF14
-    BI1 -> PF15
-    BI0 -> PG0
-    
-  */
-  //xI1
-  HAL_GPIO_WritePin(GPIOF, GPIO_PIN_13, (currentValue>>1) & ~0x01);
-  HAL_GPIO_WritePin(GPIOF, GPIO_PIN_15, (currentValue>>1) & ~0x01);
-  //xI0
-  HAL_GPIO_WritePin(GPIOF, GPIO_PIN_14, (currentValue) & ~0x01);
-  HAL_GPIO_WritePin(GPIOG, GPIO_PIN_0, (currentValue) & ~0x01);
-  
-  //Decay
-  HAL_GPIO_WritePin(GPIOE, GPIO_PIN_8, decay);
-  
-  //Reset
-  HAL_GPIO_WritePin(GPIOG, GPIO_PIN_1, reset);
-  
-  //Sleep
-  HAL_GPIO_WritePin(GPIOE, GPIO_PIN_7, sleep);
-  
-  
-}
-
-
-void updateProps(void)
-{
-  //HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_14); //toggle LED for dev
-  
-  //Convert coms thrust vals in percentages for f,b,l,r
-  if (turnThrust < 128)
-  {
-  	leftThrust = ((float)(-turnThrust + 128))/256.0; // 0% <-> 50% 
-  	rightThrust = 0;
-  }
-  else
-  {
-  	leftThrust = 0;
-  	rightThrust = ((float)(turnThrust - 128))/256.0; // 0% <-> 50% 
-  }
-  
-  if (forwardThrust < 128)
-  {
-  	forThrust = 0;
-		backThrust = ((float)(-forwardThrust + 128))/256.0; // 0% <-> 50%
-  }
-  else
-  {
-  	forThrust = ((float)(forwardThrust - 128))/256.0; // 0% <-> 50%
-		backThrust = 0;
-  }
-  
-  
-  //mix individual thrust values into 
-  rightPropThrust = leftThrust - rightThrust + forThrust - backThrust; // -100% <-> 100%
-  leftPropThrust = rightThrust - leftThrust + forThrust - backThrust; // -100% <-> 100%
-  
-  //LEFT PROP SET DC (TIM3_CH2 = forward) (TIM3_CH3 = backward)
-  if (leftPropThrust >= 0) 
-  {
-    TIM3->CCR2 = leftPropThrust*ARR_Prop;
-    TIM3->CCR3 = 0;
-  }
-  else 
-  {
-    TIM3->CCR3 = -leftPropThrust*ARR_Prop;
-    TIM3->CCR2 = 0;
-  }
-  
-  //RIGHT PROP SET DC (TIM4_CH2 = forward) (TIM4_CH3 = backward)
-  if (rightPropThrust >= 0) 
-  {
-    TIM4->CCR2 = rightPropThrust*ARR_Prop;
-    TIM4->CCR3 = 0;
-  }
-  else
-  {
-    TIM4->CCR3 = -rightPropThrust*ARR_Prop;
-    TIM4->CCR2 = 0;
-  }
-  
-}
-
-void updateServos(void)
-{
-  //HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_14); //toggle LED for dev 
-  //Convert coms thrust vals in percentages for f,b,l,r
-  
-  //Setup for 1ms <-> 2ms
-  //camVerticalDuty = (0.000196 * (float)camUpDown) + 0.05;
-  //camHorizontalDuty = (0.000196 * (float)camLeftRight) + 0.05;
-  
-  //Setup for 0.5ms <-> 2.5ms
-  camVerticalDuty = (0.000392 * (float)camUpDown) + 0.025;
-  camHorizontalDuty = (0.000392 * (float)camLeftRight) + 0.025;
-  
-  //Set Duty Cycles
-  TIM5->CCR2 = camVerticalDuty*ARR_Servo;
-  TIM5->CCR3 = camHorizontalDuty*ARR_Servo;
-}
-
 void parseComs(void)
 {
   //Coms parsing
-  HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_14); //toggle LED for dev
-  if (rx_data[0] == 48)
-  {
-  	depthUp = 0;
-  }
-  else if (rx_data[0] == 49)
-  {
-  	depthUp = 1;
-  }
+  //HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_14); //toggle LED for dev
+  if (rx_data[0] == 48) depthUp = 0;
+  else if (rx_data[0] == 49) depthUp = 1;
+
+  if (rx_data[1] == 48) depthDown = 0;
+  else if (rx_data[1] == 49) depthDown = 1;
   
-  if (rx_data[1] == 48)
-  {
-  	depthDown = 0;
-  }
-  else if (rx_data[1] == 49)
-  {
-  	depthDown = 1;
-  }
-  
-  if (rx_data[2] == 48)
-  {
-  	captureImage = 0;
-  }
-  else if (rx_data[2] == 49)
-  {
-  	captureImage = 1;
-  }
 	
-	forwardThrust = binaryToDecimal(3, 8);
-	turnThrust = binaryToDecimal(11, 8);
-	camUpDown = binaryToDecimal(19, 8);
-	camLeftRight = binaryToDecimal(27, 8);
+	forwardThrust = binaryToDecimal(2, 8);
+	turnThrust = binaryToDecimal(10, 8);
+	camUpDown = binaryToDecimal(18, 8);
+	camLeftRight = binaryToDecimal(26, 8);
+	depth = binaryToDecimal(34, 8);
+	pitch = binaryToDecimal(42, 8);
 }
 
 void transmitData(void)
@@ -1100,10 +860,10 @@ void transmitData(void)
 	// For reading the i2c values on the RPI
 	//sprintf(tx_buffer, "%u,%u,%u,%u,%u,%u,%u,%u,%u\n\r", x_ang, y_ang, z_ang, x_lin, y_lin, z_lin, x_mag, y_mag, z_mag );
 
-  sprintf(tx_buffer, "%u,%u,%u,%u,%d,%d\n\r", (uint8_t)(leftThrust*100.0), (uint8_t)(rightThrust*100.0), (uint8_t)(forThrust*100.0), (uint8_t)(backThrust*100.0), (int)(leftPropThrust*100.0), (int)(rightPropThrust*100.0));
+  //sprintf(tx_buffer, "%u,%u,%u,%u,%d,%d\n\r", (uint8_t)(leftThrust*100.0), (uint8_t)(rightThrust*100.0), (uint8_t)(forThrust*100.0), (uint8_t)(backThrust*100.0), (int)(leftPropThrust*100.0), (int)(rightPropThrust*100.0));
 
 	//Read back what was received
-	//sprintf(tx_buffer, "%u,%u,%u,%u,%u,%u,%u\n\r", depthUp, depthDown, captureImage, forwardThrust, turnThrust, camUpDown, camLeftRight);
+	sprintf(tx_buffer, "%u,%u,%u,%u,%u,%u,%u,%u,%u\n\r", depthUp, depthDown, captureImage, forwardThrust, turnThrust, camUpDown, camLeftRight);
 	
 	//sprintf(tx_buffer, "TestMessage,,,,,,,,,,,,,\n\r");
 
