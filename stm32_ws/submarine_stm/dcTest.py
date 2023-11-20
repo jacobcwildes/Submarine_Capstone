@@ -74,9 +74,9 @@ class imu_measurement():
 		
 	def measure(self):
 		acceleration = accel_gyro.acceleration
-    gyro = accel_gyro.gyro
-    magnetic = mag.magnetic
-    self.x_lin_a = acceleration[0]
+	    gyro = accel_gyro.gyro
+	    magnetic = mag.magnetic
+	    self.x_lin_a = acceleration[0]
 		self.y_lin_a = acceleration[1]
 		self.z_lin_a = acceleration[2]
 		self.x_ang_a = gyro[0]
