@@ -68,6 +68,8 @@ class Submarine(Node):
     def data_callback(self):
         if self.dataReceived:
             print("IN CALLBACK")
+            #These variables will need to be broken down later, Dyllon is the mastermind behind
+            #how he wants these to look, so I put base functionality in
             self.acceleration, self.gyro, self.magnetic = imu()
             msg = DataInfo()
             msg.degrees_north = int(self.degreesNorth)
