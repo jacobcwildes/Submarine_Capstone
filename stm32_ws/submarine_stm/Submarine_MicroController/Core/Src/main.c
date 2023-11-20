@@ -24,6 +24,12 @@
 #include "string.h"
 #include "math.h"
 #include "stdio.h"
+
+#include "perception.h"
+#include "state_estimation.h"
+#include "planner.h"
+#include "controller.h"
+#include "actuator.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -33,31 +39,7 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-//GLOBAL I2C Addresses
-#define ACCEL_GYRO_ADR 0x6a
-#define MAG_ADR 0x1c
 
-//gyro
-#define OUTX_L_G (0x22 | 0x01)
-#define OUTX_H_G (0x23 | 0x01)
-#define OUTY_L_G (0x24 | 0x01)
-#define OUTY_H_G (0x25 | 0x01)
-#define OUTZ_L_G (0x26 | 0x01)
-#define OUTZ_H_G (0x27 | 0x01)
-//accel
-#define OUTX_L_XL (0x28 | 0x01)
-#define OUTX_H_XL (0x29 | 0x01)
-#define OUTY_L_XL (0x2A | 0x01)
-#define OUTY_H_XL (0x2B | 0x01)
-#define OUTZ_L_XL (0x2C | 0x01)
-#define OUTZ_H_XL (0x2D | 0x01)
-//magentometer
-#define OUT_X_L (0x28 | 0x01)
-#define OUT_X_H (0x29 | 0x01)
-#define OUT_Y_L (0x2A | 0x01)
-#define OUT_Y_H (0x2B | 0x01)
-#define OUT_Z_L (0x2C | 0x01)
-#define OUT_Z_H (0x2D | 0x01)
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -194,16 +176,13 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
+  	struct envData imuVectors = envRead();
   	if (rx_received) //New Transmission from RPI
     {
-		  
 		  parseComs();
-		  transmitData();
 			rx_received = 0;
-
-		  
 		}
-		  
+		transmitData();
 
   	
   	
