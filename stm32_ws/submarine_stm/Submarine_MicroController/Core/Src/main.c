@@ -26,7 +26,6 @@
 #include "stdio.h"
 
 #include "perception.h"
-#include "state_estimation.h"
 #include "planner.h"
 #include "controller.h"
 #include "actuator.h"
@@ -87,7 +86,7 @@ void transmitData(void);
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
 uint8_t rx_received = 0;
-uint8_t rx_data[50];
+uint8_t rx_data[42];
 char tx_buffer[100];
 
 //GLOBAL Coms Info
@@ -97,8 +96,7 @@ uint8_t forwardThrust = 0;
 uint8_t turnThrust = 0;
 uint8_t camUpDown = 0;
 uint8_t camLeftRight = 0;
-uint8_t depth = 0;
-uint8_t pitch = 0;
+uint8_t roll = 0;
 
 
 //GLOBAL Data info
@@ -162,7 +160,7 @@ int main(void)
   MX_TIM5_Init();
   /* USER CODE BEGIN 2 */
 
-	HAL_UART_Receive_IT(&hlpuart1, rx_data, 50); //Init recieve global interupt for 35 bit buffer
+	HAL_UART_Receive_IT(&hlpuart1, rx_data, 42); //Init recieve global interupt for 35 bit buffer
 	HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_2);
 	HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_3);
 	HAL_TIM_PWM_Start(&htim4, TIM_CHANNEL_2);
@@ -176,13 +174,14 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-  	struct envData imuVectors = envRead();
+  	struct envData inputs = envRead();
   	if (rx_received) //New Transmission from RPI
     {
 		  parseComs();
 			rx_received = 0;
+			transmitData();
 		}
-		transmitData();
+		
 
   	
   	
@@ -781,9 +780,9 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 	UNUSED(huart); //waring suppresion
 	
 	HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_14); //toggle LED for dev
-	if (sizeof(rx_data) == 50) rx_received = 1;//set flag for use in while loop
+	rx_received = 1;//set flag for use in while loop
 	
-	HAL_UART_Receive_IT(&hlpuart1, rx_data, 50); //reset UART interupt for next transmission
+	HAL_UART_Receive_IT(&hlpuart1, rx_data, 42); //reset UART interupt for next transmission
 }
 
 
@@ -817,8 +816,8 @@ void parseComs(void)
 	turnThrust = binaryToDecimal(10, 8);
 	camUpDown = binaryToDecimal(18, 8);
 	camLeftRight = binaryToDecimal(26, 8);
-	pitch = binaryToDecimal(34, 8);
-	depth = binaryToDecimal(42, 8);
+	roll = binaryToDecimal(34, 8);
+
 }
 
 void transmitData(void)
@@ -834,7 +833,8 @@ void transmitData(void)
   //sprintf(tx_buffer, "%u,%u,%u,%u,%d,%d\n\r", (uint8_t)(leftThrust*100.0), (uint8_t)(rightThrust*100.0), (uint8_t)(forThrust*100.0), (uint8_t)(backThrust*100.0), (int)(leftPropThrust*100.0), (int)(rightPropThrust*100.0));
 
 	//Read back what was received
-	sprintf(tx_buffer, "%u,%u,%u,%u,%u,%u,%u,%u\n\r", depthUp, depthDown, forwardThrust, turnThrust, camUpDown, camLeftRight, pitch, depth);
+	sprintf(tx_buffer, "%u,%u,%u,%u,%u,%u,%u\n\r", depthUp, depthDown, forwardThrust, turnThrust, camUpDown, camLeftRight, roll);
+	
 	
 	//sprintf(tx_buffer, "TestMessage,,,,,,,,,,,,,\n\r");
 

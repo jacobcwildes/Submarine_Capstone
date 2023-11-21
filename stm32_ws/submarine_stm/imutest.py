@@ -32,4 +32,4 @@ while True:
     print("Gyro          X:{0:7.2f}, Y:{1:7.2f}, Z:{2:7.2f} rad/s".format(*gyro))
     print("Magnetic      X:{0:7.2f}, Y:{1:7.2f}, Z:{2:7.2f} uT".format(*magnetic))
     print("")
-    time.sleep(0.5)
+    time.sleep(0.01)
