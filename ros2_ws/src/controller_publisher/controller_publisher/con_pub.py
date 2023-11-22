@@ -18,7 +18,7 @@ class ControllerOutput(Node):
         self.com_pub = self.create_publisher(ComInfo, 'com_info', qos.qos_profile_services_default)
         
         #Serial read setup
-        self.serialport = serial.Serial("/dev/ttyACM0", 115200, timeout=0.5)
+        self.serialport = None
         self.serialLine = None
         
         #Publish data every thousandth of a second
@@ -26,43 +26,60 @@ class ControllerOutput(Node):
         self.timer = self.create_timer(timer_period, self.timer_callback)
         
         
-    def timer_callback(self):            
-        #Read serial data and save to variables
-        self.serialLine = self.serialport.readline()
-        self.serialLine = self.serialLine.decode('ascii')
-        localDat = self.serialLine.strip().strip('\x00')
-        localDat = localDat.split(',')
-        #print(localDat)
+    def timer_callback(self):
+        #Keep trying to initiate contact with board, once established proceed
+        try:
+            if self.serialport is None: self.serialport = serial.Serial("/dev/ttyACM0", 115200, timeout=0.5)
+        except:
+            print("Unable to connect to STM board!")
+            #Set message to custom datatype
+            msg = ComInfo()
+            msg.left_toggle_ud = 0
+            msg.left_toggle_lr = 1
+            msg.right_toggle_ud = 2
+            msg.right_toggle_lr = 3
+            msg.sub_up = 0
+            msg.sub_down = 1
+            msg.screenshot = 1
+            self.com_pub.publish(msg)
+            
+        if self.serialport is not None:        
+            #Read serial data and save to variables
+            self.serialLine = self.serialport.readline()
+            self.serialLine = self.serialLine.decode('ascii')
+            localDat = self.serialLine.strip().strip('\x00')
+            localDat = localDat.split(',')
+            #print(localDat)
 
-        try: 
-            if len(localDat) == 7:
-                #Set message to custom datatype
-                msg = ComInfo()
-                
-                #Normalize & put data in each field of datatype
-                msg.left_toggle_ud = normalization(int(localDat[0]))
-                msg.left_toggle_lr = normalization(int(localDat[1]))
-                msg.right_toggle_ud = normalization(int(localDat[2]))
-                msg.right_toggle_lr = normalization(int(localDat[3]))
-                msg.sub_up = int(localDat[4])
-                msg.sub_down = int(localDat[5])
-                msg.screenshot = int(localDat[6])
-                
-                self.com_pub.publish(msg)
-                self.get_logger().info('Publishing Left Toggle UD: "%d' % msg.left_toggle_ud) 
-                self.get_logger().info('Publishing Left Toggle LR: "%d' % msg.left_toggle_lr) 
-                self.get_logger().info('Publishing Right Toggle UD: "%d' % msg.right_toggle_ud) 
-                self.get_logger().info('Publishing Right Toggle LR: "%d' % msg.right_toggle_lr) 
-                self.get_logger().info('Publishing SubUp: "%d' % msg.sub_up)
-                self.get_logger().info('Publishing SubDown: "%d' % msg.sub_down)  
-                self.get_logger().info('Publishing Screenshot: "%d' % msg.screenshot) 
-         
-        #Sometimes the first data line is bad - no need to crash the entire program
-        #because of it       
-        except ValueError:
-            pass
-        except UnicodeDecodeError:  
-            pass
+            try: 
+                if len(localDat) == 7:
+                    #Set message to custom datatype
+                    msg = ComInfo()
+                    
+                    #Normalize & put data in each field of datatype
+                    msg.left_toggle_ud = normalization(int(localDat[0]))
+                    msg.left_toggle_lr = normalization(int(localDat[1]))
+                    msg.right_toggle_ud = normalization(int(localDat[2]))
+                    msg.right_toggle_lr = normalization(int(localDat[3]))
+                    msg.sub_up = int(localDat[4])
+                    msg.sub_down = int(localDat[5])
+                    msg.screenshot = int(localDat[6])
+                    
+                    self.com_pub.publish(msg)
+                    self.get_logger().info('Publishing Left Toggle UD: "%d' % msg.left_toggle_ud) 
+                    self.get_logger().info('Publishing Left Toggle LR: "%d' % msg.left_toggle_lr) 
+                    self.get_logger().info('Publishing Right Toggle UD: "%d' % msg.right_toggle_ud) 
+                    self.get_logger().info('Publishing Right Toggle LR: "%d' % msg.right_toggle_lr) 
+                    self.get_logger().info('Publishing SubUp: "%d' % msg.sub_up)
+                    self.get_logger().info('Publishing SubDown: "%d' % msg.sub_down)  
+                    self.get_logger().info('Publishing Screenshot: "%d' % msg.screenshot) 
+             
+            #Sometimes the first data line is bad - no need to crash the entire program
+            #because of it       
+            except ValueError:
+                pass
+            except UnicodeDecodeError:  
+                pass
 
 def normalization(data):
     ##normal = abs(int((((4.64 * (10 ** -3) * (data ** 2)) - (.182 * data)))))

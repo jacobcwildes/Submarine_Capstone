@@ -151,17 +151,17 @@ class GUI(Node):
             
         self.root.update()
      
-    def data_callback(self):
-        self.heading = data_sub.degrees_north
-        self.batteryVoltage = data_sub.voltage_battery
-        self.depth = data_sub.upward
-        self.errMess = data_sub.error
-        self.ballastLeft = data_sub.ballast_left
-        self.ballastRight = data_sub.ballast_right
-        self.speed = data_sub.forward
+    def data_callback(self, data):
+        self.heading = data.degrees_north
+        self.batteryVoltage = data.voltage_battery
+        self.depth = data.upward
+        self.errMess = data.error
+        self.ballastLeft = data.ballast_left
+        self.ballastRight = data.ballast_right
+        self.speed = data.forward
         
-    def screenshot_callback(self):
-        self.screenshot = screenshot_sub.screenshot
+    def screenshot_callback(self, com):
+        self.screenshot = com.screenshot
     
         
   
