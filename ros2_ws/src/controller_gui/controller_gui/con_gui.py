@@ -67,19 +67,19 @@ class GUI(Node):
         self.panelA = None
         
         #Variables to hold data information
-        self.batteryVoltage = None
-        self.ballastLeft = None
-        self.ballastRight = None
-        self.errMess = None
-        self.heading = None
-        self.depth = None
-        self.speed = None
+        self.batteryVoltage = 12
+        self.ballastLeft = 0
+        self.ballastRight = 0
+        self.errMess = " "
+        self.heading = 0
+        self.depth = 0
+        self.speed = 0
         
         #Screenshot?
-        self.screenshot = None
+        self.screenshot = 0
         
     #This will eventually be time synchronized with incoming sub metrics
-    def cam_callback(self): #Data will be passed here too
+    def cam_callback(self, cam_sub): #Data will be passed here too
         
         #Using monotonic time because I don't really care about real timezones. The 
         #monotonic clock naively ticks up - perfect for what I want
@@ -94,7 +94,7 @@ class GUI(Node):
         #Although not exactly current at the time of display, close enough for our purposes
         prog_current = datetime.now()
         prog_time = prog_current - self.prog_start
-        current_voltage = data_sub.voltage_battery - self.battery_dead
+
         #Overlay data onto the image
         RGB_img = overlay(RGB_img, self.speed, self.batteryVoltage, self.ballastLeft,
                           self.ballastRight, self.depth, self.heading, prog_time)
@@ -131,7 +131,7 @@ class GUI(Node):
         
         #Save image?
         if self.screenshot:
-            path = os.path.join('/mnt/usb/images', prog_time)
+            path = str(prog_time) + '.jpg'#'/mnt/usb/images/' + str(prog_time) +  '.jpg'
             PIL_img.save(path)
 
         

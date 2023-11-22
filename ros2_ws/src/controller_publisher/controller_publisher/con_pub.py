@@ -21,8 +21,8 @@ class ControllerOutput(Node):
         self.serialport = None
         self.serialLine = None
         
-        #Publish data every thousandth of a second
-        timer_period = 0.001
+        #Publish data every 20th of a second
+        timer_period = 0.05
         self.timer = self.create_timer(timer_period, self.timer_callback)
         
         
@@ -40,7 +40,7 @@ class ControllerOutput(Node):
             msg.right_toggle_lr = 3
             msg.sub_up = 0
             msg.sub_down = 1
-            msg.screenshot = 1
+            msg.screenshot = 0
             self.com_pub.publish(msg)
             
         if self.serialport is not None:        
