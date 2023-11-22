@@ -10,8 +10,7 @@ def generate_launch_description():
         ),
         Node(
             package="controller_publisher",
-            executable="con_pub",
-            output="own_log"
+            executable="con_pub"
         )
     ])
             

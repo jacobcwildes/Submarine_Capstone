@@ -5,7 +5,7 @@ import numpy as np
 #of the primary file - makes things cleaner. Not all the work can be done here. I want the FPS
 #to be as accurate as possible, so I will append that just before the image is passed to Tkinter
 
-def overlay(img, speed, battery, ballast_left, ballast_right, depth deg, time_start):
+def overlay(img, speed, battery, ballast_left, ballast_right, depth, deg, time_start):
     
     #Resize the image
     img = cv.resize(img, (1024, 600))
@@ -45,14 +45,15 @@ def overlay(img, speed, battery, ballast_left, ballast_right, depth deg, time_st
     #Draw terminal nib
     cv.rectangle(img, (battery_top_x, 25), (battery_top_x + 10, 35), (255, 255, 255), -1)
     
-    #Next, need to correlate the 2.8V range from full to empty to 0->100% (Battery is fully charged at 14.8V, dead at 12V)
+    #Next, need to correlate the 2.8V range from full to empty to 0->100% (Battery is fully charged at 17V, dead at 12V)
     #100/2.8 = 35.7. Rectangle is 255 pixels long, so 255/2.8 = 91.07 for color gradient
     #Draw red/green bar
-    cv.rectangle(img, (battery_bottom_x, battery_bottom_y), (battery_top_x, battery_top_y),  (255 - int(battery * 91.07), (0 + int(battery * 91.07)), 0), -1)
+    cv.rectangle(img, (battery_bottom_x, battery_bottom_y), (battery_top_x, battery_top_y),  (255 - int((battery * 20) - 240), (0 + int((battery * 20) - 240), 0), -1)
     
-    cv.rectangle(img, ((battery_bottom_x + int((battery * 35.7))), 10), (battery_top_x, 50), (150, 150, 150), -1)
+    #Grey bar
+    cv.rectangle(img, ((battery_bottom_x + int(((battery * 20) - 240) / 10) * 255), 10), (battery_top_x, 50), (150, 150, 150), -1)
         
-    cv.putText(img, str(int(battery * 35.7)).zfill(2), (930, 40), cv.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 1, cv.LINE_AA)
+    cv.putText(img, str(int((battery * 20) - 240)).zfill(2), (930, 40), cv.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 1, cv.LINE_AA)
     
     ##DRAW COMPASS:
     #Compass base
@@ -174,11 +175,11 @@ def overlay(img, speed, battery, ballast_left, ballast_right, depth deg, time_st
         
     #Left ballast
     cv.rectangle(img, (12, 201), (33, 201), (150, 150, 150), -1)
-    cv.rectangle(img, (12, 201), (33, 201 + ballast_left), (0, 0, 255), -1)
+    cv.rectangle(img, (12, 201), (33, 201 + int(ballast_left / 2.55)), (0, 0, 255), -1)
     
     #Right ballast
     cv.rectangle(img, (152, 201), (173, 201), (150, 150, 150), -1)
-    cv.rectangle(img, (152, 201), (173, 201 + ballast_right), (0, 0, 255), -1)
+    cv.rectangle(img, (152, 201), (173, 201 + int(ballast_right / 2.55)), (0, 0, 255), -1)
     
     
     ##DRAW DEPTH:
