@@ -4,6 +4,7 @@ from rclpy.node import Node
 from sensor_msgs.msg import Image
 import message_filters
 from message_filters import Subscriber, TimeSynchronizer
+from rclpy import qos
 
 #Import custom message type
 #Note that DataInfo needed a header for ROS2 to add a timestamp to. Without it, the 
@@ -32,7 +33,7 @@ import os
 sys.path.insert(0, 'src/controller_gui/controller_gui')
 from overlay import overlay
 
-from rclpy import qos
+import RPi.GPIO as gpio
 
 class GUI(Node):
 
@@ -42,13 +43,13 @@ class GUI(Node):
         super().__init__('controller_gui')
         
         #Make an object that holds subscription info for the cam (UDP) 
-        self.cam_sub = self.create_subscription(Image, 'camera/image', self.cam_callback, qos.qos_profile_sensor_data)
+        self.cam_sub = self.create_subscription(Image, 'camera/image', self.cam_callback, 10)#qos.qos_profile_sensor_data)
 
         #Data subscription will go here (UDP)
-        self.data_sub = self.create_subscription(DataInfo, 'data_info', self.data_callback, qos.qos_profile_sensor_data)
+        self.data_sub = self.create_subscription(DataInfo, 'data_info', self.data_callback, 10)#qos.qos_profile_sensor_data)
         
         #Command subscription goes here (for screenshots) UDP
-        self.screenshot_sub = self.create_subscription(ComInfo, 'com_info', self.screenshot_callback, qos.qos_profile_sensor_data)
+        self.screenshot_sub = self.create_subscription(ComInfo, 'com_info', self.screenshot_callback, 10)#qos.qos_profile_sensor_data)
         
         #Previous time (for FPS calc)
         self.previous_time = 0
@@ -78,8 +79,15 @@ class GUI(Node):
         #Screenshot?
         self.screenshot = 0
         
+        #Set up FPS measuring pin
+        gpio.setmode(gpio.BCM)
+        gpio.setup(24, gpio.OUT)
+        
     #This will eventually be time synchronized with incoming sub metrics
     def cam_callback(self, cam_sub): #Data will be passed here too
+        
+        #Toggle pin on
+        gpio.output(24, 1)
         
         #Using monotonic time because I don't really care about real timezones. The 
         #monotonic clock naively ticks up - perfect for what I want
@@ -148,8 +156,11 @@ class GUI(Node):
             self.panelA.configure(image=tk_img)
             self.panelA.image = tk_img
             self.panelA.pack(fill=tk.BOTH, expand = True)
-            
+        
         self.root.update()
+        
+        #Toggle pin off
+        gpio.output(24, 0)
      
     def data_callback(self, data):
         self.heading = data.degrees_north
@@ -170,6 +181,8 @@ def main(args=None):
     gui_obj = GUI()
     rclpy.spin(gui_obj)
     rclpy.shutdown()
+    #Shut down pin grab
+    gpio.cleanup()
     
 if __name__ == '__main__':
     main()

@@ -125,6 +125,7 @@ def overlay(img, speed, battery, ballast_left, ballast_right, depth, deg, time_s
     cv.putText(img, str(deg), (compass_bottom_x + 10, compass_bottom_y + 15), cv.FONT_HERSHEY_SIMPLEX, .5, (255, 255, 255), 1, cv.LINE_AA)
     cv.rectangle(img, (compass_top_x - 50, compass_bottom_y), (compass_top_x, compass_top_y), (255, 255, 255), 2)
     
+    
     ##DRAW BALLASTS:
     #Draw left ballast base
     cv.fillPoly(img, [ballast_cap_l], (150, 150, 150))
