@@ -32,6 +32,8 @@ import os
 sys.path.insert(0, 'src/controller_gui/controller_gui')
 from overlay import overlay
 
+from rclpy import qos
+
 class GUI(Node):
 
     def __init__(self):
@@ -39,14 +41,14 @@ class GUI(Node):
         self.prog_start = datetime.now()
         super().__init__('controller_gui')
         
-        #Make an object that holds subscription info for the cam 
-        self.cam_sub = self.create_subscription(Image, 'camera/image', self.cam_callback)
+        #Make an object that holds subscription info for the cam (UDP) 
+        self.cam_sub = self.create_subscription(Image, 'camera/image', self.cam_callback, qos.qos_profile_sensor_data)
 
-        #Data subscription will go here
-        self.data_sub = self.create_subscription(DataInfo, 'data_info', self.data_callback)
+        #Data subscription will go here (UDP)
+        self.data_sub = self.create_subscription(DataInfo, 'data_info', self.data_callback, qos.qos_profile_sensor_data)
         
-        #Command subscription goes here (for screenshots)
-        self.screenshot_sub = self.create_subscription(ComInfo, 'com_info', self.screenshot_callback)
+        #Command subscription goes here (for screenshots) UDP
+        self.screenshot_sub = self.create_subscription(ComInfo, 'com_info', self.screenshot_callback, qos.qos_profile_sensor_data)
         
         #Previous time (for FPS calc)
         self.previous_time = 0

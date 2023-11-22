@@ -1,6 +1,7 @@
 #ROS2 Necessities
 import rclpy
 from rclpy.node import Node
+from rclpy import qos
 
 #Import custom message type
 from com_interfaces.msg import ComInfo
@@ -13,8 +14,8 @@ class ControllerOutput(Node):
         #Command publication
         super().__init__('controller_publisher')
         #Make a publisher - first arg is custom defined message, second
-        #is topic name, third is how many things to queue to publish
-        self.com_pub = self.create_publisher(ComInfo, 'com_info', 10)
+        #is topic name, third is how many things to queue to publish (TCP)
+        self.com_pub = self.create_publisher(ComInfo, 'com_info', qos.qos_profile_services_default)
         
         #Serial read setup
         self.serialport = serial.Serial("/dev/ttyACM0", 115200, timeout=0.5)
