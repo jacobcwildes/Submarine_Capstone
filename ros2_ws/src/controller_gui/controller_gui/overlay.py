@@ -5,7 +5,7 @@ import numpy as np
 #of the primary file - makes things cleaner. Not all the work can be done here. I want the FPS
 #to be as accurate as possible, so I will append that just before the image is passed to Tkinter
 
-def overlay(img, speed, battery, depth, deg, time_start):
+def overlay(img, speed, battery, ballast_left, ballast_right, depth deg, time_start):
     
     #Resize the image
     img = cv.resize(img, (1024, 600))
@@ -174,11 +174,11 @@ def overlay(img, speed, battery, depth, deg, time_start):
         
     #Left ballast
     cv.rectangle(img, (12, 201), (33, 201), (150, 150, 150), -1)
-    cv.rectangle(img, (12, 201), (33, 201 + depth), (0, 0, 255), -1)
+    cv.rectangle(img, (12, 201), (33, 201 + ballast_left), (0, 0, 255), -1)
     
     #Right ballast
     cv.rectangle(img, (152, 201), (173, 201), (150, 150, 150), -1)
-    cv.rectangle(img, (152, 201), (173, 201 + depth), (0, 0, 255), -1)
+    cv.rectangle(img, (152, 201), (173, 201 + ballast_right), (0, 0, 255), -1)
     
     
     ##DRAW DEPTH:

@@ -9,6 +9,7 @@ from message_filters import Subscriber, TimeSynchronizer
 #Note that DataInfo needed a header for ROS2 to add a timestamp to. Without it, the 
 #time synchro fails because it can never retrieve a time
 from com_interfaces.msg import DataInfo
+from com_interfaces.msg import ComInfo
 
 #Import OpenCV libraries
 import cv2 as cv
@@ -38,29 +39,17 @@ class GUI(Node):
         self.prog_start = datetime.now()
         super().__init__('controller_gui')
         
-        #Make an object that holds subscription info for the cam
-        #self.cam_sub = Subscriber(self, Image, "camera/image")
-        #cache = message_filters.Cache(self.cam_sub, 10)
-        #cache.registerCallback(self.cam_callback)
-        
-        self.cam_sub = Subscriber(self, Image, 'camera/image')
+        #Make an object that holds subscription info for the cam 
+        self.cam_sub = self.create_subscription(Image, 'camera/image', self.cam_callback)
 
         #Data subscription will go here
-        #Initially going to subscribe to a dummy node so that I can
-        #test the GUI without all the other nodes
-        self.data_sub = Subscriber(self, DataInfo, 'dummy_data')
+        self.data_sub = self.create_subscription(DataInfo, 'data_info', self.data_callback)
         
-        #Synchronize the two data streams to prevent screen tearing
-        queue_size = 10
-        self.ts = TimeSynchronizer([self.cam_sub, self.data_sub], queue_size)
-        self.ts.registerCallback(self.cam_callback)
+        #Command subscription goes here (for screenshots)
+        self.screenshot_sub = self.create_subscription(ComInfo, 'com_info', self.screenshot_callback)
         
         #Previous time (for FPS calc)
         self.previous_time = 0
-        
-        #Dead voltage of the battery. Going to use the difference on the current
-        #charge and dead charge.
-        self.battery_dead = 12
         
         #Make the object that will convert a ROS2 image message to
         #an OpenCV image format
@@ -75,8 +64,20 @@ class GUI(Node):
         
         self.panelA = None
         
+        #Variables to hold data information
+        self.batteryVoltage = None
+        self.ballastLeft = None
+        self.ballastRight = None
+        self.errMess = None
+        self.heading = None
+        self.depth = None
+        self.speed = None
+        
+        #Screenshot?
+        self.screenshot = None
+        
     #This will eventually be time synchronized with incoming sub metrics
-    def cam_callback(self, cam_sub, data_sub): #Data will be passed here too
+    def cam_callback(self): #Data will be passed here too
         
         #Using monotonic time because I don't really care about real timezones. The 
         #monotonic clock naively ticks up - perfect for what I want
@@ -93,8 +94,8 @@ class GUI(Node):
         prog_time = prog_current - self.prog_start
         current_voltage = data_sub.voltage_battery - self.battery_dead
         #Overlay data onto the image
-        RGB_img = overlay(RGB_img, data_sub.speed_scalar, current_voltage,
-                            data_sub.depth_approx, data_sub.degrees_north, prog_time)
+        RGB_img = overlay(RGB_img, self.speed, self.batteryVoltage, self.ballastLeft,
+                          self.ballastRight, self.depth, self.heading, prog_time)
         
         #Make frame per second count. Isn't perfect, but it is a degree of inaccuracy I am 
         #willing to absorb since it is not in our favor
@@ -103,8 +104,6 @@ class GUI(Node):
         self.previous_time = current_time
         cv.putText(RGB_img, str(int(FPS)), (2, 15), cv.FONT_HERSHEY_SIMPLEX, .5, (255, 255, 255), 1, cv.LINE_AA)
         
-        #Get error messages for display
-        text = str(data_sub.message)
         
         #Current Program time
         prog_time = datetime.now() - self.prog_start
@@ -120,7 +119,7 @@ class GUI(Node):
         #Draw Error Messages
         cv.rectangle(RGB_img, (0, 560), (900, 600), (255, 255, 255), -1)
         cv.rectangle(RGB_img, (0, 560), (900, 600), (0, 0, 0), 2)
-        cv.putText(RGB_img, str(text), (25, 590), cv.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 0), 1, cv.LINE_AA)
+        cv.putText(RGB_img, str(self.errMess), (25, 590), cv.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 0), 1, cv.LINE_AA)
         
         #Convert images to PIL format
         PIL_img = PIL.Image.fromarray(RGB_img)
@@ -128,6 +127,10 @@ class GUI(Node):
         #Convert from PIL to ImageTk format (what actually gets displayed)
         tk_img = PIL.ImageTk.PhotoImage(PIL_img)
         
+        #Save image?
+        if self.screenshot:
+            path = os.path.join('/mnt/usb/images', prog_time)
+            PIL_img.save(path)
 
         
         #Work to display will be shown here
@@ -145,7 +148,18 @@ class GUI(Node):
             self.panelA.pack(fill=tk.BOTH, expand = True)
             
         self.root.update()
+     
+    def data_callback(self):
+        self.heading = data_sub.degrees_north
+        self.batteryVoltage = data_sub.voltage_battery
+        self.depth = data_sub.upward
+        self.errMess = data_sub.error
+        self.ballastLeft = data_sub.ballast_left
+        self.ballastRight = data_sub.ballast_right
+        self.speed = data_sub.forward
         
+    def screenshot_callback(self):
+        self.screenshot = screenshot_sub.screenshot
     
         
   
