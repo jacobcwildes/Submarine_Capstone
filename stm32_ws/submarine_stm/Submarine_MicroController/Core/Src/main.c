@@ -78,9 +78,8 @@ static void MX_TIM3_Init(void);
 static void MX_TIM4_Init(void);
 static void MX_TIM5_Init(void);
 /* USER CODE BEGIN PFP */
-uint8_t binaryToDecimal(int start_index, int bitCount);
-void parseComs(void);
-void transmitData(void);
+
+
 
 
 /* USER CODE END PFP */
@@ -90,35 +89,7 @@ void transmitData(void);
 uint8_t rx_received = 0;
 uint8_t rx_data[42];
 char tx_buffer[100];
-
-//GLOBAL Coms Info
-uint8_t depthUp = 0;
-uint8_t depthDown = 0;
-uint8_t forwardThrust = 0;
-uint8_t turnThrust = 0;
-uint8_t camUpDown = 0;
-uint8_t camLeftRight = 0;
-uint8_t roll = 0;
-
-
-//GLOBAL Data info
-float voltageBattery = 16.9;
-
-
-//GLOBAL PWM
-uint16_t ARR_Prop = 11999;
-uint32_t ARR_Servo = 2399999;
-
-
-//GLOBAL Thrust
-float leftThrust;
-float rightThrust;
-float forThrust;
-float backThrust;
-float leftPropThrust;
-float rightPropThrust;
-float camVerticalDuty;
-float camHorizontalDuty;
+uint32_t adcs[3];
 
 
 
@@ -162,12 +133,12 @@ int main(void)
   MX_TIM4_Init();
   MX_TIM5_Init();
   /* USER CODE BEGIN 2 */
-
+	MTR_DRV_INIT();
 	HAL_UART_Receive_IT(&hlpuart1, rx_data, 42); //Init recieve global interupt for 35 bit buffer
 	HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_2);
 	HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_3);
-	HAL_TIM_PWM_Start(&htim4, TIM_CHANNEL_2);
 	HAL_TIM_PWM_Start(&htim4, TIM_CHANNEL_3);
+	HAL_TIM_PWM_Start(&htim4, TIM_CHANNEL_4);
 	HAL_TIM_PWM_Start(&htim5, TIM_CHANNEL_2);
 	HAL_TIM_PWM_Start(&htim5, TIM_CHANNEL_3);
 	
@@ -177,13 +148,17 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-  	struct envData inputs = envRead();
-  	if (rx_received) //New Transmission from RPI
-    {
-		  parseComs();
-			rx_received = 0;
-			transmitData();
-		}
+  	
+	if (rx_received) //New Transmission from RPI
+	{
+		HAL_ADC_Start_DMA(&hadc1, adcs, 3);
+		struct envData inputs = envRead(adcs);
+		struct goalCommand command = parseComs(rx_data);
+		struct actuator_command control = controller(command, inputs);
+		updateActuators(hlpuart1, control);
+		
+		rx_received = 0;
+	}
 		
 
   	
@@ -827,60 +802,7 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 }
 
 
-uint8_t binaryToDecimal(int start_index, int bitCount)
-{
-	//MSB is on the left so we start high and go low on the exp
-	uint8_t result = 0;
-	for (int i = bitCount - 1; i >= 0; i--)
-	{
-		if (rx_data[start_index + i] == 49)
-		{
-			result += pow(2, 7 - i);
-		}
-	}
-	return result;
-}
 
-
-void parseComs(void)
-{
-  //Coms parsing
-  //HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_14); //toggle LED for dev
-  if (rx_data[0] == 48) depthUp = 0;
-  else if (rx_data[0] == 49) depthUp = 1;
-
-  if (rx_data[1] == 48) depthDown = 0;
-  else if (rx_data[1] == 49) depthDown = 1;
-  
-	
-	forwardThrust = binaryToDecimal(2, 8);
-	turnThrust = binaryToDecimal(10, 8);
-	camUpDown = binaryToDecimal(18, 8);
-	camLeftRight = binaryToDecimal(26, 8);
-	roll = binaryToDecimal(34, 8);
-
-}
-
-void transmitData(void)
-{
-	//Data concat
-	
-	// For actual communication back to RPI (STILL USING TEST DATA)(This sprintf call works)
-	//sprintf(tx_buffer, "%u,%u,%u,%u,%u,%u,%u\n\r", degreesNorth, (uint16_t)(10*speedScalar), depthApprox, roll, pitch, yaw, (uint16_t)(10*voltageBattery));
-	
-	// For reading the i2c values on the RPI
-	//sprintf(tx_buffer, "%u,%u,%u,%u,%u,%u,%u,%u,%u\n\r", x_ang, y_ang, z_ang, x_lin, y_lin, z_lin, x_mag, y_mag, z_mag );
-
-  //sprintf(tx_buffer, "%u,%u,%u,%u,%d,%d\n\r", (uint8_t)(leftThrust*100.0), (uint8_t)(rightThrust*100.0), (uint8_t)(forThrust*100.0), (uint8_t)(backThrust*100.0), (int)(leftPropThrust*100.0), (int)(rightPropThrust*100.0));
-
-	//Read back what was received
-	sprintf(tx_buffer, "%u,%u,%u,%u,%u,%u,%u\n\r", depthUp, depthDown, forwardThrust, turnThrust, camUpDown, camLeftRight, roll);
-	
-	
-	//sprintf(tx_buffer, "TestMessage,,,,,,,,,,,,,\n\r");
-
-  HAL_UART_Transmit(&hlpuart1, (uint8_t *)tx_buffer, sizeof(tx_buffer), 10);	
-}
 
 
 /* USER CODE END 4 */

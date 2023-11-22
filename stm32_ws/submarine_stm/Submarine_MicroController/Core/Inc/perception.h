@@ -4,8 +4,8 @@
 #include <sys/types.h>
 #include "stm32l4xx_hal.h"
 
-struct envData envRead();
-struct adcData adcRead();
+struct envData envRead(uint32_t *adc_in);
+struct adcData adcRead(uint32_t *adc_in);
 struct inputData inputRead();
 
 struct __attribute__((__packed__)) adcData 

@@ -25,6 +25,16 @@ class sub_data():
 		self.ballastRight = 0
 		self.ballastLeft = 0
 		self.error = ""
+	
+	def print_data(self):
+		print("--------------------------------")
+		print("DegreesNorth: {}".format(self.degreesNorth))
+		print("forwardAccel: {}".format(self.forwardAccel))
+		print("upwardAccel: {}".format(self.upwardAccel))
+		print("batteryVoltage: {}".format(self.batteryVoltage))
+		print("ballastRight: {}".format(self.ballastRight))
+		print("ballastLeft: {}".format(self.ballastLeft))
+		print("error: {}".format(self.error))
 			
 
 class stm_send():
@@ -44,36 +54,45 @@ class stm_send():
 		self.camLeftRight = 0
 		self.roll = None
 		
-		print("HER")
-		
-	def handshake(self):
+	def handshake(self, con, stm):
 		if self.roll != None:
-			self.forwardThrust += 1
-			if self.forwardThrust > 250: 
-				self.forwardThrust = 0
-				print("HERE")
-			print(self.roll, self.forwardThrust)
-			forwardBinary = bin(self.forwardThrust).split('b')[1]
-			turnBinary = bin(self.turnThrust).split('b')[1]
-			camUpDownBinary = bin(self.camUpDown).split('b')[1]
-			camLeftRightBinary = bin(self.camLeftRight).split('b')[1]
-			rollBinary = bin(self.roll).split('b')[1]
+			print(self.roll)
+			print("-----------------------------")	
+			try:
+				forwardBinary = bin(self.forwardThrust).split('b')[1]
+				turnBinary = bin(self.turnThrust).split('b')[1]
+				camUpDownBinary = bin(self.camUpDown).split('b')[1]
+				camLeftRightBinary = bin(self.camLeftRight).split('b')[1]
+				rollBinary = bin(self.roll).split('b')[1]
 
-			bitfield = str(self.depthUp) + str(self.depthDown) + str(forwardBinary).zfill(8) + str(turnBinary).zfill(8) + str(camUpDownBinary).zfill(8) + str(camLeftRightBinary).zfill(8) + str(rollBinary).zfill(8)
+				bitfield = str(self.depthUp) + str(self.depthDown) + str(forwardBinary).zfill(8) + str(turnBinary).zfill(8) + str(camUpDownBinary).zfill(8) + str(camLeftRightBinary).zfill(8) + str(rollBinary).zfill(8)
+				
+				self.SerialObj.write(bitfield.encode()) #42 bits
+				print("Sending: " + bitfield)
+				received = str(self.SerialObj.readline().decode('ascii')).replace('\r','').replace('\n','').replace('\x00', '')
+				received_split = received.split(',')
+
+				if len(received_split) != 6: raise Exception
+				print("Received: " + str(received_split))
+				
+				con.batteryVoltage = int(received_split[0])/10
+				con.ballastRight = received_split[1]
+				con.ballastLeft = received_split[2]
+				
+				errors = []
+				if not (int(received_split[3])): errors.append("Left Driver Fault")
+				if not (int(received_split[4])): errors.append("Prop Driver Fault")
+				if not (int(received_split[5])): errors.append("Right Driver Fault")
+				if (stm.roll < 45 or stm.roll > 135): errors.append("TOO MUCH ROLL!")
+				
+				con.error = ','.join(errors)
+				
+				
+			except:
+				print("BAD DATA")
 			
-			self.SerialObj.write(bitfield.encode()) #42 bits
-			print("Sending: " + bitfield)
-			received = str(self.SerialObj.readline().decode('ascii')).replace('\r','').replace('\n','').replace('\x00', '')
-			received_split = received.split(',')
-
-			#if len(received_split) != 7: raise Exception
-			print("Received: " + str(received_split))
-
-			#con.
-
-			print("---------------------------------------")
-			print("")
-		
+			
+			
 
 class imu():
 	def __init__(self):
@@ -129,28 +148,12 @@ motion = imu()
 toController = sub_data()
 toStm = stm_send()
 
-
-
-while(True):
-	
-	#update info to send down
-	'''toStm.depthUp = 0
-	toStm.depthDown = 0
-	toStm.forwardThrust = 0
-	toStm.turnThrust = 0
-	toStm.camUpDown = 0
-	toStm.camLeftRight = 0'''
+while(True):	
 	
 	motion.measure(toController, toStm)
-	
-	print("ROLL: {}".format(toStm.roll))
-	
-	print("---------------------------------------")
-	print("")
-
-	toStm.handshake()
-
-	time.sleep(.5)
+	toStm.handshake(toController, toStm)
+	toController.print_data()
+	time.sleep(.01)
 
 
 	

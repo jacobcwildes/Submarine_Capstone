@@ -1,22 +1,22 @@
 #include "perception.h"
 
-struct envData envRead()
+struct envData envRead(uint32_t *adc_in)
 {
 	struct envData environment;
 	
-	environment.adc = adcRead();
+	environment.adc = adcRead(adc_in);
 	environment.input = inputRead();
 	
 	return environment;
 }
 
-struct adcData adcRead()
+struct adcData adcRead(uint32_t *adc_in)
 {
 	struct adcData adcInfo;
 	
-	adcInfo.batteryVoltage = 16.9;
-	adcInfo.leftBallastPosition = 0.5;
-	adcInfo.rightBallastPosition = 0.5;
+	adcInfo.batteryVoltage = adc_in[2];
+	adcInfo.leftBallastPosition = adc_in[0];
+	adcInfo.rightBallastPosition = adc_in[1];
 
 	return adcInfo;
 	
