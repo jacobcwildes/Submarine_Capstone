@@ -1,35 +1,27 @@
 #include "controller.h"
 
-#define adc_max_l 0
-#define adc_min_l 0
-#define adc_max_r 0
-#define adc_min_r 0
-
-
-
 uint8_t steps[4] = {0b1010, 0b0110, 0b0101, 0b1001};
-float depthTarget = 0;
-uint8_t step_timer = 0;
-uint8_t leftStep = 0;
-uint8_t rightStep = 0;
+
+uint8_t current_left = 0;
+uint8_t current_right = 0;
 
 
 
-struct actuator_command controller(struct goalCommand com_data, struct state s)
+struct actuator_command controller(struct goalCommand com_data, struct envData in)
 {
 	//DO PID controller
 	struct actuator_command actuate;
 	
-	actuate.s = s;
-	actuate.c = com_data;
-	propellor_control(&actuate, com_data);
-	servo_control(&actuate, com_data);
-	stepper_control(&actuate, com_data);
+	actuate.in = in;
+	actuate.com = com_data;
+	propellor_control(&actuate);
+	servo_control(&actuate);
+	stepper_control(&actuate);
 	
 	return actuate;
 }
 
-void propellor_control(struct actuator_command *act, struct goalCommand com)
+void propellor_control(struct actuator_command *act)
 {
 	float leftThrust;
 	float rightThrust;
@@ -37,132 +29,114 @@ void propellor_control(struct actuator_command *act, struct goalCommand com)
 	float backThrust;
 	
 	//Convert coms thrust vals in percentages for f,b,l,r
-  if (com.turnThrust < 128)
+  if (act->com.turnThrust < 128)
   {
-  	leftThrust = ((float)(-com.turnThrust + 128))/256.0; // 0% <-> 50% 
+  	leftThrust = ((float)(-act->com.turnThrust + 128))/256.0; // 0% <. 50% 
   	rightThrust = 0;
   }
   else
   {
   	leftThrust = 0;
-  	rightThrust = ((float)(com.turnThrust - 128))/256.0; // 0% <-> 50% 
+  	rightThrust = ((float)(act->com.turnThrust - 128))/256.0; // 0% <. 50% 
   }
   
-  if (com.forwardThrust < 128)
+  if (act->com.forwardThrust < 128)
   {
   	forThrust = 0;
-		backThrust = ((float)(-com.forwardThrust + 128))/256.0; // 0% <-> 50%
+		backThrust = ((float)(-act->com.forwardThrust + 128))/256.0; // 0% <. 50%
   }
   else
   {
-  	forThrust = ((float)(com.forwardThrust - 128))/256.0; // 0% <-> 50%
+  	forThrust = ((float)(act->com.forwardThrust - 128))/256.0; // 0% <. 50%
 		backThrust = 0;
   }
   
   //mix individual thrust values into 
-  act->rightPropThrust = leftThrust - rightThrust + forThrust - backThrust; // -100% <-> 100%
-  act->leftPropThrust = rightThrust - leftThrust + forThrust - backThrust; // -100% <-> 100%
+  act->rightPropThrust = leftThrust - rightThrust + forThrust - backThrust; // -100% <. 100%
+  act->leftPropThrust = rightThrust - leftThrust + forThrust - backThrust; // -100% <. 100%
 }
 
-void servo_control(struct actuator_command *act, struct goalCommand com)
+void servo_control(struct actuator_command *act)
 {
-	//Setup for 0.5ms <-> 2.5ms
-  act->camVerticalDuty = (0.000392 * (float)com.camUpDown) + 0.025;
-  act->camHorizontalDuty = (0.000392 * (float)com.camLeftRight) + 0.025;
+	//Setup for 0.5ms <. 2.5ms
+  act->camVerticalDuty = (0.000392 * (float)act->com.camUpDown) + 0.025;
+  act->camHorizontalDuty = (0.000392 * (float)act->com.camLeftRight) + 0.025;
 }
 
-void stepper_control(struct actuator_command *act, struct goalCommand com)
+void stepper_control(struct actuator_command *act)
 {
-	//Update stepper timer. This is set so that it cant change tooooo much
-	step_timer++;
+	int roll = ((int)act->com.roll) - 90; // -90 <. 90
+	int cw = 0;
 	
-	if (com.depthUp)
+	//calc roll correction
+	if (roll > 0) cw = fmin(roll, 30);
+	else cw = fmax(roll, -30);
+	
+	int left = cw;
+	int right = -cw;
+	
+	//add on depth
+	if (act->com.depthUp) 
 	{
-		leftStep++;
-		rightStep++;
-	}	
-	else if (com.depthDown)
+		left += 15;
+		right += 15;
+	}
+	else if (act->com.depthDown)
 	{
-		leftStep--;
-		rightStep--;
-	}	
-	
-	/*
-	//Need to get target depth first (ALWAYS KEEP TRACK OF THIS)
-	if (com.depthUp) depthTarget += 0.25;
-	else if (com.depthDown) depthTarget -=0.25;
-		
-	if (step_timer >= 10) {
-		step_timer = 0;
-	
-		uint8_t currentDepth = act->s.depthApprox;
-		
-		if (currentDepth < depthTarget) bouyancyUp(*act);
-		else if (currentDepth > depthTarget) bouyancyDown(*act);
-		
-		//check roll
-		uint8_t currentRoll = act->s.roll;
-		
-		if (currentRoll < 0) rotateCCW(*act);
-		else if (currentRoll > 0) rotateCW(*act);
-		*/
-		
-	struct stepper_instruction left;
-	struct stepper_instruction right;
-	
-	left.a_one = steps[leftStep] & 0b1000;
-	left.a_two = steps[leftStep] & 0b0100;
-	left.b_one = steps[leftStep] & 0b0010;
-	left.b_two = steps[leftStep] & 0b0001;
-	
-	right.a_one = steps[rightStep] & 0b1000;
-	right.a_two = steps[rightStep] & 0b0100;
-	right.b_one = steps[rightStep] & 0b0010;
-	right.b_two = steps[rightStep] & 0b0001;
-	
-	act->left_stepper = left;
-	act->right_stepper = right;
-	
-	
-	
-}
-
-void bouyancyUp(struct actuator_command act){
-	//This needs to check the upwards speed. If positive, do NOTHING
-	//if negative or zero, move CW
-	
-	if (act.s.env.adc.leftBallastPosition < adc_max_l && act.s.env.adc.rightBallastPosition < adc_max_r && act.s.upwardSpeed <= 0){
-		leftStep++;
-		rightStep++;
+		left -= 15;
+		right -= 15;
 	}
-}
-
-void bouyancyDown(struct actuator_command act){
-	//This needs to check the upwards speed. If negative, do NOTHING
-	//if negative or zero, move CW
 	
-	if (act.s.env.adc.leftBallastPosition > adc_min_l && act.s.env.adc.rightBallastPosition > adc_min_r && act.s.upwardSpeed >= 0){
-		leftStep--;
-		rightStep--;
-	}
-}
-
-void rotateCCW(struct actuator_command act){
-	//This needs to check the CCW roll. If positive, do NOTHING
-	//if negative or zero, move CCW
+	//turn to adc value
+	//convert [-45,45] to [30, 225]
 	
-	if (act.s.env.adc.leftBallastPosition > adc_min_l && act.s.env.adc.rightBallastPosition < adc_max_r && act.s.rollSpeed <= 0){
-		leftStep--;
-		rightStep++;
+	int left_adc = (196*left)/90 + 128;
+	int right_adc = (196*left)/90 + 128;
+	
+	//turn into step values
+	if (current_left > left_adc)
+	{	
+		//left down
+		current_left--;
+		if (current_left == -1) current_left = 3;
 	}
-}
-
-void rotateCW(struct actuator_command act){
-	//This needs to check the CW roll. If positive, do NOTHING
-	//if negative or zero, move CW
-	if (act.s.env.adc.leftBallastPosition < adc_max_l && act.s.env.adc.rightBallastPosition > adc_min_r && act.s.rollSpeed >= 0){
-		leftStep++;
-		rightStep--;
+	else if (current_left < left_adc)
+	{	
+		//left up
+		current_left++;
+		if (current_left == 4) current_left = 0;
 	}
+	
+	if (current_right > right_adc)
+	{	
+		//right down
+		current_right--;
+		if (current_right == -1) current_right = 3;
+	}
+	else if (current_left < left_adc)
+	{	
+		//right up
+		current_right++;
+		if (current_right == 4) current_right = 0;
+	}
+	
+		
+	struct stepper_instruction leftStep;
+	struct stepper_instruction rightStep;
+	
+	leftStep.a_one = steps[current_left] & 0b1000;
+	leftStep.a_two = steps[current_left] & 0b0100;
+	leftStep.b_one = steps[current_left] & 0b0010;
+	leftStep.b_two = steps[current_left] & 0b0001;
+	
+	rightStep.a_one = steps[current_right] & 0b1000;
+	rightStep.a_two = steps[current_right] & 0b0100;
+	rightStep.b_one = steps[current_right] & 0b0010;
+	rightStep.b_two = steps[current_right] & 0b0001;
+	
+	act->left_stepper = leftStep;
+	act->right_stepper = rightStep;
+	
+	
+	
 }
-

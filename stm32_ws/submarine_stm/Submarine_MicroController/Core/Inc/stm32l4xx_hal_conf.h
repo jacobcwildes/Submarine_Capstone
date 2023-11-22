@@ -205,7 +205,7 @@
   *        for possible callback identifiers defined in HAL_PPP_CallbackIDTypeDef
   *        for each PPP peripheral).
   */
-#define USE_HAL_ADC_REGISTER_CALLBACKS        1U
+#define USE_HAL_ADC_REGISTER_CALLBACKS        0U
 #define USE_HAL_CAN_REGISTER_CALLBACKS        0U
 #define USE_HAL_COMP_REGISTER_CALLBACKS       0U
 #define USE_HAL_CRYP_REGISTER_CALLBACKS       0U
@@ -217,7 +217,7 @@
 #define USE_HAL_GFXMMU_REGISTER_CALLBACKS     0U
 #define USE_HAL_HASH_REGISTER_CALLBACKS       0U
 #define USE_HAL_HCD_REGISTER_CALLBACKS        0U
-#define USE_HAL_I2C_REGISTER_CALLBACKS        1U
+#define USE_HAL_I2C_REGISTER_CALLBACKS        0U
 #define USE_HAL_IRDA_REGISTER_CALLBACKS       0U
 #define USE_HAL_LPTIM_REGISTER_CALLBACKS      0U
 #define USE_HAL_LTDC_REGISTER_CALLBACKS       0U

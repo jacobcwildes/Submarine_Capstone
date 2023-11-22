@@ -23,17 +23,13 @@ i2c = board.I2C()  # uses board.SCL and board.SDA
 # i2c = board.STEMMA_I2C()  # For using the built-in STEMMA QT connector on a microcontroller
 accel_gyro = LSM6DS(i2c)
 mag = LIS3MDL(i2c)
+
 while True:
-    try:
-        acceleration = accel_gyro.acceleration
-        gyro = accel_gyro.gyro
-        magnetic = mag.magnetic
-        print("Acceleration: X:{0:7.2f}, Y:{1:7.2f}, Z:{2:7.2f} m/s^2".format(*acceleration))
-        print("Gyro          X:{0:7.2f}, Y:{1:7.2f}, Z:{2:7.2f} rad/s".format(*gyro))
-        print("Magnetic      X:{0:7.2f}, Y:{1:7.2f}, Z:{2:7.2f} uT".format(*magnetic))
-        print("")
-        time.sleep(0.5)
-    #Sometimes IMU freaks out and cannot query if it wiggles around really fast
-    #this pass should help keep it from tanking the whole system
-    except OSError:
-        pass
+    acceleration = accel_gyro.acceleration
+    gyro = accel_gyro.gyro
+    magnetic = mag.magnetic
+    print("Acceleration: X:{0:7.2f}, Y:{1:7.2f}, Z:{2:7.2f} m/s^2".format(*acceleration))
+    print("Gyro          X:{0:7.2f}, Y:{1:7.2f}, Z:{2:7.2f} rad/s".format(*gyro))
+    print("Magnetic      X:{0:7.2f}, Y:{1:7.2f}, Z:{2:7.2f} uT".format(*magnetic))
+    print("")
+    time.sleep(0.01)

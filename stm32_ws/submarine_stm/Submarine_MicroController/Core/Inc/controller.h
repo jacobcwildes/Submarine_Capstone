@@ -1,11 +1,12 @@
 #ifndef __CONTROLLER_H
 #define __CONTROLLER_H
 
+
 #include <sys/types.h>
+#include <stdlib.h>
+#include <math.h>
 #include "planner.h"
-#include "state_estimation.h"
-
-
+#include "perception.h"
 
 struct __attribute__((__packed__)) stepper_instruction {
   uint8_t a_one;
@@ -21,17 +22,15 @@ struct __attribute__((__packed__)) actuator_command {
   float camHorizontalDuty;
   struct stepper_instruction left_stepper;
   struct stepper_instruction right_stepper;
-  struct state s;
-  struct goalCommand c;
+  struct envData in;
+  struct goalCommand com;
 };
 
-struct actuator_command controller(struct goalCommand com_data, struct state s);
-void propellor_control(struct actuator_command *act, struct goalCommand com);
-void servo_control(struct actuator_command *act, struct goalCommand com);
-void stepper_control(struct actuator_command *act, struct goalCommand com);
-void bouyancyUp(struct actuator_command act);
-void bouyancyDown(struct actuator_command act);
-void rotateCCW(struct actuator_command act);
-void rotateCW(struct actuator_command act);
+struct actuator_command controller(struct goalCommand com_data, struct envData in);
+void propellor_control(struct actuator_command *act);
+void servo_control(struct actuator_command *act);
+void stepper_control(struct actuator_command *act);
+
+
 
 #endif
