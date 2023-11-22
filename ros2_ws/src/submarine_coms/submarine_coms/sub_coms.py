@@ -16,18 +16,19 @@ import warnings
 import numpy as np
 from numpy.linalg import norm
 import numbers
+import sys
 
 from adafruit_lsm6ds.lsm6ds3 import LSM6DS3 as LSM6DS
 from adafruit_lis3mdl import LIS3MDL
 
+sys.path.insert(0, 'src/submarine_coms/submarine_coms')
 from madgwickahrs import MadgwickAHRS
 
 #In my experience importing a module from another file can be... finnicky. This
 #solution has worked every time for me
 import sys
 import os
-sys.path.insert(0, 'src/submarine_coms/submarine_coms')
-from imu import imu
+
 
 class sub_data():
 	def __init__(self):
@@ -91,8 +92,8 @@ class stm_send():
 				print("Received: " + str(received_split))
 				
 				con.batteryVoltage = int(received_split[0])/10
-				con.ballastRight = received_split[1]
-				con.ballastLeft = received_split[2]
+				con.ballastRight = int(received_split[1])
+				con.ballastLeft = int(received_split[2])
 				
 				errors = []
 				if not (int(received_split[3])): errors.append("Left Driver Fault")
@@ -154,7 +155,7 @@ class imu():
 		north = north - 30
 		if north < 0: north += 360
 			
-		con.degreesNorth = north
+		con.degreesNorth = int(north)
 		con.forwardAccel = x_accel
 		con.upwardAccel = z_accel 
 		
@@ -165,10 +166,10 @@ class Submarine(Node):
 		super().__init__('submarine_coms')
 			
 		#Command sub (UDP)
-		self.subscription = self.create_subscription(ComInfo, 'com_info', self.com_callback, qos.qos_profile_services_default)
+		self.subscription = self.create_subscription(ComInfo, 'com_info', self.com_callback, 10)
 		self.subscription
 		#Data publisher (UDP)
-		self.data_pub = self.create_publisher(DataInfo, 'data_info', qos.qos_profile_sensor_data)
+		self.data_pub = self.create_publisher(DataInfo, 'data_info', 10)
 			
 		self.motion = imu()
 		self.toController = sub_data()
@@ -183,11 +184,11 @@ class Submarine(Node):
 		self.toStm.camUpDown = command.right_toggle_ud
 		self.toStm.camLeftRight = command.right_toggle_lr
 		
-		motion.measure(toController, toStm)
-		toStm.handshake(toController)
+		self.motion.measure(self.toController, self.toStm)
+		self.toStm.handshake(self.toController)
 		
-		data_msg = toController.package_data()
-		self.data_pub.pub(data_msg)
+		data_msg = self.toController.package_data()
+		self.data_pub.publish(data_msg)
 		
 		
 
