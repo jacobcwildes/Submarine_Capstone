@@ -5,10 +5,22 @@ from message_filters import Subscriber
 import string
 from com_interfaces.msg import ComInfo
 from com_interfaces.msg import DataInfo
+from rclpy.qos import QoSProfile
 
 import serial
 import time
+import board
+import math
+from copy import copy
+import warnings
 import numpy as np
+from numpy.linalg import norm
+import numbers
+
+from adafruit_lsm6ds.lsm6ds3 import LSM6DS3 as LSM6DS
+from adafruit_lis3mdl import LIS3MDL
+
+from madgwickahrs import MadgwickAHRS
 
 #In my experience importing a module from another file can be... finnicky. This
 #solution has worked every time for me
@@ -17,6 +29,136 @@ import os
 sys.path.insert(0, 'src/submarine_coms/submarine_coms')
 from imu import imu
 
+class sub_data():
+	def __init__(self):
+		self.degreesNorth = 0
+		self.forwardAccel = 0
+		self.upwardAccel = 0
+		self.batteryVoltage = 0
+		self.ballastRight = 0
+		self.ballastLeft = 0
+		self.error = ""
+	
+	def package_data(self):
+		data = DataInfo()
+		data.degrees_north = self.degreesNorth
+		data.forward = self.forwardAccel
+		data.upward = self.upwardAccel
+		data.voltage_battery = self.batteryVoltage
+		data.ballast_left = self.ballastLeft
+		data.ballast_right = self.ballastRight
+		data.error = self.error
+		
+		return data
+			
+
+class stm_send():
+	def __init__(self):
+		
+		self.SerialObj = serial.Serial('/dev/ttyACM0')
+		self.SerialObj.baudrate = 115200  # set Baud rate to 115200
+		self.SerialObj.bytesize = 8   # Number of data bits = 8
+		self.SerialObj.parity  ='N'   # No parity
+		self.SerialObj.stopbits = 1   # Number of Stop bits = 1
+		
+		self.depthUp = 0
+		self.depthDown = 0
+		self.forwardThrust = 10
+		self.turnThrust = 0
+		self.camUpDown = 0
+		self.camLeftRight = 0
+		self.roll = None
+		
+	def handshake(self, con):
+		if self.roll != None:
+			print(self.roll)
+			print("-----------------------------")	
+			try:
+				forwardBinary = bin(self.forwardThrust).split('b')[1]
+				turnBinary = bin(self.turnThrust).split('b')[1]
+				camUpDownBinary = bin(self.camUpDown).split('b')[1]
+				camLeftRightBinary = bin(self.camLeftRight).split('b')[1]
+				rollBinary = bin(self.roll).split('b')[1]
+
+				bitfield = str(self.depthUp) + str(self.depthDown) + str(forwardBinary).zfill(8) + str(turnBinary).zfill(8) + str(camUpDownBinary).zfill(8) + str(camLeftRightBinary).zfill(8) + str(rollBinary).zfill(8)
+				
+				self.SerialObj.write(bitfield.encode()) #42 bits
+				print("Sending: " + bitfield)
+				received = str(self.SerialObj.readline().decode('ascii')).replace('\r','').replace('\n','').replace('\x00', '')
+				received_split = received.split(',')
+
+				if len(received_split) != 6: raise Exception
+				print("Received: " + str(received_split))
+				
+				con.batteryVoltage = int(received_split[0])/10
+				con.ballastRight = received_split[1]
+				con.ballastLeft = received_split[2]
+				
+				errors = []
+				if not (int(received_split[3])): errors.append("Left Driver Fault")
+				if not (int(received_split[4])): errors.append("Prop Driver Fault")
+				if not (int(received_split[5])): errors.append("Right Driver Fault")
+				if (self.roll < 45 or self.roll > 135): errors.append("TOO MUCH ROLL!")
+				
+				con.error = ','.join(errors)
+				
+				
+			except:
+				print("BAD DATA")
+			
+			
+			
+
+class imu():
+	def __init__(self):
+		self.i2c = board.I2C() 
+		self.accel_gyro = LSM6DS(self.i2c)
+		self.mag = LIS3MDL(self.i2c)
+		
+		self.x_bias = 0
+		self.z_bias = 0
+		self.bias_checks = 50
+		self.x_sum = 0
+		self.z_sum = 0
+		self.imu_fusion = MadgwickAHRS()
+		
+		for current_check in range(self.bias_checks):
+			accel = self.accel_gyro.acceleration
+			x_accel = accel[0]
+			z_accel = accel[2]
+			self.x_sum += x_accel
+			self.z_sum += z_accel
+			time.sleep(0.02)
+		self.x_bias = self.x_sum / (self.bias_checks)
+		self.z_bias = self.z_sum / (self.bias_checks)
+	
+	def measure(self, con, sub):
+		accel = self.accel_gyro.acceleration
+		gyro = self.accel_gyro.gyro
+		magnet = self.mag.magnetic
+		y_mag = magnet[1]
+		x_mag = magnet[0]
+		x_accel = accel[0] - self.x_bias
+		z_accel = -accel[2] + self.z_bias
+		
+		self.imu_fusion.update_imu(gyro, accel)
+			
+		roll, pitch, yaw = self.imu_fusion.quaternion.to_euler123()
+		
+		roll = int(roll*(180/math.pi))
+		if abs(roll) > 90: roll *= (90/abs(roll)) # -90 <-> 90
+		sub.roll = roll + 90 # 0 <-> 180
+			
+		north = math.atan2(y_mag,x_mag)*(180/math.pi)
+		if north < 0: north += 360
+		north = north - 30
+		if north < 0: north += 360
+			
+		con.degreesNorth = north
+		con.forwardAccel = x_accel
+		con.upwardAccel = z_accel 
+		
+		
 class Submarine(Node):
 
     def __init__(self):
@@ -26,116 +168,29 @@ class Submarine(Node):
         self.subscription = self.create_subscription(ComInfo, 'com_info', self.com_callback, 10)
         self.subscription
         #Data publisher (UDP)
-        self.data_pub = self.create_publisher(DataInfo, 'data_info', 10)
-        self.timer = self.create_timer(1, self.data_callback)
+        qos = QoSProfile(depth=10)
+        self.data_pub = self.create_publisher(DataInfo, 'data_info', qos)
         
-        self.serialport = serial.Serial('/dev/ttyACM0')
-        self.serialport.baudrate = 115200  # set Baud rate to 115200
-        self.serialport.bytesize = 8   # Number of data bits = 8
-        self.serialport.parity  ='N'   # No parity
-        self.serialport.stopbits = 1   # Number of Stop bits = 1
-        
-        self.dataReceived = False
-
-        #COMS
-        self.depthUp = None
-        self.depthDown = None
-        self.captureImage = None
-        self.forwardThrust = None
-        self.turnThrust = None
-        self.camUpDown = None
-        self.camLeftRight = None
-        self.forwardBinary = None
-        self.turnBinary = None
-        self.camUpDownBinary = None
-        self.camLeftRightBinary = None
-        self.bitfield = None
-
-        #DATA
-        self.degreesNorth = None
-        self.speedScalar = None
-        self.depthApprox = None
-        self.roll = None
-        self.pitch = None
-        self.yaw = None
-        self.voltageBattery = None
-        self.acceleration = None
-        self.gyro = None
-        self.magnetic = None
-        
-
-
-    def data_callback(self):
-        if self.dataReceived:
-            print("IN CALLBACK")
-            msg = DataInfo()
-            msg.degrees_north = int(self.degreesNorth)
-            msg.speed_scalar = float(self.speedScalar)
-            msg.depth_approx = int(self.depthApprox)
-            msg.roll = int(self.roll)
-            msg.pitch = int(self.pitch)
-            msg.yaw = int(self.yaw)
-            msg.voltage_battery = float(self.voltageBattery)
-
-            self.data_pub.publish(msg)
-            self.get_logger().info('Publishing: ')
+        self.motion = imu()
+		self.toController = sub_data()
+		self.toStm = stm_send()
         
     def com_callback(self, command):
-        try:
-            self.depthUp = command.sub_up
-            self.depthDown = command.sub_down
-            self.captureImage = command.screenshot
-            self.forwardThrust = command.left_toggle_ud
-            self.turnThrust = command.left_toggle_lr
-            self.camUpDown = command.right_toggle_ud
-            self.camLeftRight = command.right_toggle_lr    
-
-            self.forwardBinary = bin(self.forwardThrust).split('b')[1]
-            self.turnBinary = bin(self.turnThrust).split('b')[1]
-            self.camUpDownBinary = bin(self.camUpDown).split('b')[1]
-            self.camLeftRightBinary = bin(self.camLeftRight).split('b')[1]
-				
-            self.bitfield = str(self.depthUp) + str(self.depthDown) + str(self.captureImage) + str(self.forwardBinary).zfill(8) + str(self.turnBinary).zfill(8) + str(self.camUpDownBinary).zfill(8) + str(self.camLeftRightBinary).zfill(8)
-
-            print(str(self.depthUp))
-            print(str(self.depthDown))
-            print(str(self.captureImage))
-            print(self.forwardThrust)
-            print(self.turnThrust)
-            print(self.camUpDown)
-            print(self.camLeftRight)
-
-            self.serialport.write(self.bitfield.encode()) #35 bits
-            print("Sending: " + self.bitfield)
-            received = self.serialport.readline().decode('ascii').strip().strip('\x00')
-            print("Received: " + received)
-
-            received_split = received.split(',')
-        
-            print("DegreesNorth: " + received_split[0])
-            print("SpeedScalar: " + str(int(received_split[1])/10))
-            print("DepthApprox: " + received_split[2])
-            print("Roll: " + received_split[3])
-            print("Pitch: " + received_split[4])
-            print("Yaw: " + received_split[5])
-            print("Voltage: " + str(int(received_split[6])/10))
-            print("---------------------------------------")
-            print("")
-            
-            #These variables will need to be broken down later, Dyllon is the mastermind behind
-            #how he wants these to look, so I put base functionality in
-            self.acceleration, self.gyro, self.magnetic = imu()
-            self.degreesNorth = int(received_split[0])
-            self.speedScalar = float(received_split[1])/10.0
-            self.depthApprox = int(received_split[2])
-            self.roll = int(received_split[3])
-            self.pitch = int(received_split[4])
-            self.yaw = int(received_split[5])
-            self.voltageBattery = float(received_split[6])/10.0
-        
-            self.dataReceived = True
-        except:
-            print("UH OH")    
+                
+        self.toStm.depthUp = command.sub_up
+		self.toStm.depthDown = command.sub_down
+		self.toStm.forwardThrust = command.left_toggle_ud
+		self.toStm.turnThrust = command.left_toggle_lr
+		self.toStm.camUpDown = command.right_toggle_ud
+		self.toStm.camLeftRight = command.right_toggle_lr
+		
+		motion.measure(toController, toStm)
+		toStm.handshake(toController)
+		
+		data_msg = toController.package_data()
+		self.data_pub.pub(data_msg)
+		
+		
 
 def main(args=None):
     rclpy.init(args=args)

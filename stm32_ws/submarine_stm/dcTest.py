@@ -54,7 +54,7 @@ class stm_send():
 		self.camLeftRight = 0
 		self.roll = None
 		
-	def handshake(self, con, stm):
+	def handshake(self, con):
 		if self.roll != None:
 			print(self.roll)
 			print("-----------------------------")	
@@ -83,7 +83,7 @@ class stm_send():
 				if not (int(received_split[3])): errors.append("Left Driver Fault")
 				if not (int(received_split[4])): errors.append("Prop Driver Fault")
 				if not (int(received_split[5])): errors.append("Right Driver Fault")
-				if (stm.roll < 45 or stm.roll > 135): errors.append("TOO MUCH ROLL!")
+				if (self.roll < 45 or self.roll > 135): errors.append("TOO MUCH ROLL!")
 				
 				con.error = ','.join(errors)
 				
