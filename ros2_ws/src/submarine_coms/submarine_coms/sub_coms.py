@@ -5,7 +5,7 @@ from message_filters import Subscriber
 import string
 from com_interfaces.msg import ComInfo
 from com_interfaces.msg import DataInfo
-from rclpy.qos import QoSProfile
+from rclpy import qos
 
 import serial
 import time
@@ -161,23 +161,22 @@ class imu():
 		
 class Submarine(Node):
 
-    def __init__(self):
-        super().__init__('submarine_coms')
-        
-        #Command sub (UDP)       
-        self.subscription = self.create_subscription(ComInfo, 'com_info', self.com_callback, 10)
-        self.subscription
-        #Data publisher (UDP)
-        qos = QoSProfile(depth=10)
-        self.data_pub = self.create_publisher(DataInfo, 'data_info', qos)
-        
-        self.motion = imu()
+	def __init__(self):
+		super().__init__('submarine_coms')
+			
+		#Command sub (UDP)
+		self.subscription = self.create_subscription(ComInfo, 'com_info', self.com_callback, qos.qos_profile_services_default)
+		self.subscription
+		#Data publisher (UDP)
+		self.data_pub = self.create_publisher(DataInfo, 'data_info', qos.qos_profile_sensor_data)
+			
+		self.motion = imu()
 		self.toController = sub_data()
 		self.toStm = stm_send()
-        
-    def com_callback(self, command):
-                
-        self.toStm.depthUp = command.sub_up
+				
+	def com_callback(self, command):
+			
+		self.toStm.depthUp = command.sub_up
 		self.toStm.depthDown = command.sub_down
 		self.toStm.forwardThrust = command.left_toggle_ud
 		self.toStm.turnThrust = command.left_toggle_lr
@@ -193,10 +192,10 @@ class Submarine(Node):
 		
 
 def main(args=None):
-    rclpy.init(args=args)
-    sub_obj = Submarine()
-    rclpy.spin(sub_obj)
-    rclpy.shutdown()
-    
+	rclpy.init(args=args)
+	sub_obj = Submarine()
+	rclpy.spin(sub_obj)
+	rclpy.shutdown()
+		
 if __name__ == '__main__':
-    main()
+	main()
