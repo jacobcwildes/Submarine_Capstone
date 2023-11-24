@@ -8,11 +8,12 @@ def generate_launch_description():
             executable="sub_coms"
         ),
         Node(
-            package="imagetools",
+            package="image_tools",
             executable="cam2image",
-            remappings=[('/image', '/camera/image')]
+            remappings=[('/image', '/camera/image')],
             arguments=[( 'device_id', '0'),
                        ('width', '640'),
                        ('height', '480'),
                        ('freq', '30')]
-    ])
+        )
+])
