@@ -47,6 +47,8 @@ To actually download/install, follow these steps:
 
 As per usual, it is never a super easy process to set anything up. To flash the Raspberry Pi Jacob opted to use the official [Raspberry Pi Imager](https://www.raspberrypi.com/software/). This tool allows for easy flashing of SD cards. However, when perusing the options to install the Ubuntu environment, as of the date of flashing (7/23), there was no 64-bit Ubuntu 20.04.5 LTS desktop option. The only option was a server version. Without much other option, the server option works as a good enough base. In Jacob's experience, even if a Wi-Fi setting is given in the imager, it still fails to find a network connection when the server is booted (note that the server version is only a command line). 
 
+*NOTE*: For easiest plug and play ability, use the username "controller" for the controller and "ubuntu" for the submarine. If these are not followed, the systemd files will have to be modified so that the absolute paths line up. Systemd does not yet have access to the $USER environment variable so it cannot be flexible unfortunately.
+
 In order to solve these networking woes, we need to modify our netplan file. This can be done by running 
 ```sudoedit /etc/netplan/<filename>.yaml``` 
 where "filename" is the first entry that shows up when you hit tab a couple times. In Jacob's case it was 50-cloud-init.yaml, though your mileage may vary. 
@@ -54,21 +56,32 @@ Once inside the document, you will want to paste the following into it:
 ```bash
 
 network:
+    version: 2
+    renderer: networkd
     ethernets:
         eth0:
-            dhcp4: true
-            optional: true
+            dhcp4: false
+            critical: true #Tell netplan this is important and should be done early in setup
             addresses:
                 - <your_desired_address>/24
     version: 2
     wifis:
-        renderer: networkd
         wlan0:
+            optional: true
             access-points:
                 <Wi-Fi_name>:
                     password: <your_password>
             dhcp4: true
-            optional: true
+            dhcp4-overrides:
+                use-dns: false
+            critical: true #Tell netplan this is important and should be done early in setup
+            nameservers:
+                addresses: [<Your ISP DNS here>] #Note this changes per ISP, can be easily looked up. Google also has development DNSes as well at 8.8.8.8 and 8.8.4.4
+            routes:
+                - to: 0.0.0.0/0 #All possible IPv4 addresses. Wildcard route for any unmatched traffic 
+                  via: 192.168.1.1 #Gateway IP Address
+                  metric: 100 #Give a priority. Lower metric means higher priority
+
 
 ```
 "your_desired_address> should be something like 192.168.1.X, but it can be whatever you like. This makes it so when we attach both Pis together, they have a static IP and can immediately talk to each other. "Wi-Fi_name" is the name of your wireless network. "your_password" is the password of your wireless network. 
@@ -90,6 +103,8 @@ sudo apt update && sudo apt upgrade -y
 sudo apt install sudo apt install ubuntu-desktop -y && sudo reboot
 ```
 Once the desktop is installed, you will be ready to download/run the nodes!
+
+NOTICE: If you install SLiM, the boot process will be anywhere from 4-5 seconds faster. This also poses a risk of interfering with netplan since the GUI will also try to interface with wireless networks. Should you have installed SLiM, use the GUI to connect to Wi-Fi and comment out the wlan0 section of the netplan.
 
 Note: This must be done twice, once for each Pi. Make very sure that the designated IP address for the eth0 port is not the same on both Pis! It absolutely will not work if both Pis have the same. 
 
@@ -230,6 +245,52 @@ BINARY_PATH will be filled in soon, BOARD_NAME is the name of the board when it 
 If all worked well, the board will be successfully flashed!
 
 Thankfully, once a board is flashed it stays flashed. Once the board is powered, it will immediately begin whatever program is on it.
+
+## Setting up ROS2 to run on boot
+This step took a huge amount of debug. Crontab does not play well with ROS2, so Jacob had to opt for systemd instead. Within the Submarine_Capstone/ros2_ws/Netplan_Init directory, there are four netplan service files. Two for the submarine, two for the controller. These must both be copied to the ```/etc/systemd/system/``` directory. To be clear, submarine service files go in the submarine Pi systemd directory, and the controller files go in the controller Pi systemd directory.
+
+_*NOTE*_ If the username convention was not followed at the beginning, you will need to go into each of the four service files and change everywhere it says "controller" or "ubuntu" with your respective username otherwise the pathing will NOT work.
+
+1) Copy the files:
+```bash
+cd Submarine_Capstone/ros2_ws/Netplan_Init && sudo cp <one_of_four.service> /etc/systemd/system/
+```
+
+2) Enable the systemd services:
+```bash
+sudo systemctl enable <one_of_four.service>
+```
+
+3) Start the systemd services:
+```bash
+sudo systemctl start <one_of_four.service>
+```
+
+4) Check the service status:
+```bash
+sudo systemctl status <one_of_four.service>
+```
+
+5) Change permissions for the init scripts. This is potentially pretty security breaking, but after setup these pis should never see the web again, so a risk that is acceptable
+```bash
+sudo visudo
+```
+Add the following lines to the ```User privilege specification``` section:
+```bash
+<username> ALL=(ALL) NOPASSWD: /home/$USER/Submarine_Capstone/ros2_ws/Netplan_Init/netplan_init.sh
+<username> ALL=(ALL) NOPASSWD: ALL
+<username> ALL=(ALL) NOPASSWD: /usr/sbin/netplan apply, /bin/ping
+<username> ALL=(ALL) NOPASSWD: /usr/sbin/netplan generate
+<username> ALL=(ALL) NOPASSWD: /bin/systemctl start netplan-ovs-cleanup.service, /bin/systemctl stop netplan-ovs-cleanup.service
+```
+ALL=(ALL) In this sudoers file grants all users the ability to execute any command as any user or group using ```sudo``` without a password. Again, huge security risk but since there will only be one account on these devices which after setup will not be on a network, this risk is acceptable.
+
+6) Enable the following to make sure that networkd will operate
+```bash
+sudo systemctl enable systemd-networkd
+sudo systemctl enable systemd-resolved
+```
+Remember! These steps must be done twice, once for the controller, once for the submarine!
 
 ## Docker
 If these installation steps sound gross, no sweat! Jacob has made a docker image which is able to run on just about any 64 bit version of Linux. MacOS and Windows may be compatible, but are untested. In order to use the provided images, do the following:
