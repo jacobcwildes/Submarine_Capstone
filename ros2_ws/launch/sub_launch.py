@@ -15,4 +15,5 @@ def generate_launch_description():
                        ('width', '640'),
                        ('height', '480'),
                        ('freq', '30')]
+        )
     ])
