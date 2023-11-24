@@ -6,6 +6,12 @@
 ip_address_pi1="192.168.1.69"
 ip_address_pi2="192.168.1.70"
 
+#Function to apply and generate netplan
+apply_netplan(){
+    /usr/sbin/netplan generate
+    /usr/sbin/netplan apply
+}
+
 #Loop until Pis can ping each other
 
 while : 
@@ -16,11 +22,8 @@ do
     else
         echo "Pis unable to ping, retrying in 5s"
         sleep 5 #Wait 5 seconds
-        #Generate netplan config
-        sudo netplan generate
-
-        #Apply netplan config
-        sudo netplan apply    
+        #Generate and apply netplan config
+         apply_netplan
     fi
 done
 
