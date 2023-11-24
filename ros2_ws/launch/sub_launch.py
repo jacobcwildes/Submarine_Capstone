@@ -16,4 +16,8 @@ def generate_launch_description():
                        ('height', '480'),
                        ('freq', '30')]
         )
+<<<<<<< HEAD
 ])
+=======
+    ])
+>>>>>>> 851654c63e455defcc5edffaa6d815c6028ce472
