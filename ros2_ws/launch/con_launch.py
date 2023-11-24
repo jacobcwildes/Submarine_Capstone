@@ -6,11 +6,13 @@ def generate_launch_description():
         Node(
             package="controller_gui",
             executable="con_gui",
-            output="screen"
+            output="screen",
+            arguments=["--ros-args", "--disable-external-lib-logs"]
         ),
         Node(
             package="controller_publisher",
-            executable="con_pub"
+            executable="con_pub",
+            arguments=["--ros-args", "--disable-external-lib-logs"]
         )
     ])
             

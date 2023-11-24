@@ -1,6 +1,6 @@
 #!/bin/bash
 
-#This is in place to ensure that even if timing is not perfect on boot, the ethernet may still work for the controller
+#This is in place to ensure that even if timing is not perfect on boot, the ethernet may still work for the sub
 
 #Define IP addresses of both Pis
 ip_address_pi1="192.168.1.69"
@@ -18,10 +18,7 @@ while :
 do
     if ping -c 1 -W 1 "$ip_address_pi1" && ping -c 1 -W 1 "$ip_address_pi2"; then
         echo "Both Pis can ping!" 
-        #source /home/controller/Submarine_Capstone/ros2_ws/install/setup.bash
-        #ros2 launch controller_gui con_launch.py
-        export DISPLAY=:0
-        /home/controller/Submarine_Capstone/start/controller_start.sh
+       /home/ubuntu/Submarine_Capstone/start/sub_start.sh
         exit 0
     else
         echo "Pis unable to ping, retrying in 5s" 

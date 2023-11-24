@@ -30,7 +30,7 @@ from datetime import datetime
 #solution has worked every time for me
 import sys
 import os
-sys.path.insert(0, 'src/controller_gui/controller_gui')
+sys.path.insert(0, '/home/controller/Submarine_Capstone/ros2_ws/src/controller_gui/controller_gui/')
 from overlay import overlay
 
 import RPi.GPIO as gpio
@@ -61,6 +61,10 @@ class GUI(Node):
         #Tkinter (GUI)
         self.root = tk.Tk()
         self.root.title("Submarine View")
+        
+        #Force the environment variable to override if necessary
+        if os.printenviron.get('DISPLAY', '') == '':
+            os.environ.__setitem__('DISPLAY', ':0.0')
         
         #Make window fullscreen
         self.root.attributes('-fullscreen', True)
