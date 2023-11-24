@@ -8,6 +8,7 @@ ip_address_pi2="192.168.1.70"
 
 #Function to apply and generate netplan
 apply_netplan(){
+    #Redirect stderr and file descriptor to the same place
     sudo /usr/sbin/netplan generate >> /tmp/netplan_generate.log 2>&1
     sudo /usr/sbin/netplan apply >> /tmp/netplan_apply.log  2>&1
 }
