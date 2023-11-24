@@ -8,8 +8,8 @@ ip_address_pi2="192.168.1.70"
 
 #Function to apply and generate netplan
 apply_netplan(){
-    sudo /usr/sbin/netplan generate >> /tmp/netplan_generate.log 2>&1 
-    sudo /usr/sbin/netplan apply >> /tmp/netplan_apply.log 2>&1 
+    sudo /usr/sbin/netplan generate >> /tmp/netplan_generate.log 2>&1
+    sudo /usr/sbin/netplan apply >> /tmp/netplan_apply.log  2>&1
 }
 
 #Loop until Pis can ping each other
@@ -18,14 +18,10 @@ while :
 do
     if ping -c 1 -W 1 "$ip_address_pi1" && ping -c 1 -W 1 "$ip_address_pi2"; then
         echo "Both Pis can ping!" 
-        #source /home/controller/Submarine_Capstone/ros2_ws/install/setup.bash
-        #ros2 launch controller_gui con_launch.py
-        export DISPLAY=:0
-        /home/controller/Submarine_Capstone/start/controller_start.sh
         exit 0
     else
         echo "Pis unable to ping, retrying in 5s" 
-        sleep 5 #Wait 5 seconds
+        sleep 10 #Wait 10 seconds
         #Generate and apply netplan config
          apply_netplan
     fi

@@ -18,7 +18,6 @@ while :
 do
     if ping -c 1 -W 1 "$ip_address_pi1" && ping -c 1 -W 1 "$ip_address_pi2"; then
         echo "Both Pis can ping!" 
-       /home/ubuntu/Submarine_Capstone/start/sub_start.sh
         exit 0
     else
         echo "Pis unable to ping, retrying in 5s" 

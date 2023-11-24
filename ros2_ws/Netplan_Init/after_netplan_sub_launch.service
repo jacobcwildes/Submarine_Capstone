@@ -1,0 +1,10 @@
+[Unit]
+Description=Run ROS2 controller launch after netplan is applied
+Requires=run-after-boot-sub.service
+After=run-after-boot-sub.service
+
+[Service]
+ExecStart=/home/ubuntu/Submarine_Capstone/start/sub_start.sh
+
+[Install]
+WantedBy=multi-user.target
