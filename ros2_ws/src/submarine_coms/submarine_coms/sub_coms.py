@@ -21,7 +21,7 @@ import sys
 from adafruit_lsm6ds.lsm6ds3 import LSM6DS3 as LSM6DS
 from adafruit_lis3mdl import LIS3MDL
 
-sys.path.insert(0, 'src/submarine_coms/submarine_coms')
+sys.path.insert(0, '/home/ubuntu/Submarine_Capstone/ros2_ws/src/submarine_coms/submarine_coms')
 from madgwickahrs import MadgwickAHRS
 
 #In my experience importing a module from another file can be... finnicky. This

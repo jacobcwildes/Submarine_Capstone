@@ -5,7 +5,8 @@ def generate_launch_description():
     return LaunchDescription([
         Node(
             package="submarine_coms",
-            executable="sub_coms"
+            executable="sub_coms",
+            arguments=["--ros-args", "--disable-external-lib-logs"]
         ),
         Node(
             package="image_tools",
@@ -14,7 +15,8 @@ def generate_launch_description():
             arguments=[( 'device_id', '0'),
                        ('width', '640'),
                        ('height', '480'),
-                       ('freq', '30')]
+                       ('freq', '30'),
+                       ("--ros-args", "--disable-external-lib-logs")]
         )
 ])
 

@@ -1,9 +1,13 @@
 [Unit]
-Description=Run ROS2 controller launch after netplan is applied
+Description=Run ROS2 submarine launch after netplan is applied
 Requires=run-after-boot-sub.service
 After=run-after-boot-sub.service
 
 [Service]
+User=ubuntu
+Environment="LD_LIBRARY_PATH=/home/ubuntu/Submarine_Capstone/ros2_ws/install/submarine_coms/lib:/opt/ros/foxy/lib"
+Environment="PYTHONPATH=/home/ubuntu/Submarine_Capstone/ros2_ws/install/submarine_coms/lib/python3.8/site-packages:/opt/ros/foxy/lib/python3.8/site-packages"
+Environment="AMENT_PREFIX_PATH=/home/ubuntu/Submarine_Capstone/ros2_ws/install/setup.bash:/opt/ros/foxy"
 ExecStart=/home/ubuntu/Submarine_Capstone/start/sub_start.sh
 
 [Install]
