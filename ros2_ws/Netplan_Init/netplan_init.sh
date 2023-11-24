@@ -17,10 +17,10 @@ apply_netplan(){
 while : 
 do
     if ping -c 1 -W 1 "$ip_address_pi1" && ping -c 1 -W 1 "$ip_address_pi2"; then
-        echo "Both Pis can ping!" >> /tmp/ping_status.log
-        break
+        echo "Both Pis can ping!" 
+        exit 0
     else
-        echo "Pis unable to ping, retrying in 5s" >> /tmp/ping_status.log
+        echo "Pis unable to ping, retrying in 5s" 
         sleep 5 #Wait 5 seconds
         #Generate and apply netplan config
          apply_netplan

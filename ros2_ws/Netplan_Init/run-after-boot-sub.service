@@ -1,0 +1,9 @@
+[Unit]
+Description=Run script after boot
+
+[Service]
+Type=oneshot
+ExecStart=/home/ubuntu/Submarine_Capstone/ros2_ws/Netplan_Init/netplan_init.sh
+
+[Install]
+WantedBy=multi-user.target
