@@ -62,9 +62,11 @@ class GUI(Node):
         self.root = tk.Tk()
         self.root.title("Submarine View")
         
+        '''
         #Force the environment variable to override if necessary
         if os.printenviron.get('DISPLAY', '') == '':
             os.environ.__setitem__('DISPLAY', ':0.0')
+        '''
         
         #Make window fullscreen
         self.root.attributes('-fullscreen', True)
