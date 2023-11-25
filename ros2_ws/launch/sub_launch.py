@@ -16,7 +16,7 @@ def generate_launch_description():
             arguments=[( 'device_id', '0'),
                        ('width', '640'),
                        ('height', '480'),
-                       ('frequency', '1'),
+                       ('frequency', '15'),
                        ('reliability', 'qos.qos_profile_sensor_data'), 
                        ("--ros-args", "--disable-external-lib-logs")]#,
             #qos_profile=qos.qos_profile_sensor_data
