@@ -43,13 +43,13 @@ class GUI(Node):
         super().__init__('controller_gui')
         
         #Make an object that holds subscription info for the cam (UDP) 
-        self.cam_sub = self.create_subscription(Image, 'camera/image', self.cam_callback, 10)#qos.qos_profile_sensor_data)
+        self.cam_sub = self.create_subscription(Image, 'camera/image', self.cam_callback, qos.qos_profile_sensor_data) #10
 
         #Data subscription will go here (UDP)
-        self.data_sub = self.create_subscription(DataInfo, 'data_info', self.data_callback, 10)#qos.qos_profile_sensor_data)
+        self.data_sub = self.create_subscription(DataInfo, 'data_info', self.data_callback, qos.qos_profile_sensor_data) #10
         
         #Command subscription goes here (for screenshots) UDP
-        self.screenshot_sub = self.create_subscription(ComInfo, 'com_info', self.screenshot_callback, 10)#qos.qos_profile_sensor_data)
+        self.screenshot_sub = self.create_subscription(ComInfo, 'com_info', self.screenshot_callback, qos.qos_profile_sensor_data) #10
         
         #Previous time (for FPS calc)
         self.previous_time = 0

@@ -1,5 +1,6 @@
 from launch import LaunchDescription
 from launch_ros.actions import Node
+from rclpy import qos
 
 def generate_launch_description():
     return LaunchDescription([
@@ -15,8 +16,10 @@ def generate_launch_description():
             arguments=[( 'device_id', '0'),
                        ('width', '640'),
                        ('height', '480'),
-                       ('freq', '30'),
-                       ("--ros-args", "--disable-external-lib-logs")]
+                       ('frequency', '1'),
+                       ('reliability', 'qos.qos_profile_sensor_data'), 
+                       ("--ros-args", "--disable-external-lib-logs")]#,
+            #qos_profile=qos.qos_profile_sensor_data
         )
 ])
 
