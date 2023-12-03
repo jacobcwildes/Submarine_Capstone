@@ -1,0 +1,56 @@
+Added Component: Designator=P1(HDR1X4)
+Added Component: Designator=P2(HDR1X4)
+Added Component: Designator=P3(HDR1X2)
+Added Component: Designator=P4(HDR1X3)
+Added Component: Designator=P5(HDR1X2)
+Added Component: Designator=P6(HDR1X2)
+Added Component: Designator=P7(HDR1X2)
+Added Component: Designator=P8(HDR1X2)
+Added Component: Designator=P9(HDR1X2)
+Added Component: Designator=U1(ST_NUCLEO-F401RE)
+Added Pin To Net: NetName=3V3 Pin=P1-3
+Added Pin To Net: NetName=3V3 Pin=P2-3
+Added Pin To Net: NetName=3V3 Pin=P4-2
+Added Pin To Net: NetName=3V3 Pin=P6-2
+Added Pin To Net: NetName=3V3 Pin=U1-CN7_16
+Added Net: Name=3V3
+Added Pin To Net: NetName=ASC Pin=P3-2
+Added Pin To Net: NetName=ASC Pin=P4-1
+Added Net: Name=ASC
+Added Pin To Net: NetName=DESC Pin=P4-3
+Added Pin To Net: NetName=DESC Pin=P5-1
+Added Net: Name=DESC
+Added Pin To Net: NetName=GND Pin=P1-4
+Added Pin To Net: NetName=GND Pin=P2-4
+Added Pin To Net: NetName=GND Pin=P3-1
+Added Pin To Net: NetName=GND Pin=P5-2
+Added Pin To Net: NetName=GND Pin=P7-2
+Added Pin To Net: NetName=GND Pin=P9-2
+Added Pin To Net: NetName=GND Pin=U1-CN7_22
+Added Net: Name=GND
+Added Pin To Net: NetName=LED Pin=P8-1
+Added Net: Name=LED
+Added Pin To Net: NetName=LJ_LR Pin=P1-2
+Added Net: Name=LJ_LR
+Added Pin To Net: NetName=LJ_UD Pin=P1-1
+Added Net: Name=LJ_UD
+Added Pin To Net: NetName=NetP8_2 Pin=P8-2
+Added Pin To Net: NetName=NetP8_2 Pin=P9-1
+Added Net: Name=NetP8_2
+Added Pin To Net: NetName=RJ_LR Pin=P2-2
+Added Net: Name=RJ_LR
+Added Pin To Net: NetName=RJ_UD Pin=P2-1
+Added Net: Name=RJ_UD
+Added Pin To Net: NetName=SCREENSHOT Pin=P6-1
+Added Pin To Net: NetName=SCREENSHOT Pin=P7-1
+Added Net: Name=SCREENSHOT
+Added Member To Class: ClassName=Remote_Controller Member=Component P1 Header 4
+Added Member To Class: ClassName=Remote_Controller Member=Component P2 Header 4
+Added Member To Class: ClassName=Remote_Controller Member=Component P3 PullDown
+Added Member To Class: ClassName=Remote_Controller Member=Component P4 Switch
+Added Member To Class: ClassName=Remote_Controller Member=Component P5 PullDown
+Added Member To Class: ClassName=Remote_Controller Member=Component P6 Screenshot
+Added Member To Class: ClassName=Remote_Controller Member=Component P7 PullDown
+Added Member To Class: ClassName=Remote_Controller Member=Component P8 PWR LED
+Added Member To Class: ClassName=Remote_Controller Member=Component P9 Current Limiter
+Added Member To Class: ClassName=Remote_Controller Member=Component U1 NUCLEO-F401RE

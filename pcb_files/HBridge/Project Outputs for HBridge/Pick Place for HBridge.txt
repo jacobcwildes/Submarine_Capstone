@@ -1,0 +1,53 @@
+Designator Footprint               Mid X         Mid Y         Ref X         Ref Y         Pad X         Pad Y TB      Rotation Comment        
+
+C1         C1210                 3858mil       1883mil       3858mil       1883mil       3858mil    1936.15mil  T        270.00 Cap            
+C2         C1210                 3811mil       1415mil       3811mil       1415mil       3811mil    1361.85mil  T         90.00 Cap            
+C3         C1210                 3932mil       1415mil       3932mil       1415mil       3932mil    1468.15mil  T        270.00 Cap            
+C4         C1210                 4248mil       1380mil       4248mil       1380mil    4194.85mil       1380mil  T        360.00 Cap            
+C5         C1210                 4178mil       1922mil       4178mil       1922mil    4124.85mil       1922mil  T        360.00 Cap            
+C6         C1210                 3866mil       3676mil       3866mil       3676mil       3866mil    3729.15mil  T        270.00 Cap            
+C7         C1210                 3971mil       3221mil       3971mil       3221mil       3971mil    3167.85mil  T         90.00 Cap            
+C8         C1210                 3849mil       3221mil       3849mil       3221mil       3849mil    3274.15mil  T        270.00 Cap            
+C9         C1210                 4253mil       3184mil       4253mil       3184mil    4199.85mil       3184mil  T          0.00 Cap            
+C10        C1210                 4185mil       3720mil       4185mil       3720mil    4131.85mil       3720mil  T          0.00 Cap            
+C11        C1210                 3863mil       2793mil       3863mil       2793mil       3863mil    2846.15mil  T        270.00 Cap            
+C12        C1210                 3842mil       2320mil       3842mil       2320mil       3842mil    2266.85mil  T         90.00 Cap            
+C13        C1210                 3960mil       2320mil       3960mil       2320mil       3960mil    2373.15mil  T        270.00 Cap            
+C14        C1210                 4253mil       2280mil       4253mil       2280mil    4199.85mil       2280mil  T          0.00 Cap            
+C15        C1210                 4177mil       2819mil       4177mil       2819mil    4123.85mil       2819mil  T        360.00 Cap            
+J1         PHOENIX_1935776       4816mil       3645mil       4816mil       3645mil       4816mil   3743.425mil  B         90.00 StepperLeft A  
+J2         PHOENIX_1935776       3308mil       2558mil       3308mil       2558mil       3308mil   2459.575mil  T        270.00 Power Input    
+J3         PHOENIX_1935776       4816mil       3194mil       4816mil       3194mil       4816mil   3292.425mil  B         90.00 StepperLeft B  
+J4         PHOENIX_1935776       4815mil       2740mil       4815mil       2740mil       4815mil   2838.425mil  B         90.00 StepperRight A 
+J5         PHOENIX_1935776       4817mil       2288mil       4817mil       2288mil       4817mil   2386.425mil  B         90.00 StepperRight B 
+J6         PHOENIX_1935776       4816mil       1838mil       4816mil       1838mil       4816mil   1936.425mil  B         90.00 Prop A         
+J7         PHOENIX_1935776       4816mil       1389mil       4816mil       1389mil       4816mil   1487.425mil  B         90.00 Prop B         
+P1         HDR1X4                4485mil       3646mil       4485mil       3496mil       4485mil       3496mil  T         90.00 PWM Left Stepper
+P2         HDR1X4                4603mil       3646mil       4603mil       3496mil       4603mil       3496mil  T         90.00 Control Left Stepper
+P3         HDR1X4                4721mil       3646mil       4721mil       3496mil       4721mil       3496mil  T         90.00 Setters Left Stepper
+P4         HDR1X4                4481mil       2738mil       4481mil       2588mil       4481mil       2588mil  T         90.00 PWM Right Stepper
+P5         HDR1X4                4600mil       2738mil       4600mil       2588mil       4600mil       2588mil  T         90.00 Control Right Stepper
+P6         HDR1X3                5086mil       2295mil       5086mil       2395mil       5086mil       2395mil  T        270.00 Header 3       
+P7         HDR1X3                4967mil       2295mil       4967mil       2395mil       4967mil       2395mil  T        270.00 Header 3       
+P8         HDR1X3                5087mil       2738mil       5087mil       2838mil       5087mil       2838mil  T        270.00 Header 3       
+P9         HDR1X3                4968mil       2738mil       4968mil       2838mil       4968mil       2838mil  T        270.00 Header 3       
+P10        HDR1X4                4719mil       2739mil       4719mil       2589mil       4719mil       2589mil  T         90.00 Setters Right Stepper
+P11        HDR1X4                4475mil       1841mil       4475mil       1691mil       4475mil       1691mil  T         90.00 PWM Props      
+P12        HDR1X4                4593mil       1841mil       4593mil       1691mil       4593mil       1691mil  T         90.00 Control Props  
+P13        HDR1X4                4712mil       1841mil       4712mil       1691mil       4712mil       1691mil  T         90.00 Setters Props  
+R1         RESC3126X65N          4483mil       1532mil       4483mil       1532mil       4483mil   1475.701mil  T         90.00 RC1210FR-07523RL
+R2         RESC3126X65N          3990mil       1889mil       3990mil       1889mil       3990mil   1832.701mil  T         90.00 CRGP1210F1M0   
+R3         RESC5025X70N          3900mil       1574mil       3900mil       1574mil   3804.409mil       1574mil  T        360.00 Res1           
+R4         RESC5025X70N      3901.409mil       1713mil   3901.409mil       1713mil   3805.819mil       1713mil  T        360.00 Res1           
+R5         RESC3126X65N          4498mil       3334mil       4498mil       3334mil       4498mil   3277.701mil  T         90.00 RC1210FR-07523RL
+R6         RESC3126X65N          3999mil       3678mil       3999mil       3678mil       3999mil   3621.701mil  T         90.00 CRGP1210F1M0   
+R7         RES_ERJ14RQJ1R0U   3932.087mil       3387mil   3932.087mil       3387mil   3864.173mil       3387mil  T          0.00 Res1           
+R8         RES_ERJ14RQJ1R0U   3931.087mil       3515mil   3931.087mil       3515mil   3863.173mil       3515mil  T          0.00 Res1           
+R9         RESC3126X65N          4497mil       2431mil       4497mil       2431mil       4497mil   2374.701mil  T         90.00 RC1210FR-07523RL
+R10        RESC3126X65N          3997mil       2797mil       3997mil       2797mil       3997mil   2740.701mil  T         90.00 CRGP1210F1M0   
+R11        RES_ERJ14RQJ1R0U       3930mil       2488mil       3930mil       2488mil   3862.087mil       2488mil  T          0.00 Res1           
+R12        RES_ERJ14RQJ1R0U       3929mil       2614mil       3929mil       2614mil   3861.087mil       2614mil  T          0.00 Res1           
+U1         IC_TPS61196PWPRQ1       4250mil       1651mil       4250mil       1651mil   4139.764mil   1817.339mil  T        360.00 DRV8841PWP     
+U2         IC_TPS61196PWPRQ1       4256mil       3450mil       4256mil       3450mil   4145.764mil   3616.339mil  T        360.00 DRV8841PWP     
+U3         IC_TPS61196PWPRQ1       4250mil       2549mil       4250mil       2549mil   4139.764mil   2715.339mil  T        360.00 DRV8841PWP     
+

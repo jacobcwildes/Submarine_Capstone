@@ -1,0 +1,10 @@
+Added Component: Designator=P12(HDR1X3)
+Added Component: Designator=U1(MODULE_NUCLEO-F429ZI)
+Added Pin To Net: NetName=LIN_L Pin=P12-2
+Added Net: Name=LIN_L
+Added Pin To Net: NetName=LIN_R Pin=P12-3
+Added Net: Name=LIN_R
+Added Pin To Net: NetName=VBAT Pin=P12-1
+Added Net: Name=VBAT
+Added Member To Class: ClassName=Submarine_Control Member=Component P12 Header 3
+Added Member To Class: ClassName=Submarine_Control Member=Component U1 NUCLEO-F429ZI

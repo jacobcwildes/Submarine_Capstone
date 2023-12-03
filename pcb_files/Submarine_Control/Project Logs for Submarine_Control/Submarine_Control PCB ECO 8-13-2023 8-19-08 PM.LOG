@@ -1,0 +1,67 @@
+Added Component: Designator=P1(HDR1X4)
+Added Component: Designator=P2(HDR1X4)
+Added Component: Designator=P3(HDR1X4)
+Added Component: Designator=P4(HDR1X2)
+Added Component: Designator=P5(HDR1X4)
+Added Component: Designator=P6(HDR1X3)
+Added Component: Designator=P7(HDR1X4)
+Added Component: Designator=P8(HDR1X4)
+Added Component: Designator=P9(HDR1X4)
+Added Component: Designator=P10(HDR1X4)
+Added Component: Designator=P11(HDR1X4)
+Added Component: Designator=U1(MODULE_NUCLEO-F429ZI)
+Added Pin To Net: NetName=BI1L Pin=P1-1
+Added Pin To Net: NetName=BI0L Pin=P1-2
+Added Pin To Net: NetName=AI1L Pin=P1-3
+Added Pin To Net: NetName=AI0L Pin=P1-4
+Added Pin To Net: NetName=BIN2L Pin=P2-1
+Added Pin To Net: NetName=BIN1L Pin=P2-2
+Added Pin To Net: NetName=AIN1L Pin=P2-3
+Added Pin To Net: NetName=AIN2L Pin=P2-4
+Added Pin To Net: NetName=DL Pin=P3-1
+Added Pin To Net: NetName=SL Pin=P3-2
+Added Pin To Net: NetName=RL Pin=P3-3
+Added Pin To Net: NetName=FL Pin=P3-4
+Added Pin To Net: NetName=SDA_PI Pin=P4-1
+Added Pin To Net: NetName=SCL_PI Pin=P4-2
+Added Pin To Net: NetName=BI1P Pin=P5-1
+Added Pin To Net: NetName=BI0P Pin=P5-2
+Added Pin To Net: NetName=AI1P Pin=P5-3
+Added Pin To Net: NetName=AI0P Pin=P5-4
+Added Pin To Net: NetName=3V3 Pin=P6-1
+Added Pin To Net: NetName=DRDY Pin=P6-2
+Added Pin To Net: NetName=GND Pin=P6-3
+Added Pin To Net: NetName=BIN2P Pin=P7-1
+Added Pin To Net: NetName=BIN1P Pin=P7-2
+Added Pin To Net: NetName=AIN1P Pin=P7-3
+Added Pin To Net: NetName=AIN2P Pin=P7-4
+Added Pin To Net: NetName=DP Pin=P8-1
+Added Pin To Net: NetName=SP Pin=P8-2
+Added Pin To Net: NetName=RP Pin=P8-3
+Added Pin To Net: NetName=FP Pin=P8-4
+Added Pin To Net: NetName=BI1R Pin=P9-1
+Added Pin To Net: NetName=BI0R Pin=P9-2
+Added Pin To Net: NetName=AI1R Pin=P9-3
+Added Pin To Net: NetName=AI0R Pin=P9-4
+Added Pin To Net: NetName=BIN2R Pin=P10-1
+Added Pin To Net: NetName=BIN1R Pin=P10-2
+Added Pin To Net: NetName=AIN1R Pin=P10-3
+Added Pin To Net: NetName=AIN2R Pin=P10-4
+Added Pin To Net: NetName=DR Pin=P11-1
+Added Pin To Net: NetName=SR Pin=P11-2
+Added Pin To Net: NetName=RR Pin=P11-3
+Added Pin To Net: NetName=FR Pin=P11-4
+Added Pin To Net: NetName=3V3 Pin=U1-CN11_16
+Added Pin To Net: NetName=GND Pin=U1-CN11_72
+Added Member To Class: ClassName=Submarine_Control Member=Component P1 LSTEP1
+Added Member To Class: ClassName=Submarine_Control Member=Component P2 LSTEP2
+Added Member To Class: ClassName=Submarine_Control Member=Component P3 LSTEP3
+Added Member To Class: ClassName=Submarine_Control Member=Component P4 IMU I2C
+Added Member To Class: ClassName=Submarine_Control Member=Component P5 PROP1
+Added Member To Class: ClassName=Submarine_Control Member=Component P6 IMU PWR
+Added Member To Class: ClassName=Submarine_Control Member=Component P7 PROP2
+Added Member To Class: ClassName=Submarine_Control Member=Component P8 PROP3
+Added Member To Class: ClassName=Submarine_Control Member=Component P9 RSTEP1
+Added Member To Class: ClassName=Submarine_Control Member=Component P10 RSTEP2
+Added Member To Class: ClassName=Submarine_Control Member=Component P11 RSTEP3
+Added Member To Class: ClassName=Submarine_Control Member=Component U1 NUCLEO-F429ZI

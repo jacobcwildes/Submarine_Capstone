@@ -1,0 +1,17 @@
+Added Pin To Net: NetName=BI1L Pin=P5-1
+Added Pin To Net: NetName=BI0L Pin=P5-2
+Added Pin To Net: NetName=AI1L Pin=P5-3
+Added Pin To Net: NetName=AI0L Pin=P5-4
+Added Pin To Net: NetName=DL Pin=P8-1
+Added Pin To Net: NetName=SL Pin=P8-2
+Added Pin To Net: NetName=RL Pin=P8-3
+Added Pin To Net: NetName=FL Pin=P8-4
+Added Pin To Net: NetName=BI1L Pin=P9-1
+Added Pin To Net: NetName=BI0L Pin=P9-2
+Added Pin To Net: NetName=AI1L Pin=P9-3
+Added Pin To Net: NetName=AI0L Pin=P9-4
+Added Pin To Net: NetName=DL Pin=P11-1
+Added Pin To Net: NetName=SL Pin=P11-2
+Added Pin To Net: NetName=RL Pin=P11-3
+Added Pin To Net: NetName=FL Pin=P11-4
+Added Member To Class: ClassName=Submarine_Control Member=Component U1 NUCLEO-F429ZI

@@ -1,0 +1,30 @@
+Bill of Material for 
+On 7/20/2023 at 1:09:26 PM
+
+ Comment             Pattern     Quantity  Components
+------------------------------------------------------------------------------
+ Cap                 C1210           15    C1, C2, C3, C4, C5, C6, C7   Capacitor            
+                                           C8, C9, C10, C11, C12, C13
+                                           C14, C15
+ Control Left Stepper HDR1X4           1    P2                           Header, 4-Pin        
+ Control Props       HDR1X4           1    P12                          Header, 4-Pin        
+ Control Right Stepper HDR1X4           1    P5                           Header, 4-Pin        
+ CRGP1210F1M0        RESC3126X65N     3    R2, R6, R10                  523 Ohms ±1% 0.5W, 1/2W Chip Resistor 1210 _3225 Metric_ Moisture Resistant Thick Film 
+ DRV8841PWP          IC_TPS61196PWPRQ1    3    U1, U2, U3                   45-V, 2.5-A bipolar stepper or dual H-bridge motor driver IC with current regulation and PWM control 
+ Header 3            HDR1X3           4    P6, P7, P8, P9               Header, 3-Pin        
+ Power Input         PHOENIX_1935776    1    J2                                                
+ Prop A              PHOENIX_1935776    1    J6                                                
+ Prop B              PHOENIX_1935776    1    J7                                                
+ PWM Left Stepper    HDR1X4           1    P1                           Header, 4-Pin        
+ PWM Props           HDR1X4           1    P11                          Header, 4-Pin        
+ PWM Right Stepper   HDR1X4           1    P4                           Header, 4-Pin        
+ RC1210FR-07523RL    RESC3126X65N     3    R1, R5, R9                   523 Ohms ±1% 0.5W, 1/2W Chip Resistor 1210 _3225 Metric_ Moisture Resistant Thick Film 
+ Res1                RES_ERJ14RQJ1R0U    4    R7, R8, R11, R12             Resistor             
+ Res1                RESC5025X70N     2    R3, R4                       Resistor             
+ Setters Left Stepper HDR1X4           1    P3                           Header, 4-Pin        
+ Setters Props       HDR1X4           1    P13                          Header, 4-Pin        
+ Setters Right Stepper HDR1X4           1    P10                          Header, 4-Pin        
+ StepperLeft A       PHOENIX_1935776    1    J1                                                
+ StepperLeft B       PHOENIX_1935776    1    J3                                                
+ StepperRight A      PHOENIX_1935776    1    J4                                                
+ StepperRight B      PHOENIX_1935776    1    J5                                                

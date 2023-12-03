@@ -1,0 +1,24 @@
+Field=Designator~String~Designator~425|Field=Description~String~Description~109|Field=Quantity~Integer~Quantity~107|Field=Center-X(Mil)~String~Center-X(Mil)~100|Field=Center-Y(Mil)~String~Center-Y(Mil)~100|Field=Rotation~String~Rotation~100|ReportField=Currency~<none>|ReportField=ProductionQuantity~1|ReportField=ProjectFileName~HBridge.PrjPcb|ReportField=ProjectFullPath~C:\Users\dunto\Documents\sTUFF\School\Classes\Class Documents\2023Summer\Projects\HBridge\HBridge.PrjPcb|ReportField=Title~Bill of Materials For PCB Document [HBridge.PcbDoc]|ReportField=TotalQuantity~50|ReportField=ReportTime~1:09:59 PM|ReportField=ReportDate~7/20/2023|ReportField=ReportDateTime~7/20/2023 1:09:59 PM|ReportField=OutputName~Bill of Materials|ReportField=OutputType~BOM_PartType|ReportField=GeneratorName~BOM|ReportField=GeneratorDescription~Bill of Materials|ReportField=VariantName~None|ReportField=DataSourceFileName~HBridge.PcbDoc|ReportField=DataSourceFullPath~C:\Users\dunto\Documents\sTUFF\School\Classes\Class Documents\2023Summer\Projects\HBridge\HBridge.PcbDoc
+P6, P7, P8, P9|Header, 3-Pin|4|5086, 4967, 5087, 4968|2295, 2295, 2738, 2738|270
+J5||1|4817|2288|90
+J1||1|4816|3645|90
+J3||1|4816|3194|90
+J6||1|4816|1838|90
+J7||1|4816|1389|90
+J4||1|4815|2740|90
+P3|Header, 4-Pin|1|4721|3646|90
+P10|Header, 4-Pin|1|4719|2739|90
+P13|Header, 4-Pin|1|4712|1841|90
+P2|Header, 4-Pin|1|4603|3646|90
+P5|Header, 4-Pin|1|4600|2738|90
+P12|Header, 4-Pin|1|4593|1841|90
+P1|Header, 4-Pin|1|4485|3646|90
+R1, R5, R9|523 Ohms ±1% 0.5W, 1/2W Chip Resistor 1210 _3225 Metric_ Moisture Resistant Thick Film|3|4483, 4498, 4497|1532, 3334, 2431|90
+P4|Header, 4-Pin|1|4481|2738|90
+P11|Header, 4-Pin|1|4475|1841|90
+U1, U2, U3|45-V, 2.5-A bipolar stepper or dual H-bridge motor driver IC with current regulation and PWM control|3|4250, 4256, 4250|1651, 3450, 2549|0
+R2, R6, R10|523 Ohms ±1% 0.5W, 1/2W Chip Resistor 1210 _3225 Metric_ Moisture Resistant Thick Film|3|3990, 3999, 3997|1889, 3678, 2797|90
+R7, R8, R11, R12|Resistor|4|3932.087, 3931.087, 3930, 3929|3387, 3515, 2488, 2614|0
+R3, R4|Resistor|2|3900, 3901.409|1574, 1713|0
+C1, C2, C3, C4, C5, C6, C7, C8, C9, C10, C11, C12, C13, C14, C15|Capacitor|15|3858, 3811, 3932, 4248, 4178, 3866, 3971, 3849, 4253, 4185, 3863, 3842, 3960, 4253, 4177|1883, 1415, 1415, 1380, 1922, 3676, 3221, 3221, 3184, 3720, 2793, 2320, 2320, 2280, 2819|270, 90, 270, 0, 0, 270, 90, 270, 0, 0, 270, 90, 270, 0, 0
+J2||1|3308|2558|270

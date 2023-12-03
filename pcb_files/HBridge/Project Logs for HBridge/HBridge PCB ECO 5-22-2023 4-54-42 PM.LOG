@@ -1,0 +1,220 @@
+Added Component: Designator=C1_Dual H-Bridge1(C1210)
+Added Component: Designator=C1_Dual H-Bridge2(C1210)
+Added Component: Designator=C2_Dual H-Bridge1(C1210)
+Added Component: Designator=C2_Dual H-Bridge2(C1210)
+Added Component: Designator=C3_Dual H-Bridge1(C1210)
+Added Component: Designator=C3_Dual H-Bridge2(C1210)
+Added Component: Designator=C4_Dual H-Bridge1(C1210)
+Added Component: Designator=C4_Dual H-Bridge2(C1210)
+Added Component: Designator=C5_Dual H-Bridge1(C1210)
+Added Component: Designator=C5_Dual H-Bridge2(C1210)
+Added Component: Designator=D1_Dual H-Bridge1(SMC)
+Added Component: Designator=D1_Dual H-Bridge2(SMC)
+Added Component: Designator=D2_Dual H-Bridge1(SMC)
+Added Component: Designator=D2_Dual H-Bridge2(SMC)
+Added Component: Designator=D3_Dual H-Bridge1(SMC)
+Added Component: Designator=D3_Dual H-Bridge2(SMC)
+Added Component: Designator=D4_Dual H-Bridge1(SMC)
+Added Component: Designator=D4_Dual H-Bridge2(SMC)
+Added Component: Designator=D5_Dual H-Bridge1(SMC)
+Added Component: Designator=D5_Dual H-Bridge2(SMC)
+Added Component: Designator=D6_Dual H-Bridge1(SMC)
+Added Component: Designator=D6_Dual H-Bridge2(SMC)
+Added Component: Designator=D7_Dual H-Bridge1(SMC)
+Added Component: Designator=D7_Dual H-Bridge2(SMC)
+Added Component: Designator=D8_Dual H-Bridge1(SMC)
+Added Component: Designator=D8_Dual H-Bridge2(SMC)
+Added Component: Designator=P1(HDR1X2)
+Added Component: Designator=P2(HDR1X2)
+Added Component: Designator=P3(HDR1X8)
+Added Component: Designator=P4(HDR1X2)
+Added Component: Designator=P5(HDR1X4)
+Added Component: Designator=P6(HDR1X4)
+Added Component: Designator=P7(HDR1X2)
+Added Component: Designator=P8(HDR1X8)
+Added Component: Designator=P9(HDR1X2)
+Added Component: Designator=P10(HDR1X4)
+Added Component: Designator=P11(HDR1X3)
+Added Component: Designator=P12(HDR1X3)
+Added Component: Designator=P13(HDR1X3)
+Added Component: Designator=P14(HDR1X3)
+Added Component: Designator=R1_Dual H-Bridge1(1812)
+Added Component: Designator=R1_Dual H-Bridge2(1812)
+Added Component: Designator=R2_Dual H-Bridge1(1812)
+Added Component: Designator=R2_Dual H-Bridge2(1812)
+Added Component: Designator=R3_Dual H-Bridge1(1812)
+Added Component: Designator=R3_Dual H-Bridge2(1812)
+Added Component: Designator=R4_Dual H-Bridge1(1812)
+Added Component: Designator=R4_Dual H-Bridge2(1812)
+Added Pin To Net: NetName=12V Pin=C1_Dual H-Bridge1-1
+Added Pin To Net: NetName=12V Pin=C1_Dual H-Bridge2-1
+Added Pin To Net: NetName=12V Pin=C2_Dual H-Bridge1-2
+Added Pin To Net: NetName=12V Pin=C2_Dual H-Bridge2-2
+Added Pin To Net: NetName=12V Pin=C4_Dual H-Bridge1-1
+Added Pin To Net: NetName=12V Pin=C4_Dual H-Bridge2-1
+Added Pin To Net: NetName=12V Pin=C5_Dual H-Bridge1-2
+Added Pin To Net: NetName=12V Pin=C5_Dual H-Bridge2-2
+Added Pin To Net: NetName=12V Pin=D1_Dual H-Bridge1-2
+Added Pin To Net: NetName=12V Pin=D1_Dual H-Bridge2-2
+Added Pin To Net: NetName=12V Pin=D2_Dual H-Bridge1-2
+Added Pin To Net: NetName=12V Pin=D2_Dual H-Bridge2-2
+Added Pin To Net: NetName=12V Pin=D3_Dual H-Bridge1-2
+Added Pin To Net: NetName=12V Pin=D3_Dual H-Bridge2-2
+Added Pin To Net: NetName=12V Pin=D4_Dual H-Bridge1-2
+Added Pin To Net: NetName=12V Pin=D4_Dual H-Bridge2-2
+Added Pin To Net: NetName=12V Pin=P1-2
+Added Pin To Net: NetName=12V Pin=R1_Dual H-Bridge1-1
+Added Pin To Net: NetName=12V Pin=R1_Dual H-Bridge2-1
+Added Pin To Net: NetName=12V Pin=R3_Dual H-Bridge1-1
+Added Pin To Net: NetName=12V Pin=R3_Dual H-Bridge2-1
+Added Net: Name=12V
+Added Pin To Net: NetName=AOUT1_Dual H-Bridge1 Pin=D1_Dual H-Bridge1-1
+Added Pin To Net: NetName=AOUT1_Dual H-Bridge1 Pin=D5_Dual H-Bridge1-2
+Added Pin To Net: NetName=AOUT1_Dual H-Bridge1 Pin=P7-2
+Added Net: Name=AOUT1_Dual H-Bridge1
+Added Pin To Net: NetName=AOUT1_Dual H-Bridge2 Pin=D1_Dual H-Bridge2-1
+Added Pin To Net: NetName=AOUT1_Dual H-Bridge2 Pin=D5_Dual H-Bridge2-2
+Added Pin To Net: NetName=AOUT1_Dual H-Bridge2 Pin=P2-2
+Added Net: Name=AOUT1_Dual H-Bridge2
+Added Pin To Net: NetName=AOUT2_Dual H-Bridge1 Pin=D2_Dual H-Bridge1-1
+Added Pin To Net: NetName=AOUT2_Dual H-Bridge1 Pin=D6_Dual H-Bridge1-2
+Added Pin To Net: NetName=AOUT2_Dual H-Bridge1 Pin=P7-1
+Added Net: Name=AOUT2_Dual H-Bridge1
+Added Pin To Net: NetName=AOUT2_Dual H-Bridge2 Pin=D2_Dual H-Bridge2-1
+Added Pin To Net: NetName=AOUT2_Dual H-Bridge2 Pin=D6_Dual H-Bridge2-2
+Added Pin To Net: NetName=AOUT2_Dual H-Bridge2 Pin=P2-1
+Added Net: Name=AOUT2_Dual H-Bridge2
+Added Pin To Net: NetName=BOUT1_Dual H-Bridge1 Pin=D3_Dual H-Bridge1-1
+Added Pin To Net: NetName=BOUT1_Dual H-Bridge1 Pin=D7_Dual H-Bridge1-2
+Added Pin To Net: NetName=BOUT1_Dual H-Bridge1 Pin=P9-2
+Added Net: Name=BOUT1_Dual H-Bridge1
+Added Pin To Net: NetName=BOUT1_Dual H-Bridge2 Pin=D3_Dual H-Bridge2-1
+Added Pin To Net: NetName=BOUT1_Dual H-Bridge2 Pin=D7_Dual H-Bridge2-2
+Added Pin To Net: NetName=BOUT1_Dual H-Bridge2 Pin=P4-2
+Added Net: Name=BOUT1_Dual H-Bridge2
+Added Pin To Net: NetName=BOUT2_Dual H-Bridge1 Pin=D4_Dual H-Bridge1-1
+Added Pin To Net: NetName=BOUT2_Dual H-Bridge1 Pin=D8_Dual H-Bridge1-2
+Added Pin To Net: NetName=BOUT2_Dual H-Bridge1 Pin=P9-1
+Added Net: Name=BOUT2_Dual H-Bridge1
+Added Pin To Net: NetName=BOUT2_Dual H-Bridge2 Pin=D4_Dual H-Bridge2-1
+Added Pin To Net: NetName=BOUT2_Dual H-Bridge2 Pin=D8_Dual H-Bridge2-2
+Added Pin To Net: NetName=BOUT2_Dual H-Bridge2 Pin=P4-1
+Added Net: Name=BOUT2_Dual H-Bridge2
+Added Pin To Net: NetName=GND Pin=C1_Dual H-Bridge1-2
+Added Pin To Net: NetName=GND Pin=C1_Dual H-Bridge2-2
+Added Pin To Net: NetName=GND Pin=C5_Dual H-Bridge1-1
+Added Pin To Net: NetName=GND Pin=C5_Dual H-Bridge2-1
+Added Pin To Net: NetName=GND Pin=D5_Dual H-Bridge1-1
+Added Pin To Net: NetName=GND Pin=D5_Dual H-Bridge2-1
+Added Pin To Net: NetName=GND Pin=D6_Dual H-Bridge1-1
+Added Pin To Net: NetName=GND Pin=D6_Dual H-Bridge2-1
+Added Pin To Net: NetName=GND Pin=D7_Dual H-Bridge1-1
+Added Pin To Net: NetName=GND Pin=D7_Dual H-Bridge2-1
+Added Pin To Net: NetName=GND Pin=D8_Dual H-Bridge1-1
+Added Pin To Net: NetName=GND Pin=D8_Dual H-Bridge2-1
+Added Pin To Net: NetName=GND Pin=P1-1
+Added Pin To Net: NetName=GND Pin=R2_Dual H-Bridge1-2
+Added Pin To Net: NetName=GND Pin=R2_Dual H-Bridge2-2
+Added Net: Name=GND
+Added Pin To Net: NetName=ISENA_Dual H-Bridge1 Pin=P6-3
+Added Pin To Net: NetName=ISENA_Dual H-Bridge1 Pin=R2_Dual H-Bridge1-1
+Added Net: Name=ISENA_Dual H-Bridge1
+Added Pin To Net: NetName=ISENA_Dual H-Bridge2 Pin=P6-1
+Added Pin To Net: NetName=ISENA_Dual H-Bridge2 Pin=R2_Dual H-Bridge2-1
+Added Net: Name=ISENA_Dual H-Bridge2
+Added Pin To Net: NetName=ISENB_Dual H-Bridge1 Pin=P6-4
+Added Pin To Net: NetName=ISENB_Dual H-Bridge1 Pin=R4_Dual H-Bridge1-2
+Added Net: Name=ISENB_Dual H-Bridge1
+Added Pin To Net: NetName=ISENB_Dual H-Bridge2 Pin=P6-2
+Added Pin To Net: NetName=ISENB_Dual H-Bridge2 Pin=R4_Dual H-Bridge2-2
+Added Net: Name=ISENB_Dual H-Bridge2
+Added Pin To Net: NetName=Net*_Dual H-Bridge1_1 Pin=C3_Dual H-Bridge1-1
+Added Net: Name=Net*_Dual H-Bridge1_1
+Added Pin To Net: NetName=Net*_Dual H-Bridge1_2 Pin=C3_Dual H-Bridge1-2
+Added Net: Name=Net*_Dual H-Bridge1_2
+Added Net: Name=Net*_Dual H-Bridge1_12
+Added Pin To Net: NetName=Net*_Dual H-Bridge1_16 Pin=P10-3
+Added Net: Name=Net*_Dual H-Bridge1_16
+Added Pin To Net: NetName=Net*_Dual H-Bridge1_17 Pin=P10-2
+Added Net: Name=Net*_Dual H-Bridge1_17
+Added Pin To Net: NetName=Net*_Dual H-Bridge1_18 Pin=P10-4
+Added Net: Name=Net*_Dual H-Bridge1_18
+Added Pin To Net: NetName=Net*_Dual H-Bridge1_19 Pin=P10-1
+Added Net: Name=Net*_Dual H-Bridge1_19
+Added Pin To Net: NetName=Net*_Dual H-Bridge1_20 Pin=P8-8
+Added Net: Name=Net*_Dual H-Bridge1_20
+Added Pin To Net: NetName=Net*_Dual H-Bridge1_21 Pin=P8-7
+Added Net: Name=Net*_Dual H-Bridge1_21
+Added Pin To Net: NetName=Net*_Dual H-Bridge1_22 Pin=P8-6
+Added Net: Name=Net*_Dual H-Bridge1_22
+Added Pin To Net: NetName=Net*_Dual H-Bridge1_23 Pin=P8-5
+Added Net: Name=Net*_Dual H-Bridge1_23
+Added Pin To Net: NetName=Net*_Dual H-Bridge1_24 Pin=P8-4
+Added Net: Name=Net*_Dual H-Bridge1_24
+Added Pin To Net: NetName=Net*_Dual H-Bridge1_25 Pin=P8-3
+Added Net: Name=Net*_Dual H-Bridge1_25
+Added Pin To Net: NetName=Net*_Dual H-Bridge1_26 Pin=P8-2
+Added Net: Name=Net*_Dual H-Bridge1_26
+Added Pin To Net: NetName=Net*_Dual H-Bridge1_27 Pin=P8-1
+Added Net: Name=Net*_Dual H-Bridge1_27
+Added Pin To Net: NetName=Net*_Dual H-Bridge2_1 Pin=C3_Dual H-Bridge2-1
+Added Net: Name=Net*_Dual H-Bridge2_1
+Added Pin To Net: NetName=Net*_Dual H-Bridge2_2 Pin=C3_Dual H-Bridge2-2
+Added Net: Name=Net*_Dual H-Bridge2_2
+Added Net: Name=Net*_Dual H-Bridge2_12
+Added Pin To Net: NetName=Net*_Dual H-Bridge2_16 Pin=P5-3
+Added Net: Name=Net*_Dual H-Bridge2_16
+Added Pin To Net: NetName=Net*_Dual H-Bridge2_17 Pin=P5-2
+Added Net: Name=Net*_Dual H-Bridge2_17
+Added Pin To Net: NetName=Net*_Dual H-Bridge2_18 Pin=P5-4
+Added Net: Name=Net*_Dual H-Bridge2_18
+Added Pin To Net: NetName=Net*_Dual H-Bridge2_19 Pin=P5-1
+Added Net: Name=Net*_Dual H-Bridge2_19
+Added Pin To Net: NetName=Net*_Dual H-Bridge2_20 Pin=P3-8
+Added Net: Name=Net*_Dual H-Bridge2_20
+Added Pin To Net: NetName=Net*_Dual H-Bridge2_21 Pin=P3-7
+Added Net: Name=Net*_Dual H-Bridge2_21
+Added Pin To Net: NetName=Net*_Dual H-Bridge2_22 Pin=P3-6
+Added Net: Name=Net*_Dual H-Bridge2_22
+Added Pin To Net: NetName=Net*_Dual H-Bridge2_23 Pin=P3-5
+Added Net: Name=Net*_Dual H-Bridge2_23
+Added Pin To Net: NetName=Net*_Dual H-Bridge2_24 Pin=P3-4
+Added Net: Name=Net*_Dual H-Bridge2_24
+Added Pin To Net: NetName=Net*_Dual H-Bridge2_25 Pin=P3-3
+Added Net: Name=Net*_Dual H-Bridge2_25
+Added Pin To Net: NetName=Net*_Dual H-Bridge2_26 Pin=P3-2
+Added Net: Name=Net*_Dual H-Bridge2_26
+Added Pin To Net: NetName=Net*_Dual H-Bridge2_27 Pin=P3-1
+Added Net: Name=Net*_Dual H-Bridge2_27
+Added Pin To Net: NetName=NetP11_1 Pin=P11-1
+Added Pin To Net: NetName=NetP11_1 Pin=P12-1
+Added Net: Name=NetP11_1
+Added Pin To Net: NetName=NetP11_2 Pin=P11-2
+Added Pin To Net: NetName=NetP11_2 Pin=P12-2
+Added Net: Name=NetP11_2
+Added Pin To Net: NetName=NetP11_3 Pin=P11-3
+Added Pin To Net: NetName=NetP11_3 Pin=P12-3
+Added Net: Name=NetP11_3
+Added Pin To Net: NetName=NetP13_1 Pin=P13-1
+Added Pin To Net: NetName=NetP13_1 Pin=P14-1
+Added Net: Name=NetP13_1
+Added Pin To Net: NetName=NetP13_2 Pin=P13-2
+Added Pin To Net: NetName=NetP13_2 Pin=P14-2
+Added Net: Name=NetP13_2
+Added Pin To Net: NetName=NetP13_3 Pin=P13-3
+Added Pin To Net: NetName=NetP13_3 Pin=P14-3
+Added Net: Name=NetP13_3
+Added Pin To Net: NetName=VCP_Dual H-Bridge1 Pin=C2_Dual H-Bridge1-1
+Added Pin To Net: NetName=VCP_Dual H-Bridge1 Pin=C4_Dual H-Bridge1-2
+Added Pin To Net: NetName=VCP_Dual H-Bridge1 Pin=R1_Dual H-Bridge1-2
+Added Pin To Net: NetName=VCP_Dual H-Bridge1 Pin=R3_Dual H-Bridge1-2
+Added Net: Name=VCP_Dual H-Bridge1
+Added Pin To Net: NetName=VCP_Dual H-Bridge2 Pin=C2_Dual H-Bridge2-1
+Added Pin To Net: NetName=VCP_Dual H-Bridge2 Pin=C4_Dual H-Bridge2-2
+Added Pin To Net: NetName=VCP_Dual H-Bridge2 Pin=R1_Dual H-Bridge2-2
+Added Pin To Net: NetName=VCP_Dual H-Bridge2 Pin=R3_Dual H-Bridge2-2
+Added Net: Name=VCP_Dual H-Bridge2
+Added Class: Name=Dual H-Bridge1
+Added Class: Name=Dual H-Bridge2
+Added Class: Name=HBridge
+Added Class: Name=DualDriver

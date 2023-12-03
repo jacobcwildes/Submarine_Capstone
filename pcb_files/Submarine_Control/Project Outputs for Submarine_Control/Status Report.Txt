@@ -1,0 +1,12 @@
+Output: NC Drill Files
+Type  : NC Drill
+From  : Project [Submarine_Control.PrjPcb]
+   Generated File[Submarine_Control.TXT]
+   Generated File[Submarine_Control.LDP]
+   Generated File[Submarine_Control.DRR]
+
+
+Files Generated   : 3
+Documents Printed : 0
+
+Finished Output Generation At 10:31:07 PM On 9/15/2023

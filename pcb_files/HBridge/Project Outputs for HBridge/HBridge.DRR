@@ -1,0 +1,19 @@
+---------------------------------------------------------------------------
+NCDrill File Report For: HBridge.PcbDoc   6/16/2023  5:37:09 PM
+---------------------------------------------------------------------------
+
+Layer Pair : Top Layer to Bottom Layer
+ASCII Plated RoundHoles File : HBridge-Plated.TXT
+ASCII Non-Plated RoundHoles File : HBridge-NonPlated.TXT
+
+Tool         Hole Size           Hole Type     Hole Count Plated       Tool Travel
+---------------------------------------------------------------------------
+T1        8mil (0.2032mm)          Round          78               6.86 Inch (174.14 mm)
+T2        11.81mil (0.29997mm)     Round          63               4.47 Inch (113.61 mm)
+T3        35.43mil (0.89992mm)     Round          48               7.87 Inch (199.98 mm)
+T4        51.18mil (1.29997mm)     Round          14               5.75 Inch (145.95 mm)
+T5        170mil (4.318mm)         Round          2         NPTH   2.74 Inch (69.54 mm)
+---------------------------------------------------------------------------
+Totals                                            205              27.69 Inch (703.23 mm)
+
+Total Processing Time (hh:mm:ss) : 00:00:01

@@ -1,0 +1,8 @@
+Change Component Designator: OldDesignator=P? NewDesignator=P1
+Change Component Designator: OldDesignator=P? NewDesignator=P2
+Change Component Designator: OldDesignator=P? NewDesignator=P3
+Change Component Designator: OldDesignator=P? NewDesignator=P4
+Change Component Designator: OldDesignator=U? NewDesignator=U1
+Added Member To Class: ClassName=Remote_Controller Member=Component P1 Header 2
+Added Member To Class: ClassName=Remote_Controller Member=Component P3 IO
+Added Member To Class: ClassName=Remote_Controller Member=Component P4 Joysticks

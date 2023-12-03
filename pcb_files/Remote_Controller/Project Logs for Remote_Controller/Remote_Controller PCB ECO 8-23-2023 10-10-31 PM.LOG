@@ -1,0 +1,6 @@
+Change Component Comment : Designator=LEFT JOY Old Comment=Header 4 New Comment=Left Joystick
+Change Component Comment : Designator=RIGHT JOY Old Comment=Header 4 New Comment=Right Joystick
+Added Component: Designator=U1(ST_NUCLEO-F401RE)
+Added Pin To Net: NetName=3V3 Pin=U1-CN7_16
+Added Pin To Net: NetName=GND Pin=U1-CN7_22
+Added Member To Class: ClassName=Remote_Controller Member=Component U1 NUCLEO-F401RE

@@ -1,0 +1,50 @@
+Added Component: Designator=P1(HDR1X4)
+Added Component: Designator=P2(HDR1X2)
+Added Component: Designator=P3(HDR1X4)
+Added Component: Designator=P4(HDR1X4)
+Added Component: Designator=P5(HDR1X4)
+Added Component: Designator=P6(HDR1X4)
+Added Component: Designator=P7(HDR1X4)
+Added Component: Designator=P8(HDR1X4)
+Added Component: Designator=P9(HDR1X4)
+Added Component: Designator=P10(HDR1X4)
+Added Component: Designator=P11(HDR1X4)
+Added Component: Designator=P12(HDR1X4)
+Added Component: Designator=U1(MODULE_NUCLEO-F429ZI)
+Added Pin To Net: NetName=5V Pin=P2-1
+Added Pin To Net: NetName=GND Pin=P2-2
+Added Pin To Net: NetName=GND Pin=P3-1
+Added Pin To Net: NetName=3V3 Pin=P3-2
+Added Pin To Net: NetName=GND Pin=P6-1
+Added Pin To Net: NetName=3V3 Pin=P6-2
+Added Pin To Net: NetName=GND Pin=U1-CN11_8
+Added Pin To Net: NetName=3V3 Pin=U1-CN11_16
+Added Pin To Net: NetName=GND Pin=U1-CN11_19
+Added Pin To Net: NetName=GND Pin=U1-CN11_20
+Added Pin To Net: NetName=GND Pin=U1-CN11_22
+Added Pin To Net: NetName=5V Pin=U1-CN11_24
+Added Pin To Net: NetName=GND Pin=U1-CN11_49
+Added Pin To Net: NetName=GND Pin=U1-CN11_60
+Added Pin To Net: NetName=GND Pin=U1-CN11_71
+Added Pin To Net: NetName=GND Pin=U1-CN11_72
+Added Pin To Net: NetName=SCL_PI Pin=P6-4
+Added Net: Name=SCL_PI
+Added Pin To Net: NetName=SCL Pin=P3-4
+Added Net: Name=SCL
+Added Pin To Net: NetName=SDA_PI Pin=P6-3
+Added Net: Name=SDA_PI
+Added Pin To Net: NetName=SDA Pin=P3-3
+Added Net: Name=SDA
+Added Member To Class: ClassName=Submarine_Control Member=Component P1 LSTEP1
+Added Member To Class: ClassName=Submarine_Control Member=Component P2 Power
+Added Member To Class: ClassName=Submarine_Control Member=Component P3 IMU
+Added Member To Class: ClassName=Submarine_Control Member=Component P4 LSTEP2
+Added Member To Class: ClassName=Submarine_Control Member=Component P5 LSTEP3
+Added Member To Class: ClassName=Submarine_Control Member=Component P6 Raspy
+Added Member To Class: ClassName=Submarine_Control Member=Component P7 PROP1
+Added Member To Class: ClassName=Submarine_Control Member=Component P8 PROP2
+Added Member To Class: ClassName=Submarine_Control Member=Component P9 PROP3
+Added Member To Class: ClassName=Submarine_Control Member=Component P10 RSTEP1
+Added Member To Class: ClassName=Submarine_Control Member=Component P11 RSTEP2
+Added Member To Class: ClassName=Submarine_Control Member=Component P12 RSTEP3
+Added Member To Class: ClassName=Submarine_Control Member=Component U1 NUCLEO-F429ZI

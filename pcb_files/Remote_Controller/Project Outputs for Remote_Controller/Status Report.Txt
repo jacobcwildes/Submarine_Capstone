@@ -1,0 +1,28 @@
+Output: Gerber Files
+Type  : Gerber
+From  : Variant [[No Variations]] of Project [Remote_Controller.PrjPcb]
+   Generated File[Remote_Controller.GTL]
+   Generated File[Remote_Controller.GBL]
+   Generated File[Remote_Controller.GPB]
+   Generated File[Remote_Controller.GPT]
+   Generated File[Remote_Controller.GTO]
+   Generated File[Remote_Controller.GTP]
+   Generated File[Remote_Controller.GTS]
+   Generated File[Remote_Controller.GBS]
+   Generated File[Remote_Controller.GBP]
+   Generated File[Remote_Controller.GBO]
+   Generated File[Remote_Controller.GKO]
+   Generated File[Remote_Controller.GM1]
+   Generated File[Remote_Controller.GM13]
+   Generated File[Remote_Controller.GM15]
+   Generated File[Remote_Controller.GD1]
+   Generated File[Remote_Controller.GG1]
+   Generated File[Remote_Controller.RUL]
+   Generated File[Remote_Controller.EXTREP]
+   Generated File[Remote_Controller.REP]
+
+
+Files Generated   : 19
+Documents Printed : 0
+
+Finished Output Generation At 11:05:58 PM On 8/23/2023

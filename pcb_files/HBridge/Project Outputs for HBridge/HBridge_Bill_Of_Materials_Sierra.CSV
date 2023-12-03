@@ -1,0 +1,11 @@
+REF,MFRPN,DESCRIPTION,Value,QUANTITY,PACKAGE,MFR
+"J1, J2, J3, J4, J5, J6, J7",1935776,"Screw Terminal Header, 2-pin",N/A,7,PHOENIX_1935776,Digikey
+"C10, C15, C5",1210Y0500104KST,Capacitor,100nF,3,C1210,Digikey
+"R3, R4",35021R5FT,Resistor,1.5,2,RESC5025X70N,Digikey
+"C1, C11, C13, C3, C6, C8",C1210C104J5RAC7800,Capacitor,100nF,6,C1210,Digikey
+"R10, R2, R6",CRGP1210F1M0,Resistor,1M,3,RESC3126X65N,Digikey
+"U1, U2, U3",DRV8841PWP,"45-V, 2.5-A bipolar stepper or dual H-bridge motor driver IC with current regulation and PWM control",N/A,3,IC_TPS61196PWPRQ1,Digikey
+"R11, R12, R7, R8",ERJ-14RQJ1R0U,Resistor,1,4,RES_ERJ14RQJ1R0U,Digikey
+"C12, C2, C7",KGM32LR51E476MU,Capacitor,47nF,3,C1210,Digikey
+"C14, C4, C9",KGM32LR72A474KU,Capacitor,0.47nF,3,C1210,Digikey
+"R1, R5, R9",RC1210JR-0710KL,Resistor,10k,3,RESC3126X65N,Digikey
