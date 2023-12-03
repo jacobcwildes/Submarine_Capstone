@@ -184,7 +184,7 @@ def overlay(img, speed, battery, ballast_left, ballast_right, depth, deg, time_s
     
     
     ##DRAW DEPTH:
-    cv.putText(img, "Depth: ", (10, 540), cv.FONT_HERSHEY_SIMPLEX, .5, (255, 255, 255), 1, cv.LINE_AA)
-    cv.putText(img, str(depth), (65, 540), cv.FONT_HERSHEY_SIMPLEX, .5, (255, 255, 255), 1, cv.LINE_AA)
+    cv.putText(img, "Z Acceleration: ", (10, 540), cv.FONT_HERSHEY_SIMPLEX, .5, (255, 255, 255), 1, cv.LINE_AA)
+    cv.putText(img, str(f"{depth:.3f}"), (135, 540), cv.FONT_HERSHEY_SIMPLEX, .5, (255, 255, 255), 1, cv.LINE_AA)
 
     return img

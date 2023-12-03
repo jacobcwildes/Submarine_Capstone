@@ -292,6 +292,40 @@ sudo systemctl enable systemd-resolved
 ```
 Remember! These steps must be done twice, once for the controller, once for the submarine!
 
+## Making the controller properly launch
+After some more testing, it became apparent that systemd struggles immensely to bring the display online. This is so much so that it causes the GUI to fail. To remedy this, we will utilize Ubuntu Desktop's clever feature - autologin and run on login. This step does require that GNOME is installed, instead of SLiM. To make this work run the following:
+
+1) Set up autologin directory:
+```bash
+mkdir -p ~/.config/autostart
+```
+
+2) Create an autorun script:
+```bash
+gedit ~/.config/autostart/controller_launch.desktop
+```
+
+3) Add the following to the script:
+```bash
+[Desktop Entry]
+Type=Application
+Exec=/home/controller/Submarine_Capstone/start/controller_start.sh
+Hidden=false
+NoDisplay=false
+X-GNOME-Autostart-enabled=true
+Name=controller_launch
+Comment=Launch_Controller_After_Login
+```
+
+4) Make the script executable
+```bash
+sudo chmod +x ~/.config/autostart/controller_start.sh
+```
+
+On next login the GUI will launch!
+
+_Note_: The ```.desktop``` script asssumes that the controller Pi has the username ```controller```. If that is not the case, swap the name in the path for the proper name.
+
 ## Docker
 If these installation steps sound gross, no sweat! Jacob has made a docker image which is able to run on just about any 64 bit version of Linux. MacOS and Windows may be compatible, but are untested. In order to use the provided images, do the following:
 
