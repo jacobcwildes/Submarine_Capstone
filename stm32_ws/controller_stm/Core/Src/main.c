@@ -169,7 +169,7 @@ int main(void)
 		if(HAL_UART_Transmit(&huart2, (uint8_t *)buffer, sizeof(buffer), HAL_MAX_DELAY) == HAL_OK)
 		{
 			//Delay because we don't need to transmit that fast - this is a controller operated by humans
-			HAL_Delay(250);
+			HAL_Delay(50);
 			//Reset everything to 0 once data is transmitted
 			subUp = 0;
 			subDown = 0;
