@@ -23,7 +23,7 @@ from quaternion import Quaternion
 
 
 class MadgwickAHRS:
-    samplePeriod = 1/256
+    samplePeriod = 1/20
     quaternion = Quaternion(1, 0, 0, 0)
     beta = 1
     zeta = 0
@@ -61,13 +61,13 @@ class MadgwickAHRS:
         magnetometer = np.array(magnetometer, dtype=float).flatten()
 
         # Normalise accelerometer measurement
-        if norm(accelerometer) is 0:
+        if norm(accelerometer) == 0:
             warnings.warn("accelerometer is zero")
             return
         accelerometer /= norm(accelerometer)
 
         # Normalise magnetometer measurement
-        if norm(magnetometer) is 0:
+        if norm(magnetometer) == 0:
             warnings.warn("magnetometer is zero")
             return
         magnetometer /= norm(magnetometer)
@@ -120,7 +120,7 @@ class MadgwickAHRS:
         accelerometer = np.array(accelerometer, dtype=float).flatten()
 
         # Normalise accelerometer measurement
-        if norm(accelerometer) is 0:
+        if norm(accelerometer) == 0:
             warnings.warn("accelerometer is zero")
             return
         accelerometer /= norm(accelerometer)

@@ -35,6 +35,7 @@ class sub_data():
 		self.degreesNorth = 0
 		self.forwardAccel = 0
 		self.upwardAccel = 0
+		self.batteryVoltages = [0*x for x in range(10)]
 		self.batteryVoltage = 0
 		self.ballastRight = 0
 		self.ballastLeft = 0
@@ -45,7 +46,7 @@ class sub_data():
 		data.degrees_north = self.degreesNorth
 		data.forward = self.forwardAccel
 		data.upward = self.upwardAccel
-		data.voltage_battery = self.batteryVoltage
+		data.voltage_battery = float(self.batteryVoltage)
 		data.ballast_left = self.ballastLeft
 		data.ballast_right = self.ballastRight
 		data.error = self.error
@@ -86,26 +87,38 @@ class stm_send():
 				self.SerialObj.write(bitfield.encode()) #42 bits
 				print("Sending: " + bitfield)
 				received = str(self.SerialObj.readline().decode('ascii')).replace('\r','').replace('\n','').replace('\x00', '')
+				print(received)
 				received_split = received.split(',')
 
-				if len(received_split) != 6: raise Exception
+				if len(received_split) != 8: raise Exception
 				print("Received: " + str(received_split))
 				
-				con.batteryVoltage = int(received_split[0])/10
+				
 				con.ballastRight = int(received_split[1])
 				con.ballastLeft = int(received_split[2])
 				
+				batteryVoltage = (int(received_split[0])/10.0)
+				for i in range(1,len(con.batteryVoltages)-1):
+					con.batteryVoltages[i] = con.batteryVoltages[i+1]
+				con.batteryVoltages[-1] = batteryVoltage
+				con.batteryVoltage = float(sum(con.batteryVoltages)/len(con.batteryVoltages))
+				
+				
 				errors = []
-				if not (int(received_split[3])): errors.append("Left Driver Fault")
-				if not (int(received_split[4])): errors.append("Prop Driver Fault")
-				if not (int(received_split[5])): errors.append("Right Driver Fault")
+				if not (int(received_split[3])): errors.append("Left Fault | ")
+				if not (int(received_split[4])): errors.append("Prop Fault | ")
+				if not (int(received_split[5])): errors.append("Right Fault |")
+				errors.append("Roll: {} | ".format(self.roll))
+				errors.append("Volt: {:.1f} | ".format(con.batteryVoltage))
+				errors.append("Left: {} | ".format(int(received_split[6])))
+				errors.append("Right: {} | ".format(int(received_split[7])))
 				if (self.roll < 45 or self.roll > 135): errors.append("TOO MUCH ROLL!")
 				
 				con.error = ','.join(errors)
 				
 				
-			except:
-				print("BAD DATA")
+			except Exception as error:
+				print("BAD DATA: {}".format(error))
 			
 			
 			
@@ -134,17 +147,24 @@ class imu():
 		self.z_bias = self.z_sum / (self.bias_checks)
 	
 	def measure(self, con, sub):
-		accel = self.accel_gyro.acceleration
-		gyro = self.accel_gyro.gyro
-		magnet = self.mag.magnetic
-		y_mag = magnet[1]
-		x_mag = magnet[0]
-		x_accel = accel[0] - self.x_bias
-		z_accel = -accel[2] + self.z_bias
-		
-		self.imu_fusion.update_imu(gyro, accel)
+		roll = 90
+		north = 0
+		x_accel = 0
+		z_accel = 0
+		try:
+			accel = self.accel_gyro.acceleration
+			gyro = self.accel_gyro.gyro
+			magnet = self.mag.magnetic
+			y_mag = magnet[1]
+			x_mag = magnet[0]
+			x_accel = accel[0] - self.x_bias
+			z_accel = -accel[2] + self.z_bias
 			
-		roll, pitch, yaw = self.imu_fusion.quaternion.to_euler123()
+			self.imu_fusion.update_imu(gyro, accel)
+				
+			roll, pitch, yaw = self.imu_fusion.quaternion.to_euler123()
+		except Exception as error:
+			print("IMU read error: {}".format(error))	
 		
 		roll = int(roll*(180/math.pi))
 		if abs(roll) > 90: roll *= (90/abs(roll)) # -90 <-> 90

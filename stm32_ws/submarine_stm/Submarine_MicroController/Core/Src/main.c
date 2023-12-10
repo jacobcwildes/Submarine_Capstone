@@ -795,7 +795,7 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 {
 	UNUSED(huart); //waring suppresion
 	
-	HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_14); //toggle LED for dev
+	//HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_14); //toggle LED for dev
 	rx_received = 1;//set flag for use in while loop
 	
 	HAL_UART_Receive_IT(&hlpuart1, rx_data, 42); //reset UART interupt for next transmission

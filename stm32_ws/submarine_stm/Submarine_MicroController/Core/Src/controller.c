@@ -1,10 +1,12 @@
 #include "controller.h"
-
+#define ADC_RECORD_COUNT 10
+#define WAIT_COUNT 10
 uint8_t steps[4] = {0b1010, 0b0110, 0b0101, 0b1001};
 
-uint8_t current_left = 0;
-uint8_t current_right = 0;
+int current_left = 0;
+int current_right = 0;
 
+int counter = 0;
 
 
 struct actuator_command controller(struct goalCommand com_data, struct envData in)
@@ -65,62 +67,75 @@ void servo_control(struct actuator_command *act)
 
 void stepper_control(struct actuator_command *act)
 {
-	int roll = ((int)act->com.roll) - 90; // -90 <. 90
-	int cw = 0;
-	
-	//calc roll correction
-	if (roll > 0) cw = fmin(roll, 30);
-	else cw = fmax(roll, -30);
-	
-	int left = cw;
-	int right = -cw;
-	
-	//add on depth
-	if (act->com.depthUp) 
+	counter++;
+	if (counter >= WAIT_COUNT)
 	{
-		left += 15;
-		right += 15;
-	}
-	else if (act->com.depthDown)
-	{
-		left -= 15;
-		right -= 15;
-	}
-	
-	//turn to adc value
-	//convert [-45,45] to [30, 225]
-	
-	int left_adc = (196*left)/90 + 128;
-	int right_adc = (196*left)/90 + 128;
-	
-	//turn into step values
-	if (current_left > left_adc)
-	{	
-		//left down
-		current_left--;
-		if (current_left == -1) current_left = 3;
-	}
-	else if (current_left < left_adc)
-	{	
-		//left up
-		current_left++;
-		if (current_left == 4) current_left = 0;
-	}
-	
-	if (current_right > right_adc)
-	{	
-		//right down
-		current_right--;
-		if (current_right == -1) current_right = 3;
-	}
-	else if (current_left < left_adc)
-	{	
-		//right up
-		current_right++;
-		if (current_right == 4) current_right = 0;
-	}
-	
+		counter = 0;
+		HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_14); //toggle LED for dev
 		
+		
+		int roll = ((int)(act->com.roll)) - 90; // -90 <. 90
+		int cw = 0;
+		
+		//calc roll correction
+		if (roll > 0) cw = fmin(roll, 30);
+		else cw = fmax(roll, -30);
+		
+		int left = cw;
+		int right = -cw;
+		
+		//add on depth
+		if (act->com.depthUp) 
+		{
+			left += 15;
+			right += 15;
+		}
+		else if (act->com.depthDown)
+		{
+			left -= 15;
+			right -= 15;
+		}
+		
+		//turn to adc value
+		//convert [-45,45] to [30, 225]
+
+		
+		int left_adc = (196*left)/90 + 128;
+		int right_adc = (196*right)/90 + 128;
+		
+		//turn into step values
+		
+		if (left_adc < act->in.adc.leftBallastPosition)
+		{	
+			//left down
+			current_left--;
+			if (current_left == -1) current_left = 3;
+		}
+		
+		else if (left_adc > act->in.adc.leftBallastPosition)
+		{	
+			//left up
+			current_left++;
+			if (current_left == 4) current_left = 0;
+		}
+		
+		if (right_adc < act->in.adc.rightBallastPosition)
+		{	
+			//right down
+			current_right--;
+			if (current_right == -1) current_right = 3;
+		}
+		else if (right_adc > act->in.adc.rightBallastPosition)
+		{	
+			//right up
+			current_right++;
+			if (current_right == 4) current_right = 0;
+		}
+	}
+	
+	act->left_current = current_left;
+	act->right_current = current_right;
+	
 	struct stepper_instruction leftStep;
 	struct stepper_instruction rightStep;
 	
@@ -136,7 +151,5 @@ void stepper_control(struct actuator_command *act)
 	
 	act->left_stepper = leftStep;
 	act->right_stepper = rightStep;
-	
-	
 	
 }

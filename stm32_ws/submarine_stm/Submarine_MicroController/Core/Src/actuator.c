@@ -20,9 +20,9 @@ void MTR_DRV_INIT(void)
 
 	*/
 	//Current 100%, change if too much
-	HAL_GPIO_WritePin(GPIOB, GPIO_PIN_1, GPIO_PIN_RESET);
+	HAL_GPIO_WritePin(GPIOB, GPIO_PIN_1, GPIO_PIN_SET);
 	HAL_GPIO_WritePin(GPIOB, GPIO_PIN_2, GPIO_PIN_RESET);
-	HAL_GPIO_WritePin(GPIOF, GPIO_PIN_15, GPIO_PIN_RESET);
+	HAL_GPIO_WritePin(GPIOF, GPIO_PIN_15, GPIO_PIN_SET);
 	HAL_GPIO_WritePin(GPIOG, GPIO_PIN_0, GPIO_PIN_RESET);
 
 	//Decay
@@ -74,24 +74,24 @@ void updateProps(struct actuator_command actuate)
   //LEFT PROP SET DC (TIM3_CH2 = forward) (TIM3_CH3 = backward)
   if (actuate.leftPropThrust >= 0) 
   {
-    TIM3->CCR2 = actuate.leftPropThrust*ARR_Prop/3;
+    TIM3->CCR2 = actuate.leftPropThrust*ARR_Prop;
     TIM3->CCR3 = 0;
   }
   else 
   {
-    TIM3->CCR3 = -actuate.leftPropThrust*ARR_Prop/3;
+    TIM3->CCR3 = -actuate.leftPropThrust*ARR_Prop;
     TIM3->CCR2 = 0;
   }
   
   //RIGHT PROP SET DC (TIM4_CH2 = forward) (TIM4_CH3 = backward)
   if (actuate.rightPropThrust >= 0) 
   {
-    TIM4->CCR3 = actuate.rightPropThrust*ARR_Prop/3;
+    TIM4->CCR3 = actuate.rightPropThrust*ARR_Prop;
     TIM4->CCR4 = 0;
   }
   else
   {
-    TIM4->CCR4 = -actuate.rightPropThrust*ARR_Prop/3;
+    TIM4->CCR4 = -actuate.rightPropThrust*ARR_Prop;
     TIM4->CCR3 = 0;
   }
   
@@ -131,13 +131,13 @@ void updateSteppers(struct actuator_command actuate)
 	*/
 	
 	//Left
-	if (actuate.left_stepper.a_one) HAL_GPIO_WritePin(GPIOA, GPIO_PIN_4, GPIO_PIN_SET);
+	if (actuate.right_stepper.a_one) HAL_GPIO_WritePin(GPIOA, GPIO_PIN_4, GPIO_PIN_SET);
 	else HAL_GPIO_WritePin(GPIOA, GPIO_PIN_4, GPIO_PIN_RESET);
-	if (actuate.left_stepper.a_two) HAL_GPIO_WritePin(GPIOA, GPIO_PIN_3, GPIO_PIN_SET);
+	if (actuate.right_stepper.a_two) HAL_GPIO_WritePin(GPIOA, GPIO_PIN_3, GPIO_PIN_SET);
 	else HAL_GPIO_WritePin(GPIOA, GPIO_PIN_3, GPIO_PIN_RESET);
-	if (actuate.left_stepper.b_one) HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_SET);
+	if (actuate.right_stepper.b_one) HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_SET);
 	else HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_RESET);
-	if (actuate.left_stepper.b_two) HAL_GPIO_WritePin(GPIOA, GPIO_PIN_6, GPIO_PIN_SET);
+	if (actuate.right_stepper.b_two) HAL_GPIO_WritePin(GPIOA, GPIO_PIN_6, GPIO_PIN_SET);
 	else HAL_GPIO_WritePin(GPIOA, GPIO_PIN_6, GPIO_PIN_RESET);
 	
 	//Right
@@ -162,12 +162,14 @@ void transmitData(UART_HandleTypeDef uart_com, struct actuator_command actuate)
 	char tx_buffer[100] = "";
 	
 	// For actual communication back to RPI (STILL USING TEST DATA)(This sprintf call works)
-	sprintf(tx_buffer, "%u,%u,%u,%u,%u,%u\n\r", (uint16_t)(10*analog.batteryVoltage),
+	sprintf(tx_buffer, "%u,%u,%u,%u,%u,%u,%u,%u\n\r", (uint16_t)(10*analog.batteryVoltage),
 	 (uint16_t)analog.leftBallastPosition, 
 	 (uint16_t)analog.rightBallastPosition,
 	 (uint16_t)inputs.nFaultLeft,
 	 (uint16_t)inputs.nFaultProp,
-	 (uint16_t)inputs.nFaultRight);
+	 (uint16_t)inputs.nFaultRight,
+	 (uint16_t)actuate.left_current,
+	 (uint16_t)actuate.right_current);
 	
 	
 

@@ -14,7 +14,7 @@ struct adcData adcRead(uint32_t *adc_in)
 {
 	struct adcData adcInfo;
 	
-	adcInfo.batteryVoltage = adc_in[2];
+	adcInfo.batteryVoltage = (adc_in[2])*0.07632773; //This is the value that relates the buck convertor voltage to battery voltage
 	adcInfo.leftBallastPosition = adc_in[0];
 	adcInfo.rightBallastPosition = adc_in[1];
 
