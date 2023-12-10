@@ -21,7 +21,7 @@ class ControllerOutput(Node):
         self.serialport = None
         self.serialLine = None
         
-        #Publish data every 20th of a second
+        #Publish data 
         timer_period = 0.05
         self.timer = self.create_timer(timer_period, self.timer_callback)
         
@@ -59,8 +59,8 @@ class ControllerOutput(Node):
                     #Normalize & put data in each field of datatype
                     msg.left_toggle_ud = normalization(int(localDat[0]))
                     msg.left_toggle_lr = normalization(int(localDat[1]))
-                    msg.right_toggle_ud = normalization(int(localDat[2]))
-                    msg.right_toggle_lr = normalization(int(localDat[3]))
+                    msg.right_toggle_ud = (255 -  normalization(int(localDat[2])))
+                    msg.right_toggle_lr =(255 -  normalization(int(localDat[3])))
                     msg.sub_up = int(localDat[4])
                     msg.sub_down = int(localDat[5])
                     msg.screenshot = int(localDat[6])

@@ -48,10 +48,10 @@ def overlay(img, speed, battery, ballast_left, ballast_right, depth, deg, time_s
     #Next, need to correlate the 2.8V range from full to empty to 0->100% (Battery is fully charged at 17V, dead at 12V)
     #100/2.8 = 35.7. Rectangle is 255 pixels long, so 255/2.8 = 91.07 for color gradient
     #Draw red/green bar
-    cv.rectangle(img, (battery_bottom_x, battery_bottom_y), (battery_top_x, battery_top_y),  (255 - int((battery * 20) - 240), (0 + int((battery * 20) - 240)), 0), -1)
+    cv.rectangle(img, (battery_bottom_x, battery_bottom_y), (battery_top_x, battery_top_y),  (0 + int((battery * 20) - 240), (255 - int((battery * 20) - 240)), 0), -1)
     
     #Grey bar
-    cv.rectangle(img, (battery_bottom_x + int((((battery * 20) - 240) / 10) * 255), 10), (battery_top_x, 50), (150, 150, 150), -1)
+    cv.rectangle(img, (battery_bottom_x + int((((battery * 20) - 240))), 10), (battery_top_x, 50), (150, 150, 150), -1)
         
     cv.putText(img, str(int((battery * 20) - 240)).zfill(2), (930, 40), cv.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 1, cv.LINE_AA)
     
@@ -100,7 +100,7 @@ def overlay(img, speed, battery, ballast_left, ballast_right, depth, deg, time_s
             cv.putText(img, str(directions[cardinal]), (int(degree*scale_deg + 495), 25), cv.FONT_HERSHEY_SIMPLEX, .5, (255, 255, 255), 1, cv.LINE_AA)
     #Write the actual heading in the compass right box
    
-    #Will clean this up so that it's a struct or something that I stringify instead. Maybe. Either way there are going to be a bunch of "if" statements checking for the heading
+    #Check for the heading
     if(0 < deg < 44) or (deg == 360):
         cv.putText(img, "N", (663, 25), cv.FONT_HERSHEY_SIMPLEX, .5, (255, 255, 255), 1, cv.LINE_AA)
     if(45 < deg < 89):
@@ -128,7 +128,7 @@ def overlay(img, speed, battery, ballast_left, ballast_right, depth, deg, time_s
     
     ##DRAW BALLASTS:
     #Draw left ballast base
-    cv.fillPoly(img, [ballast_cap_l], (150, 150, 150))
+    cv.fillPoly(img, [ballast_cap_l], (150, 150, 150)) #grey
     cv.rectangle(img, (10, 200), (35, 300), (150, 150, 150), -1)
     cv.fillPoly(img, [ballast_stern_l], (150, 150, 150))
 
@@ -174,13 +174,13 @@ def overlay(img, speed, battery, ballast_left, ballast_right, depth, deg, time_s
     
     #Since our ballasts fill from front to back, show fill from top->bottom
         
-    #Left ballast
+    #Left ballast (the left and right are mirrored so switch them here
+    cv.rectangle(img, (12, 201), (33, 201 + int(ballast_right / 2.55)), (0, 0, 255), -1)
     cv.rectangle(img, (12, 201), (33, 201), (150, 150, 150), -1)
-    cv.rectangle(img, (12, 201), (33, 201 + int(ballast_left / 2.55)), (0, 0, 255), -1)
     
     #Right ballast
+    cv.rectangle(img, (152, 201), (173, 201 + int(ballast_left / 2.55)), (0, 0, 255), -1)
     cv.rectangle(img, (152, 201), (173, 201), (150, 150, 150), -1)
-    cv.rectangle(img, (152, 201), (173, 201 + int(ballast_right / 2.55)), (0, 0, 255), -1)
     
     
     ##DRAW DEPTH:

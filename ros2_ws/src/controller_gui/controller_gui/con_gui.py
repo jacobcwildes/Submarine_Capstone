@@ -71,6 +71,9 @@ class GUI(Node):
         #Make window fullscreen
         self.root.attributes('-fullscreen', True)
         
+        #Have window fit the screen
+        #self.root.geometry("%dx%d" % (self.screen_width, self.screen_height))
+         
         self.panelA = None
         
         #Variables to hold data information
@@ -110,13 +113,14 @@ class GUI(Node):
         prog_time = prog_current - self.prog_start
 
         #Overlay data onto the image
-        RGB_img = overlay(RGB_img, self.speed, self.batteryVoltage, self.ballastLeft,
-                          self.ballastRight, self.depth, self.heading, prog_time)
+        RGB_img = overlay(RGB_img, self.speed, self.batteryVoltage, 255-self.ballastLeft,
+                          255-self.ballastRight, self.depth, self.heading, prog_time)
         
         #Make frame per second count. Isn't perfect, but it is a degree of inaccuracy I am 
         #willing to absorb since it is not in our favor
         difference = current_time - self.previous_time
         FPS = 1/difference
+        
         self.previous_time = current_time
         cv.putText(RGB_img, str(int(FPS)), (2, 15), cv.FONT_HERSHEY_SIMPLEX, .5, (255, 255, 255), 1, cv.LINE_AA)
         
@@ -139,14 +143,18 @@ class GUI(Node):
         
         #Convert images to PIL format
         PIL_img = PIL.Image.fromarray(RGB_img)
+                
+        #Rescale image to fit the screen
+        PIL_img = PIL_img.resize((720, 578))
         
         #Convert from PIL to ImageTk format (what actually gets displayed)
         tk_img = PIL.ImageTk.PhotoImage(PIL_img)
         
+        
         #Save image?
         if self.screenshot:
-            path = str(prog_time) + '.jpg'#'/mnt/usb/images/' + str(prog_time) +  '.jpg'
-            PIL_img.save(path)
+            path = "/mnt/usb/images/" +  str(prog_time).replace(":", "-") + ".jpg"
+            PIL_img.save(path, 'JPEG')
 
         
         #Work to display will be shown here

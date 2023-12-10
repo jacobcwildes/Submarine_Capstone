@@ -6,6 +6,7 @@ After=run-after-boot-boot.service
 [Service]
 User=controller
 Environment="DISPLAY=:0"
+Environment="XAUTHORITY=/run/user/1000/gdm/Xauthority"
 Environment="LD_LIBRARY_PATH=/home/controller/Submarine_Capstone/ros2_ws/install/controller_gui/lib:/home/controller/Submarine_Capstone/ros2_ws/install/controller_publisher/lib:/opt/ros/foxy/lib"
 Environment="PYTHONPATH=/home/controller/Submarine_Capstone/ros2_ws/install/controller_gui/lib/python3.8/site-packages:/home/controller/Submarine_Capstone/ros2_ws/install/controller_publisher/lib/python3.8/site-packages:/opt/ros/foxy/lib/python3.8/site-packages"
 Environment="AMENT_PREFIX_PATH=/home/controller/Submarine_Capstone/ros2_ws/install/setup.bash:/opt/ros/foxy"
