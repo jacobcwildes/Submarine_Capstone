@@ -1,5 +1,11 @@
+#As described, this service runs after the netplan is applied so that the 
+#ROS nodes may properly attach to the Pi-to-Pi ethernet connection
+#Written by Jacob Wildes
 [Unit]
 Description=Run ROS2 controller launch after netplan is applied
+
+#Make sure this service runs AFTER the boot service
+
 Requires=run-after-boot-boot.service
 After=run-after-boot-boot.service
 

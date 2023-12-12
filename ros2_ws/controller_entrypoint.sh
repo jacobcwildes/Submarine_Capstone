@@ -1,8 +1,7 @@
 #!/bin/bash
 
-#source /opt/ros/foxy/setup.bash
-
-#colcon build
+#This file is what Docker runs to actually pull the GUI into a user interface
+#since Docker does not have a GUI
 
 source install/setup.bash
 

@@ -1,8 +1,6 @@
 #!/bin/bash
 
-#source /opt/ros/foxy/setup.bash
-
-#colcon build
+#This entrypoint allows the Dockerfile for the sub to launch the submarine properly
 
 source install/setup.bash
 

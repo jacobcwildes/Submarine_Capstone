@@ -1,6 +1,7 @@
 #!/bin/bash
 
 #This is in place to ensure that even if timing is not perfect on boot, the ethernet may still work for the controller
+#Written by Jacob Wildes
 
 #Define IP addresses of both Pis
 ip_address_pi1="192.168.1.69"
