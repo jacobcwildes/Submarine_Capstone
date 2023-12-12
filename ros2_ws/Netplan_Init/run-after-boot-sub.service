@@ -1,8 +1,11 @@
+#This service pulls up the shell file which will sit and wait for the other Pi to connect to the ethernet to send data
+#Written by Jacob Wildes
+
 [Unit]
 Description=Run script after boot
 
 [Service]
-Type=oneshot
+Type=oneshot #Execute immediately and then exit
 
 ExecStart=/home/ubuntu/Submarine_Capstone/ros2_ws/Netplan_Init/netplan_init.sh && /home/ubuntu/Submarine_Capstone/start/sub_start.sh
 

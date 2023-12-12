@@ -5,6 +5,7 @@
 ##our repo, run "docker compose up"
 ##and docker will either pull or construct the image to then run in a virtual
 ##environment of its own
+##Written by Jacob Wildes
 ##BASE IMAGE
 #########################################################################################
 FROM ubuntu:20.04 as capstone-base

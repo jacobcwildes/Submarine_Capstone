@@ -1,9 +1,19 @@
+#As described, this service runs after the netplan is applied so that the 
+#ROS nodes may properly attach to the Pi-to-Pi ethernet connection
+#Written by Jacob Wildes
+
 [Unit]
 Description=Run ROS2 submarine launch after netplan is applied
+
+#Set up proper timing so that this executes AFTER the boot service
+
 Requires=run-after-boot-sub.service
 After=run-after-boot-sub.service
 
 [Service]
+
+#Source proper environment variables before starting the starting shell for the submarine
+
 User=ubuntu
 Environment="LD_LIBRARY_PATH=/home/ubuntu/Submarine_Capstone/ros2_ws/install/submarine_coms/lib:/opt/ros/foxy/lib"
 Environment="PYTHONPATH=/home/ubuntu/Submarine_Capstone/ros2_ws/install/submarine_coms/lib/python3.8/site-packages:/opt/ros/foxy/lib/python3.8/site-packages"
