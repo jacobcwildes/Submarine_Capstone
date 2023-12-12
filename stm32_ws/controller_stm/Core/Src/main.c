@@ -138,14 +138,14 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-	//Start ADC in DMA mode
 	while (1)
 	{
 		//Poll data from GPIO pins and ADC channels 1-4
 		if(HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_12) == GPIO_PIN_SET) subUp = 1;
 		if(HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_5) == GPIO_PIN_SET) subDown = 1;
 		if(HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_7) == GPIO_PIN_SET) screenshot = 1;
-
+		
+		//Start ADC in DMA mode
 		HAL_ADC_Start_DMA(&hadc1, toggleData, 4);
 
 		leftToggleUD = toggleData[0];
@@ -162,10 +162,11 @@ int main(void)
 		localbuff[5] = subDown;
 		localbuff[6] = screenshot;
 
+		//Prep data to be sent off to Raspberry Pi
 		sprintf(buffer, "%u,%u,%u,%u,%u,%u,%u\n\r", leftToggleUD, leftToggleLR,
 						rightToggleUD, rightToggleLR, subUp, subDown, screenshot);
 
-		//Transmit Data
+		//Transmit Data *Note, may want to do an interrupt style sometime? For now this seems to work fine
 		if(HAL_UART_Transmit(&huart2, (uint8_t *)buffer, sizeof(buffer), HAL_MAX_DELAY) == HAL_OK)
 		{
 			//Delay because we don't need to transmit that fast - this is a controller operated by humans
