@@ -1,6 +1,9 @@
 /* USER CODE BEGIN Header */
 /**
   ******************************************************************************
+  * Author          : Dyllon Dunton
+  * Date            : 12/11/2023
+  ******************************************************************************
   * @file           : main.c
   * @brief          : Main program body
   ******************************************************************************
@@ -151,13 +154,13 @@ int main(void)
   	
 	if (rx_received) //New Transmission from RPI
 	{
-		HAL_ADC_Start_DMA(&hadc1, adcs, 3);
-		struct envData inputs = envRead(adcs);
-		struct goalCommand command = parseComs(rx_data);
-		struct actuator_command control = controller(command, inputs);
-		updateActuators(hlpuart1, control);
+		HAL_ADC_Start_DMA(&hadc1, adcs, 3); //Grab ADC values
+		struct envData inputs = envRead(adcs); //Store ADCs and inputs
+		struct goalCommand command = parseComs(rx_data); //Get serial data and store command
+		struct actuator_command control = controller(command, inputs); //use sensor data and command to set controls
+		updateActuators(hlpuart1, control); //Set motors and transmit data back to Raspberry Pi
 		
-		rx_received = 0;
+		rx_received = 0; //get ready for next transmission
 	}
 		
 

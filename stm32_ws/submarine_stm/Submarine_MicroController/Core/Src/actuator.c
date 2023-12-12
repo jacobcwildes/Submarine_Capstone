@@ -3,6 +3,14 @@
 #define ARR_Prop 11999
 #define ARR_Servo 2399999
 
+/*
+Dyllon Dunton
+12/12/2023
+
+This file takes in the data from the controller and applies it to actual pins
+on the STM board to drive the motors through the driver circuit
+*/
+
 void MTR_DRV_INIT(void)
 {
 	//Current Set
@@ -46,12 +54,13 @@ void MTR_DRV_INIT(void)
 	TIM5->CCR2 = 0.5 * ARR_Servo;
 	TIM5->CCR3 = 0.5 * ARR_Servo;
 
+	//Left
 	HAL_GPIO_WritePin(GPIOA, GPIO_PIN_4, GPIO_PIN_SET);
 	HAL_GPIO_WritePin(GPIOA, GPIO_PIN_3, GPIO_PIN_RESET);
 	HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_SET);
 	HAL_GPIO_WritePin(GPIOA, GPIO_PIN_6, GPIO_PIN_RESET);
 
-		//Right
+	//Right
 	HAL_GPIO_WritePin(GPIOC, GPIO_PIN_4, GPIO_PIN_SET);
 	HAL_GPIO_WritePin(GPIOA, GPIO_PIN_7, GPIO_PIN_RESET);
 	HAL_GPIO_WritePin(GPIOC, GPIO_PIN_5, GPIO_PIN_SET);
@@ -60,6 +69,7 @@ void MTR_DRV_INIT(void)
 	
   
 }
+
 
 void updateActuators(UART_HandleTypeDef uart_com, struct actuator_command actuate)
 {
@@ -98,16 +108,7 @@ void updateProps(struct actuator_command actuate)
 }
 
 void updateServos(struct actuator_command actuate)
-{
-  //HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_14); //toggle LED for dev 
-  //Convert coms thrust vals in percentages for f,b,l,r
-  
-  //Setup for 1ms <-> 2ms
-  //camVerticalDuty = (0.000196 * (float)camUpDown) + 0.05;
-  //camHorizontalDuty = (0.000196 * (float)camLeftRight) + 0.05;
-  
-  
-  
+{  
   //Set Duty Cycles
   TIM5->CCR2 = actuate.camVerticalDuty*ARR_Servo;
   TIM5->CCR3 = actuate.camHorizontalDuty*ARR_Servo;

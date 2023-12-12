@@ -1,5 +1,14 @@
 #include "perception.h"
+/*
+Dyllon Dunton
+12/11/2023
 
+This file serves as the method of perceiving the world around it by aquiring sensor data.
+*/
+
+
+
+//Gather sensor data
 struct envData envRead(uint32_t *adc_in)
 {
 	struct envData environment;
@@ -10,6 +19,7 @@ struct envData envRead(uint32_t *adc_in)
 	return environment;
 }
 
+//Get adc Data
 struct adcData adcRead(uint32_t *adc_in)
 {
 	struct adcData adcInfo;
@@ -22,6 +32,7 @@ struct adcData adcRead(uint32_t *adc_in)
 	
 }
 
+//Get inputs
 struct inputData inputRead()
 {
 	struct inputData inputInfo;

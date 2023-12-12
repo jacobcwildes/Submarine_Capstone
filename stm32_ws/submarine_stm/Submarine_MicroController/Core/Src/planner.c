@@ -1,8 +1,14 @@
 #include "planner.h"
+/*
+Dyllon Dunton
+12/11/2023
+
+This file parses the command from the controller to be used later.
+*/
 
 struct goalCommand *current_Command;
 
-
+//Convert a binary string into a decimal value
 uint8_t binaryToDecimal(int start_index, int bitCount, uint8_t *data)
 {
 	//MSB is on the left so we start high and go low on the exp
@@ -17,7 +23,7 @@ uint8_t binaryToDecimal(int start_index, int bitCount, uint8_t *data)
 	return result;
 }
 
-
+//Parse the command into a struct to be used later
 struct goalCommand parseComs(uint8_t *data)
 {
 	struct goalCommand com = *current_Command;
