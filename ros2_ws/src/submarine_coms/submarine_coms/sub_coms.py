@@ -104,12 +104,13 @@ class StmSend():
 				roll_binary = bin(self.roll).split('b')[1]
 
 				#string it all together to send
-				bitfield = f"""{str(self.depth_up)}{str(self.depth_down)}
-				{str(forward_binary).zfill(8)}
-				{str(turn_binary).zfill(8)}
-				{str(cam_up_down_binary).zfill(8)}
-				{str(cam_left_right_binary).zfill(8)}
-				{str(roll_binary).zfill(8)}"""
+				bitfield = str(self.depth_up)
+				bitfield += str(self.depth_down)
+				bitfield += str(forward_binary).zfill(8)
+				bitfield += str(turn_binary).zfill(8)
+				bitfield += str(cam_up_down_binary).zfill(8)
+				bitfield += str(cam_left_right_binary).zfill(8)
+				bitfield += str(roll_binary).zfill(8)
 
 				#Send the information over serial to the STM board
 				self.serial_obj.write(bitfield.encode()) #42 bits
@@ -129,10 +130,10 @@ class StmSend():
 				con.ballast_right = int(received_split[1])
 				con.ballast_left = int(received_split[2])
 				battery_voltage = (int(received_split[0])/10.0)
-				for i in range(1,len(con.batteryVoltages)-1):
-					con.batteryVoltages[i] = con.batteryVoltages[i+1]
-				con.batteryVoltages[-1] = battery_voltage
-				con.battery_voltage = float(sum(con.batteryVoltages)/len(con.batteryVoltages))
+				for i in range(1,len(con.battery_voltages)-1):
+					con.battery_voltages[i] = con.battery_voltages[i+1]
+				con.battery_voltages[-1] = battery_voltage
+				con.battery_voltage = float(sum(con.battery_voltages)/len(con.battery_voltages))
 				errors = []
 				if not (int(received_split[3])):
 					errors.append("Left Fault | ")
@@ -249,17 +250,17 @@ class Submarine(Node):
 		sends the command to the stm board, receives sensor data, then sends the data 
 		back up to the controller
 		'''
-		self.toStm.depth_up = command.sub_up
-		self.toStm.depth_down = command.sub_down
-		self.toStm.forward_thrust = command.left_toggle_ud
-		self.toStm.turn_thrust = command.left_toggle_lr
-		self.toStm.cam_up_down = command.right_toggle_ud
-		self.toStm.cam_left_right = command.right_toggle_lr
+		self.to_stm.depth_up = command.sub_up
+		self.to_stm.depth_down = command.sub_down
+		self.to_stm.forward_thrust = command.left_toggle_ud
+		self.to_stm.turn_thrust = command.left_toggle_lr
+		self.to_stm.cam_up_down = command.right_toggle_ud
+		self.to_stm.cam_left_right = command.right_toggle_lr
 
 		self.motion.measure(self.to_controller, self.to_stm)
-		self.toStm.handshake(self.to_controller)
+		self.to_stm.handshake(self.to_controller)
 
-		data_msg = self.toController.package_data()
+		data_msg = self.to_controller.package_data()
 		self.data_pub.publish(data_msg)
 
 

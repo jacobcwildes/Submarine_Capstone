@@ -43,7 +43,7 @@ void propellor_control(struct actuator_command *act)
 	float backThrust;
 	
 	//Convert coms thrust vals in percentages for f,b,l,r
-  if (act->com.turnThrust < 128) /
+  if (act->com.turnThrust < 128) 
   {
   	leftThrust = ((float)(-act->com.turnThrust + 128))/256.0; // 0% <. 50% 
   	rightThrust = 0;
