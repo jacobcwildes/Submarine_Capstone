@@ -37,7 +37,7 @@ RUN apt update && apt install -y \
 
 #Install ROS2 Foxy desktop environment (instructions pulled from rocs.ros.org)
 RUN locale
-RUN apt update && apt install locales
+RUN apt update && apt install locales -y
 RUN locale-gen en_US.UTF-8
 RUN update-locale LC_ALL=en_US.UTF-8 LANG=en_US.UTF-8
 ENV LANG=en_US.UTF-8
@@ -46,7 +46,7 @@ RUN add-apt-repository universe
 RUN curl -sSL https://raw.githubusercontent.com/ros/rosdistro/master/ros.key -o /usr/share/keyrings/ros-archive-keyring.gpg
 RUN echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/ros-archive-keyring.gpg] http://packages.ros.org/ros2/ubuntu $(. /etc/os-release && echo $UBUNTU_CODENAME) main" | tee /etc/apt/sources.list.d/ros2.list > /dev/null
 
-RUN apt update && apt upgrade
+RUN apt update && apt upgrade -y
 
 RUN apt install -y ros-foxy-desktop python3-argcomplete
 
