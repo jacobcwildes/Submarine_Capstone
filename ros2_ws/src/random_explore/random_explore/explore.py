@@ -16,8 +16,8 @@ class random_explore(Node):
         #Don't want to have tons of random numbers all the time, this lets me 
         #control how often random generation occurs
         self.i = 0
-        self.forward = 128
-        self.left_right = 128
+        self.forward = 0
+        self.left_right = 0
         self.up = 0
         self.down = 0
         self.tiebreaker = None
@@ -34,19 +34,21 @@ class random_explore(Node):
         sub_up = ascend
         sub_down = descend
         '''
-        if self.i%15 == 0:
+        if self.i%1 == 0:
             #128 is the "0" of the controller. Anything less is a reverse
             #For now I want to only go forward. I want to have a maximum of 255,
             #and be able to reach any integer between those numbers
-            self.forward = random.randrange(128, 255, 28)
+            #self.forward = random.randrange(128, 255, 28)
+            self.forward = random.randint(0, 1)
 
-        if self.i%7 == 0:
+        if self.i%1 == 0:
              #128 is the "0" of the controller. Anything less is a reverse
             #For now I want to only go forward. I want to have a maximum of 255,
             #and be able to reach any integer between those numbers
-            self.left_right = random.randrange(0, 255, 12)
+            #self.left_right = random.randrange(0, 255, 12)
+            self.left_right = random.randint(0, 2)
         
-        if self.i%20 == 0:
+        if self.i%1 == 0:
             #up and down are binaries, so only want to be a zero or 1
             self.up = random.randint(0, 1)
             self.down = random.randint(0, 1)
