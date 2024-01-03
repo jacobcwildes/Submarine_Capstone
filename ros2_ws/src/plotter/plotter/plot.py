@@ -15,6 +15,9 @@ class plotter(Node):
         self.counter = 0
         #Create a NumPy array that contains 1000 indices of length 3 tuples
         self.array = np.zeros((1000, 3), dtype=int)
+        self.once_flag = 0
+        self.convolved_array = np.zeros((1000, 3), dtype=int)
+        self.mover = 0
 
     def path_callback(self, path_sub):
         #print(self.array)
@@ -25,8 +28,16 @@ class plotter(Node):
             print("Filling array: %d", self.counter)
             self.array[self.counter] = [path_sub.left_toggle_ud, path_sub.left_toggle_lr, path_sub.sub_up]
             self.counter += 1
+        if self.once_flag == 1:
+            #print(self.array)
+            for r in range(1000):
+                if r == 0:
+                    self.convolved_array[r] = self.array[r]
+                self.convolved_array[r] = self.array[r] + self.array[r - 1]   
+            print(self.convolved_array)
+            
         else:
-            print(self.array)
+            self.once_flag = 1
         
 
 
