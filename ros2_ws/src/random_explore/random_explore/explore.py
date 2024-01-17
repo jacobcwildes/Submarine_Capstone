@@ -34,7 +34,7 @@ class random_explore(Node):
         '''
         if self.i%1 == 0:
             #0 is stop, 1 is go forward
-            self.forward = random.randint(0, 1)
+            self.forward = random.randint(-10, 10)
 
         if self.i%1 == 0:
              #-1 turns left, 0 is forward, 1 turns right
