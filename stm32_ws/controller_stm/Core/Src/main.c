@@ -44,6 +44,8 @@
 
 /* Private variables ---------------------------------------------------------*/
 ADC_HandleTypeDef hadc1;
+//The hadc1 variable is declared here. The MX_ADC1_Init() function takes a void
+//parameter. Within that function hadc1 is configured. (Line 250-280)
 DMA_HandleTypeDef hdma_adc1;
 
 UART_HandleTypeDef huart2;
