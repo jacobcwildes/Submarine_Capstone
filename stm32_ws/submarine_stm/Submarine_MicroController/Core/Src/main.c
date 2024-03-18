@@ -89,8 +89,8 @@ static void MX_TIM5_Init(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-uint8_t rx_received = 0;
-uint8_t rx_data[42];
+volatile uint8_t rx_received = 0;
+volatile uint8_t rx_data[42];
 char tx_buffer[100];
 uint32_t adcs[3];
 
@@ -137,7 +137,7 @@ int main(void)
   MX_TIM5_Init();
   /* USER CODE BEGIN 2 */
 	MTR_DRV_INIT();
-	HAL_UART_Receive_IT(&hlpuart1, rx_data, 42); //Init recieve global interupt for 35 bit buffer
+	HAL_UART_Receive_IT(&hlpuart1, (uint8_t *)rx_data, 42); //Init recieve global interupt for 35 bit buffer
 	HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_2);
 	HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_3);
 	HAL_TIM_PWM_Start(&htim4, TIM_CHANNEL_3);
@@ -796,12 +796,12 @@ static void MX_GPIO_Init(void)
 /* USER CODE BEGIN 4 */
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 {
-	UNUSED(huart); //waring suppresion
+	//UNUSED(huart); //waring suppresion
 	
 	//HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_14); //toggle LED for dev
 	rx_received = 1;//set flag for use in while loop
 	
-	HAL_UART_Receive_IT(&hlpuart1, rx_data, 42); //reset UART interupt for next transmission
+	HAL_UART_Receive_IT(&hlpuart1, (uint8_t *)rx_data, 42); //reset UART interupt for next transmission
 }
 
 
