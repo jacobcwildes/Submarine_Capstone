@@ -1,0 +1,13 @@
+names:
+- Fish
+- Perch
+nc: 2
+roboflow:
+  license: CC BY 4.0
+  project: fish_species-3xdxg
+  url: https://universe.roboflow.com/recycling-9d51j/fish_species-3xdxg/dataset/1
+  version: 1
+  workspace: recycling-9d51j
+test: fish_species-1/test/images
+train: fish_species-1/train/images
+val: fish_species-1/valid/images
