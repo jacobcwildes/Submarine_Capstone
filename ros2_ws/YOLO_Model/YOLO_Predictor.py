@@ -6,20 +6,23 @@ import cv2 as cv
 CONFIDENCE_THRESHOLD = 0.4
 GREEN = (0, 255, 0)
 
+classNames = ["Fish", "Perch"]
+
 #Load the YOLO model
 model = YOLO("runs/segment/yolov8_fish7/weights/best.pt")
 
 #Initiate the video capture object
-video_cap = cv.VideoCapture(0)
-#video_cap = cv.VideoCapture("/home/jacob/Videos/Webcam/2024-03-21-192206.webm")
+#video_cap = cv.VideoCapture(0)
+video_cap = cv.VideoCapture("/home/jacob/Downloads/2024-03-21-192206.mp4")
 
-#if not video_cap.isOpened():
-#    print("Cannot open camera!")
-#    exit()
+if not video_cap.isOpened():
+    print("Cannot open camera!")
+    exit()
     
 while True:
 
     print("Looping")
+    
     #Start time to compute FPS
     start = datetime.datetime.now()    
     
@@ -29,11 +32,11 @@ while True:
     #If the frame was read properly, ret is true
     if not ret:
         print("Frame not received. Did the video end?")
-    break
+        break
     
     #Turn the image from CV BGR to standard RGB
     #frame = cv.cvtColor(frame, cv.COLOR_BGR2RGB)
-    detections = model(frame)[0]
+    detections = model(frame, stream=True, vid_stride=15, device="cpu")[0]
     
     #Loop over any detections
     for data in detections.boxes.data.tolist():
@@ -59,9 +62,10 @@ while True:
     #Display the resultant frame
     cv.imshow('Video', frame)
     
+    cv.waitKey(0)
     #Halt video stream
-    if cv.waitKey(1) & 0xFF == ord('q'):
-        break
+   # if cv.waitKey(1) & 0xFF == ord('q'):
+   #     break
     
 #Free up resources
 video_cap.release()
